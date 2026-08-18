@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store
+
+# Storybook
+storybook-static/
+
+# Never commit a resolved registry token — .npmrc reads it from the env.
+.npmrc.local
+.env
+.env.local

@@ -1,0 +1,407 @@
+/* ===========================================================================
+   @cyonix/theme — canonical design tokens for VAPT, Tenant and SOC
+
+   SOURCE OF AUTHORITY
+   -------------------
+   Values here are transcribed from the brand documents, not from any app:
+     · Branding Guidelines V2.0.pdf            corporate brand (palette, type)
+     · cyonix-vapt/brand-guidelines 2.html     console design system of record
+     · cyonix-component-standard.html          canonical token contract (CX-TOK)
+
+   No app is the reference. All three consoles conform to this file.
+
+   THREE LAYERS
+   ------------
+     1. RAMP    named brand values. Never referenced by a component.
+     2. ROLE    the canonical contract from CX-TOK (--bg, --surface, --rule,
+                --accent, --sev-*, --r-*, --e-*, --ease). Swapped per theme.
+     3. THEME   `@theme inline` maps roles onto Tailwind's utility namespaces.
+
+   Layer 3 must be `inline`. Without it Tailwind bakes the resolved value into
+   each utility, and the light-mode override on the ROLE variable stops having
+   any effect — the theme toggle silently dies. This is the one mechanism choice
+   in the file that cannot be changed casually.
+
+   HOST APP CONTRACT
+   -----------------
+   Font tokens reference variables the consuming app defines via next/font:
+   --font-space-grotesk, --font-inter, --font-jetbrains-mono. An app that does
+   not define them falls back to system-ui.
+   =========================================================================== */
+
+@custom-variant light (&:where(.light, .light *, [data-theme="light"], [data-theme="light"] *));
+
+/* ===========================================================================
+   LAYER 1 — RAMP
+   =========================================================================== */
+:root {
+  /* --- Neutrals. Six steps, cool-tinted. Onyx Grey is the canvas; every
+         surface above it steps UP the ramp rather than adding a shadow.
+         Beyond these six, the only permitted variations are white and black at
+         reduced alpha — never a new grey hex. --- */
+  --onyx: #060608;
+  --dark-grey: #15161c;
+  --dark-grey-2: #25282f;
+  --mid-grey: #73758a;
+  --light-grey: #abadbd;
+  --white: #ffffff;
+
+  /* --- Brand. One hue, two ramp steps. Orange 350 is tuned for light mode;
+         Orange 400 is a half-step deeper so it holds its weight against Onyx
+         without glowing. Picked by background, never by taste.
+         Orange should cover well under a tenth of any screen. --- */
+  --orange-350: #fe6409; /* Sunset Orange — light mode accent */
+  --orange-400: #eb5d09; /* dark mode accent */
+
+  /* --- Spark gradient. LOGO ARTWORK ONLY. Per the design system of record it
+         must not be re-used as a UI fill, a button background, or a chart
+         colour. Declared here so the one legitimate use has a token and
+         nothing else invents its own. --- */
+  --spark: linear-gradient(135deg, #ffa505, #fe1f0b);
+
+  /* --- Semantic. The notification language: toasts, banners, inline
+         validation, connector and job status. One hue per outcome.
+         Brand orange is NEVER a status. --- */
+  --ok: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #a855f7;
+
+  /* --- Severity. The dashboard and chart language for anything RANKED.
+         Maps onto the semantic set and adds exactly two hues it lacks:
+         a deeper critical, so "critical" never reads as merely "high", and a
+         blue low. Info stays on the foundation ramp. --- */
+  --sev-crit: #b91c1c;
+  --sev-high: #ef4444;
+  --sev-med: #f59e0b;
+  --sev-low: #3b82f6;
+  --sev-info: #abadbd;
+
+  /* --- Categorical. UNRANKED series only. Series 1 is Orange 400; none of
+         these is a status hue, and none may be used to encode rank. --- */
+  --cat-1: #eb5d09;
+  --cat-2: #2dd4bf; /* Teal */
+  --cat-3: #818cf8; /* Indigo */
+  --cat-4: #f472b6; /* Pink */
+  --cat-5: #a3e635; /* Lime */
+  --cat-6: #94a3b8; /* Slate — also the "Other" bucket */
+
+  /* --- Sequential. Single-hue magnitude ramp, dark to light. --- */
+  --seq-1: #3f1c08;
+  --seq-2: #622908;
+  --seq-3: #843609;
+  --seq-4: #b24709;
+  --seq-5: #eb5d09;
+  --seq-6: #f08647;
+  --seq-7: #f5ae84;
+  --seq-8: #f9d2ba;
+}
+
+/* ===========================================================================
+   LAYER 2 — ROLE  (the CX-TOK contract; dark is the default master)
+   =========================================================================== */
+:root {
+  --bg: var(--onyx); /* ground; the rail shares it */
+  --surface: var(--dark-grey); /* cards, tables, overlays */
+  --rule: var(--dark-grey-2); /* every divider — hairline, never space alone */
+  --accent: var(--orange-400); /* current location + primary action ONLY */
+  --accent-fg: var(--white);
+
+  --fg: var(--white);
+  --fg-2: var(--light-grey); /* secondary text on Onyx and Dark Grey */
+  --fg-muted: var(--mid-grey); /* disabled */
+
+  /* Alpha derivations — white on dark, black on light. */
+  --wash-1: rgb(255 255 255 / 0.04);
+  --wash-2: rgb(255 255 255 / 0.06);
+  --wash-3: rgb(255 255 255 / 0.1);
+  --wash-hover: rgb(255 255 255 / 0.055);
+  --wash-accent: rgb(235 93 9 / 0.22); /* outline-button hover wash */
+
+  /* Radii. Inputs and cards take these on all four corners; the chamfer is
+     buttons-only and lives in the component layer below. */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+
+  /* Elevation. On a near-black canvas elevation comes from surface colour
+     first and shadow second. Menu e-2, drawer e-3, modal e-4. Cards at rest
+     take NO shadow — elevation is for overlays. */
+  --e-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --e-2: 0 4px 12px rgb(0 0 0 / 0.45);
+  --e-3: 0 12px 32px rgb(0 0 0 / 0.5);
+  --e-4: 0 24px 64px rgb(0 0 0 / 0.55);
+
+  /* Motion. One curve. All motion respects prefers-reduced-motion. */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration-instant: 120ms; /* hover, focus, small state flips */
+  --duration-standard: 240ms; /* dropdowns, tooltips, inline expansion */
+  --duration-emphasis: 400ms; /* modals, drawers, chart draw-in */
+  --duration-page: 700ms; /* route and full-panel transitions only */
+
+  /* Type. Space Grotesk sets headings and button labels and tops out at 700 —
+     never a synthetic bold above it. Inter carries the interface. JetBrains
+     Mono is reserved for hexes, hashes, IDs, counters and log output. */
+  --display: var(--font-space-grotesk), system-ui, sans-serif;
+  --ui: var(--font-inter), system-ui, sans-serif;
+  --mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Light mode. Same geometry, lighter surfaces, Orange 350. Ground and surface
+   genuinely differ here so cards still read against the page. Only ROLE
+   tokens change — the ramp never does.
+
+   Scoped to the ELEMENT, not to :root, so the class works on <html> or on any
+   wrapping div. Custom properties inherit, so the subtree picks up the swap
+   either way. Scoping this to `:root` would silently do nothing whenever an app
+   (or a Storybook decorator) puts the class on a wrapper instead of <html>. */
+.light,
+[data-theme="light"] {
+  --bg: #eeeef4;
+  --surface: var(--white);
+  --rule: #dedfe9;
+  --accent: var(--orange-350);
+
+  --fg: #1c1e25;
+  --fg-2: #5e6175;
+  --fg-muted: var(--mid-grey); /* Mid Grey on light surfaces */
+
+  --wash-1: rgb(0 0 0 / 0.03);
+  --wash-2: rgb(0 0 0 / 0.05);
+  --wash-3: rgb(0 0 0 / 0.08);
+  --wash-hover: rgb(0 0 0 / 0.04);
+  --wash-accent: rgb(254 100 9 / 0.22);
+}
+
+/* ===========================================================================
+   LAYER 3 — THEME  (must stay `inline`; see header)
+   =========================================================================== */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-fg-muted: var(--fg-muted);
+
+  --color-wash-1: var(--wash-1);
+  --color-wash-2: var(--wash-2);
+  --color-wash-3: var(--wash-3);
+  --color-wash-hover: var(--wash-hover);
+  --color-wash-accent: var(--wash-accent);
+
+  --color-ok: var(--ok);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
+  --color-sev-crit: var(--sev-crit);
+  --color-sev-high: var(--sev-high);
+  --color-sev-med: var(--sev-med);
+  --color-sev-low: var(--sev-low);
+  --color-sev-info: var(--sev-info);
+
+  --color-cat-1: var(--cat-1);
+  --color-cat-2: var(--cat-2);
+  --color-cat-3: var(--cat-3);
+  --color-cat-4: var(--cat-4);
+  --color-cat-5: var(--cat-5);
+  --color-cat-6: var(--cat-6);
+
+  --color-seq-1: var(--seq-1);
+  --color-seq-2: var(--seq-2);
+  --color-seq-3: var(--seq-3);
+  --color-seq-4: var(--seq-4);
+  --color-seq-5: var(--seq-5);
+  --color-seq-6: var(--seq-6);
+  --color-seq-7: var(--seq-7);
+  --color-seq-8: var(--seq-8);
+
+  /* Ramp exposed for the rare legitimate case (Solid button takes Dark Grey 2
+     directly). Components should reach for a ROLE token first. */
+  --color-onyx: var(--onyx);
+  --color-dark-grey: var(--dark-grey);
+  --color-dark-grey-2: var(--dark-grey-2);
+  --color-mid-grey: var(--mid-grey);
+  --color-light-grey: var(--light-grey);
+
+  --font-display: var(--display);
+  --font-ui: var(--ui);
+  --font-mono: var(--mono);
+
+  /* Type scale. Body 15 is the default. */
+  --text-display: 3.75rem; /* 60 */
+  --text-h1: 2.5rem; /* 40 */
+  --text-h2: 1.875rem; /* 30 */
+  --text-h3: 1.375rem; /* 22 */
+  --text-body: 0.9375rem; /* 15 — default */
+  --text-small: 0.84375rem; /* 13.5 — secondary */
+  --text-label: 0.75rem; /* 12 — caps */
+
+  /* 4px base grid, stepping in 8s once past 16. */
+  --spacing: 4px;
+
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+
+  --shadow-e1: var(--e-1);
+  --shadow-e2: var(--e-2);
+  --shadow-e3: var(--e-3);
+  --shadow-e4: var(--e-4);
+
+  --ease-brand: var(--ease);
+
+  /* Rail geometry (CX-NAV/CX-SHL). Minimising recovers 232px, which is what
+     makes a wide table usable on a 1366px laptop. Static, not themed. */
+  --container-rail: 300px;
+  --container-rail-mini: 68px;
+
+  /* Drawer geometry (CX-DRW): 480px default, 640px wide variant. */
+  --container-drawer: 480px;
+  --container-drawer-wide: 640px;
+
+  /* Overlay entrances. Modals and drawers are the emphasis/standard curves —
+     see the keyframes below. The reduced-motion rule in the base layer
+     collapses these, so no motion-safe guard is needed at the call site. */
+  --animate-modal-in: modal-in var(--duration-emphasis) var(--ease);
+  --animate-drawer-in: drawer-in var(--duration-standard) var(--ease);
+  --animate-fade-in: fade-in var(--duration-standard) var(--ease);
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Tailwind promotes --color-*, --font-*, --text-*, --radius-*, --shadow-* and
+   --ease-* into utilities automatically. There is NO --duration-* namespace, so
+   without these the motion tokens would generate nothing and `duration-standard`
+   would be a dead class that fails silently. */
+@utility duration-instant {
+  transition-duration: var(--duration-instant);
+}
+@utility duration-standard {
+  transition-duration: var(--duration-standard);
+}
+@utility duration-emphasis {
+  transition-duration: var(--duration-emphasis);
+}
+@utility duration-page {
+  transition-duration: var(--duration-page);
+}
+
+@layer base {
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--ui);
+    font-size: var(--text-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--display);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* Line icons on a 24x24 grid at 1.8px, round caps and joins. CSS overrides
+     lucide's stroke-width presentation attribute to enforce this globally. */
+  svg[class*="lucide"] {
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* 2px accent focus ring, 3px offset. Never removed. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* -------------------------------------------------------------------------
+     THE CHAMFER — the one shape rule the identity borrows from the monogram.
+     The BOTTOM-RIGHT corner is chamfered, not rounded; every other corner
+     takes radius-sm. It always sits bottom-right: mirroring it, doubling it,
+     or applying it to cards and inputs dilutes the one place the shape means
+     something. BUTTONS ONLY.
+     ------------------------------------------------------------------------- */
+  .cx-chamfer {
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 11px),
+      calc(100% - 11px) 100%,
+      0 100%
+    );
+    border-radius: var(--r-sm) var(--r-sm) 0 var(--r-sm);
+  }
+
+  /* Outlined variants: the "border" is the chamfered fill with a 1px-inset
+     fill on top, so the hairline follows the diagonal instead of being
+     clipped off by it. */
+  .cx-chamfer-hairline::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    z-index: 0;
+    background: var(--cx-btn-bg, var(--bg));
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 10px),
+      calc(100% - 10px) 100%,
+      0 100%
+    );
+    border-radius: 5px 5px 0 5px;
+  }
+
+  /* The spark gradient's one legitimate use: logo artwork. Scoped so it is
+     available where it belongs and nothing else reaches for a gradient. */
+  .cx-logo-spark {
+    background: var(--spark);
+  }
+}

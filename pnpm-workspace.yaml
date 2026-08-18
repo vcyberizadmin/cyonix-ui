@@ -1,0 +1,9 @@
+packages:
+  - "packages/*"
+  - "apps/*"
+
+# esbuild ships a platform binary via a postinstall script; pnpm 10 blocks
+# lifecycle scripts unless the dependency is listed here. Without this, tsup
+# fails at build time with a missing-binary error.
+onlyBuiltDependencies:
+  - esbuild

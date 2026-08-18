@@ -1,0 +1,7 @@
+/* Probe stylesheet used by verify-utilities.mjs.
+   Mirrors exactly what a consuming app's globals.css does, so the check
+   exercises the real integration path rather than a simulation of it. */
+@import "tailwindcss";
+@import "@cyonix/theme";
+
+@source "../dist/**/*.js";

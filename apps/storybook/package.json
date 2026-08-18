@@ -1,0 +1,27 @@
+{
+  "name": "storybook",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "storybook dev -p 6006",
+    "build": "storybook build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cyonix/theme": "workspace:*",
+    "@cyonix/ui": "workspace:*",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@storybook/react-vite": "^9.1.13",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "storybook": "^9.1.13",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.12"
+  }
+}

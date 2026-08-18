@@ -1,0 +1,23 @@
+{
+  "name": "@cyonix/theme",
+  "version": "0.0.0",
+  "description": "Shared Tailwind v4 design tokens for the Cyonix apps",
+  "license": "UNLICENSED",
+  "type": "module",
+  "exports": {
+    ".": "./theme.css",
+    "./theme.css": "./theme.css"
+  },
+  "files": [
+    "theme.css"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "scripts": {
+    "build": "echo \"@cyonix/theme is published as-is (no build step)\" && exit 0"
+  }
+}

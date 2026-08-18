@@ -1,0 +1,62 @@
+# Publishes @cyonix/theme and @cyonix/ui on merge to main.
+#
+# ⚠️  BEFORE THIS WORKS: the npm scope must match the registry.
+#
+# GitHub Packages requires a package's scope to equal the GitHub account that
+# owns the repo. This repo is owned by `vcyberizadmin`, so GitHub Packages will
+# only accept `@vcyberizadmin/*` — it will reject `@cyonix/*` with a 403.
+#
+# Three ways out, pick one and update the package names to match:
+#   1. Create a GitHub org literally named `cyonix` and move the repo there.
+#      Keeps the `@cyonix/*` names cyonix-tenants already uses.
+#   2. Rename the packages to `@vcyberizadmin/theme` / `@vcyberizadmin/ui`.
+#      Works today, no admin needed, but the names read poorly.
+#   3. Use a private npm org named `cyonix` instead of GitHub Packages.
+#      Keeps `@cyonix/*` and is the least friction for consumers; paid.
+#
+# The registry-url below assumes option 1 or 2.
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm test
+
+      # Opens (or updates) a "Version Packages" PR when changesets are pending.
+      # Merging that PR bumps versions, writes changelogs, and publishes.
+      - uses: changesets/action@v1
+        with:
+          version: pnpm version-packages
+          publish: pnpm release
+          commit: "chore: version packages"
+          title: "chore: version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
