@@ -149,6 +149,24 @@ pnpm dev        # tsup --watch + Storybook on http://localhost:6006, together
 pnpm test       # build + typecheck + verify utilities
 ```
 
+### Restart the dev server after adding a NEW component file
+
+Tailwind's `@source` glob is scanned at startup. A file that appears in `dist/`
+*after* the dev server is running does not get scanned, so utilities used only by
+that new file are silently absent from the served CSS — the component renders,
+but those specific classes do nothing.
+
+This is easy to misread as a component bug. It cost real time once: `Note` used
+`border-info/30`, only that new file used it, and the border fell back to
+`currentColor` (white). `border-info/25` looked fine because an older file
+already used it. Restarting the server fixed it; nothing was wrong with the
+component.
+
+`pnpm test` is the trustworthy signal here — `verify-utilities` runs a fresh
+Tailwind CLI over the current `dist/`, so it is never stale. If a class looks
+dead in Storybook but `pnpm test` passes, restart the server before debugging
+the component.
+
 Use `pnpm dev` from the **root**, not `pnpm dev` inside `apps/storybook`.
 Storybook resolves `@vcyberizadmin/ui` through its `exports` map to `dist/`, so editing
 a component with only Storybook running shows nothing — you are looking at the
