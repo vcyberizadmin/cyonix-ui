@@ -82,6 +82,51 @@ import { Button, Card } from "@vcyberizadmin/ui";
 Miss the `@source` line and the components render completely unstyled, with no
 error. It is the most common way to get this wrong.
 
+### The chrome must sit behind a client boundary
+
+`AppShell`, `NavRail` and `TopBar` take handler props (`scope.onChange`,
+`notifications.onOpen`, …). Functions are not serialisable across the RSC
+boundary, so a **Server Component cannot construct that JSX** — the build fails
+at prerender with *"Event handlers cannot be passed to Client Component props"*.
+
+Give the chrome its own `"use client"` wrapper and render page content as
+children. Content stays on the server; only the chrome is a client island:
+
+```tsx
+// app/chrome.tsx
+"use client";
+import { AppShell, NavRail, TopBar } from "@vcyberizadmin/ui/layout";
+
+export function AppChrome({ children }: { children: React.ReactNode }) {
+  const [scope, setScope] = useState("all");
+  return (
+    <AppShell
+      rail={<NavRail groups={GROUPS} activeHref={usePathname()} linkComponent={Link} />}
+      topBar={<TopBar scope={{ current: scope, options: TENANTS, onChange: setScope }} />}
+    >
+      {children}
+    </AppShell>
+  );
+}
+```
+
+```tsx
+// app/page.tsx — stays a Server Component
+export default function Page() {
+  return (
+    <AppChrome>
+      <Card title="Findings">…</Card>   {/* rendered on the server */}
+    </AppChrome>
+  );
+}
+```
+
+### No `transpilePackages` needed
+
+The library ships built ESM, so consumers need no `transpilePackages` entry in
+`next.config`. Verified against Next 16.3 with an empty config — if an app ever
+needs transpiling to make this work, the packaging has regressed.
+
 ### The app must supply the fonts
 
 Font tokens reference variables the **consuming app** defines via `next/font`:
