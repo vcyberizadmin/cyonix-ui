@@ -102,7 +102,15 @@ export function ChipStack({ items, max = 3, className }: ChipStackProps) {
   const rest = items.slice(max);
 
   return (
-    <span className={cn("inline-flex flex-wrap items-center gap-1.5", className)}>
+    // NOWRAP, deliberately. In a table cell a wrapping chip stack grows the row,
+    // and the standard is explicit that "chip stacks need a +n overflow rather
+    // than growth". Set `max` to suit the column width.
+    <span
+      className={cn(
+        "inline-flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden",
+        className,
+      )}
+    >
       {shown.map((item, index) => (
         <Tag key={index} dot={item.dot} onClick={item.onClick}>
           {item.label}

@@ -10,3 +10,12 @@
    a CSS comment. It contains the star-slash comment terminator, so the comment
    ends early and the remaining text breaks the parse. */
 @source "../../../packages/ui/dist/**/*.js";
+
+/* The host-app contract, fulfilled the way a Next app fulfils it with next/font:
+   theme.css names no families, it reads these three variables. The families are
+   loaded in preview-head.html. */
+:root {
+  --font-space-grotesk: "Space Grotesk";
+  --font-inter: "Inter";
+  --font-jetbrains-mono: "JetBrains Mono";
+}

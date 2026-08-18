@@ -71,11 +71,23 @@ const NOT_CLASSES = new Set([
   "use server",
   "en-US",
   "main-content",
+  // Prop-value vocabularies compared at runtime (`polarity === "up-good"`).
+  // Dashed, so they look like utilities. Both CX-TIL polarities are listed even
+  // though only one currently survives into the output, so adding the other
+  // comparison later does not resurrect this false positive.
+  "up-good",
+  "up-bad",
+  // A CSS property name, used as a tailwind-merge classGroups key in lib/cn.ts.
+  "font-size",
 ]);
 
 /** SVG path data ("M21 12a9 9 0 0 0-9-9") tokenizes into things that look like
  *  dashed utilities. Detect and skip the whole literal. */
 const SVG_PATH_DATA = /^[MmLlHhVvCcSsQqTtAaZz][\d\s.,+-]/;
+
+/** URLs and data URIs shatter into fragments that look like dashed utilities
+ *  ("data:image/svg+xml,%3Csvg", "stroke-width='2'"). Skip the whole literal. */
+const URL_OR_DATA_URI = /^(data:|url\(|https?:)|:\/\//;
 
 /** Attribute names that reach the output as string keys, not classes. */
 const ATTR_PREFIX = /^(aria|data)-/;
@@ -161,7 +173,8 @@ for (const file of walk(distDir)) {
     /(["'])((?:\\.|(?!\1)[^\\\n])*)\1/g,
   )) {
     if (NOT_CLASSES.has(literal) || specifiers.has(literal)) continue;
-    if (SVG_PATH_DATA.test(literal) || isProse(literal)) continue;
+    if (SVG_PATH_DATA.test(literal) || URL_OR_DATA_URI.test(literal)) continue;
+    if (isProse(literal)) continue;
     for (const token of literal.split(/\s+/)) {
       if (!token) continue;
       const interesting = /[-:/[]/.test(token) || BARE_UTILITIES.has(token);

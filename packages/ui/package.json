@@ -38,7 +38,8 @@
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "verify": "node scripts/verify-utilities.mjs",
-    "test": "pnpm build && pnpm typecheck && pnpm verify"
+    "test": "pnpm build && pnpm typecheck && pnpm verify && pnpm verify:merge",
+    "verify:merge": "node scripts/verify-merge.mjs"
   },
   "peerDependencies": {
     "react": ">=18",

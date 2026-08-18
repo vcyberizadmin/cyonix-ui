@@ -137,7 +137,18 @@ Font tokens reference variables the **consuming app** defines via `next/font`:
 | `--ui`      | Inter         | `--font-inter`            |
 | `--mono`    | JetBrains Mono| `--font-jetbrains-mono`   |
 
-An app that does not define these silently falls back to `system-ui`.
+An app that does not define these does **not** fall back gracefully: a custom
+property whose value contains an unresolvable `var()` becomes invalid at
+computed-value time, so `font-family` falls back to whatever is inherited. There
+is no error and no warning — the type is simply the wrong face.
+
+That is exactly what Storybook was doing until it was caught by measuring the
+rendered `font-family`: every story had been reviewed in the system font rather
+than Space Grotesk and Inter. `.storybook/preview-head.html` now loads the three
+families and `preview.css` maps the three variables, which reproduces what
+`next/font` does in a consumer — so Storybook demonstrates the contract instead
+of quietly violating it.
+
 Space Grotesk tops out at 700 — never a synthetic bold above it.
 
 ## Local development
@@ -173,7 +184,7 @@ a component with only Storybook running shows nothing — you are looking at the
 last build. The root script runs tsup in watch mode alongside it. (Theme edits
 do appear immediately: `theme.css` is consumed directly, with no build step.)
 
-### Two guards worth knowing about
+### Three guards worth knowing about
 
 **`preserve-directives`** — asserts a `"use client"` at the top of a source file
 survives into `dist/`. A stripped directive makes every interactive component
@@ -193,6 +204,24 @@ automatically, but there is **no `--duration-*` namespace** — so
 `duration-instant` was a dead class until the tokens were declared with
 `@utility`. Note that `cyonix-tenants` defines the same duration tokens without
 those declarations, so its `duration-*` classes are likely inert today.
+
+**`verify-merge`** — asserts `cn()` knows this theme's custom `--text-*` and
+`--shadow-*` scales. `tailwind-merge` decides what conflicts from a map of
+Tailwind's *default* scales, so it has never seen `text-h2` and guesses
+"colour", because `text-<anything>` is a valid colour utility. `text-h2` and
+`text-danger` then land in the same conflict group and the later wins:
+
+```
+cn("font-display text-h2 font-bold", "text-danger")
+  →  "font-display font-bold text-danger"     // 30px silently became 15px
+```
+
+Every surviving class resolves, so `verify-utilities` stays green; the only
+symptom is the wrong rendered size. This shipped in `0.1.0` in two places — a
+`StatTile` whose value carried a tone, and every `ImpactBox` row in the confirm
+dialog. `lib/cn.ts` now declares the scales, so genuine conflicts still merge
+(`cn("text-h2", "text-h3")` correctly yields `text-h3`). **Any new `--text-*` or
+`--shadow-*` token must be added there**, or it inherits the same silent bug.
 
 ## Publishing
 
@@ -223,16 +252,26 @@ mean renaming both packages and every import.
 
 ## Status
 
-Rollout step 1 of 9 (the token contract) plus two of the step-3 primitives.
+Rollout steps 1–8 of 9, less the four components listed as remaining below.
+**21 of 26 components; 47 named exports.**
 
 Built:
 
 | Export | Components |
 | ------ | ---------- |
-| `@vcyberizadmin/ui` | `Button` (CX-BTN) · `Card` (CX-CRD) · `StatusPill` + `SeverityBadge` (CX-STA) · `cn` |
-| `@vcyberizadmin/ui/lib/status` | vocabulary · `severityRank()` · `bySeverity()` · `extendVocabulary()` · chart ramps |
-| `@vcyberizadmin/ui/layout` | `AppShell` (CX-SHL) · `NavRail` (CX-NAV) · `TopBar` (CX-TOP) |
-| `@vcyberizadmin/ui/overlays` | `Modal` (CX-MOD) · `Drawer` (CX-DRW) · `ConfirmDialog` + `ImpactBox` (CX-CNF) · `Menu` (CX-MNU) · `useOverlay` |
+| `@vcyberizadmin/ui` | `Button` (CX-BTN) · `Card` (CX-CRD) · `StatusPill` + `SeverityBadge` (CX-STA) · `Tag` + `ChipStack` + `Code` (CX-TAG) · `EmptyState` + `ErrorState` + `Skeleton` (CX-STE) · `Note` + `InsightPanel` (CX-INS) · `DataTable` + `Toolbar` + `FilterChip` + `SegmentedFilter` + `Pagination` + cells (CX-TBL/FLT/PAG) · `Field` + `Input` + `Textarea` + `Select` + `Checkbox` + `Switch` (CX-FLD) · `StatTile` + `TrendTile` + `StatusTile` + `TileGrid` (CX-TIL) · `cn` |
+| `@vcyberizadmin/ui/lib/status` | vocabulary · `severityRank()` · `bySeverity()` · `extendVocabulary()` · chart ramps · `TONE_INK` |
+| `@vcyberizadmin/ui/layout` | `AppShell` (CX-SHL) · `NavRail` (CX-NAV) · `TopBar` (CX-TOP) · `PageHeader` + `Breadcrumb` (CX-HDR) · `CommandPalette` (CX-CMD) |
+| `@vcyberizadmin/ui/overlays` | `Modal` (CX-MOD) · `Drawer` (CX-DRW) · `ConfirmDialog` + `ImpactBox` (CX-CNF) · `Menu` (CX-MNU) · `Tooltip` + `Popover` (CX-TIP) · `ToastProvider` + `useToast` (CX-TST) · `useOverlay` |
+
+Remaining: `Tabs` + `Segmented` (CX-TAB) · `DefinitionCard` + `DescriptionList`
+(CX-DEF) · `SettingsShell` (CX-SET) · the `./charts` subpath (CX-CHT), plus
+`IconButton`, `ThemeToggle` and `Logo`.
+
+`TileGrid` is an addition to the standard's export list. The auto-fit 200px
+minimum and the five-tile cap are both rules the standard states and neither
+survives being left to each console — the Tenant list already put seven tiles in
+one row.
 
 ### Overlays share one hook
 
@@ -286,6 +325,17 @@ retires five rival implementations and is the highest value for the least work.
 - **Field label casing.** Tenant uses uppercase with tracking; SOC uses sentence
   case. The standard recommends sentence case for field labels, keeping caps for
   table headers and rail group labels.
+- **Semantic hues fail WCAG AA at small sizes, in both themes.** Measured across
+  all 41 stories by compositing each text node's real background: light mode has
+  207 text nodes below AA and dark mode 222. The cause is one palette serving two
+  grounds — `--warning` (`#f59e0b`) reaches only 1.74:1 against a white card, and
+  `--sev-crit` (`#b91c1c`) only 2.65:1 against its own dark tint. This is
+  pre-existing and systemic, not tied to any one component: it hits `StatusPill`,
+  `SeverityBadge`, `DueChip`, `SeverityCounts`, `Note`, the nav badges and
+  `StatTile` alike. The fix belongs in the token layer, using the mechanism
+  `--accent` already uses — a light-mode ROLE override per semantic and severity
+  hue — which repairs every component at once. It changes the appearance of all
+  three consoles, so it wants a deliberate decision rather than a quiet patch.
 - **Ship source vs build artifact.** The component standard recommends shipping
   source and letting each Next app transpile it. This repo ships built ESM
   instead, which avoids requiring `transpilePackages` in three separate repos.

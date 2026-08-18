@@ -144,6 +144,42 @@ export const TONE_STYLES: Record<StatusTone, { pill: string; dot: string }> = {
   },
 };
 
+/**
+ * Tone → plain ink and fill, for places that need the hue WITHOUT the pill
+ * chrome: a stat tile's value, a status tile's left rail, a trend arrow.
+ *
+ *   text  ink for type and for `currentColor` on an icon
+ *   fill  a solid block — a bar, a dot
+ *   edge  border-left colour, for a rail that must sit FLUSH with the card
+ *         edge. An absolutely-positioned bar cannot: `inset-y-0` resolves
+ *         against the padding box, so a 1px border leaves a hairline of rule
+ *         colour above, below and beside the rail.
+ *
+ * Separate from TONE_STYLES because those are a pill recipe (tint + border +
+ * label) and a 30px headline number must not carry a border. Same vocabulary,
+ * different shape — so a tile and a pill can never disagree about what "danger"
+ * looks like.
+ */
+export const TONE_INK: Record<
+  StatusTone,
+  { text: string; fill: string; edge: string }
+> = {
+  success: { text: "text-ok", fill: "bg-ok", edge: "border-l-ok" },
+  warning: {
+    text: "text-warning",
+    fill: "bg-warning",
+    edge: "border-l-warning",
+  },
+  danger: { text: "text-danger", fill: "bg-danger", edge: "border-l-danger" },
+  info: { text: "text-info", fill: "bg-info", edge: "border-l-info" },
+  neutral: { text: "text-fg", fill: "bg-fg-muted", edge: "border-l-fg-muted" },
+  draft: {
+    text: "text-fg-muted",
+    fill: "bg-fg-muted",
+    edge: "border-l-fg-muted",
+  },
+};
+
 /* ---------------------------------------------------------------------------
    SEVERITY — ranked data only. Critical first, always in scale order.
    --------------------------------------------------------------------------- */
