@@ -363,7 +363,9 @@ export function StatusTile({ tone, icon, ...rest }: StatusTileProps) {
         icon ? (
           <span
             aria-hidden="true"
-            className={cn(ICON, TONE_INK[tone].text)}
+            // The MARK, not the ink, so the corner glyph matches the rail
+            // exactly. An icon is a non-text graphic at 3:1, not a label.
+            className={cn(ICON, TONE_INK[tone].glyph)}
           >
             {icon}
           </span>

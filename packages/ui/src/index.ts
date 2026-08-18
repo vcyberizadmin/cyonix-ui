@@ -1,4 +1,9 @@
-export { Button, type ButtonProps } from "./button.js";
+export {
+  Button,
+  type ButtonProps,
+  IconButton,
+  type IconButtonProps,
+} from "./button.js";
 export { Card, type CardProps } from "./card.js";
 export {
   StatusPill,
@@ -26,6 +31,22 @@ export {
   type TileTone,
   type TilePolarity,
 } from "./tile.js";
+export {
+  Tabs,
+  type TabsProps,
+  type TabItem,
+  useTabsPanel,
+  Segmented,
+  type SegmentedProps,
+} from "./tabs.js";
+export {
+  DefinitionCard,
+  type DefinitionCardProps,
+  type DefinitionAction,
+  DescriptionList,
+  type DescriptionListProps,
+  type DescriptionItem,
+} from "./definition.js";
 export { Code, type CodeProps } from "./code.js";
 export {
   EmptyState,

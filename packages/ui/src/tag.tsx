@@ -26,6 +26,13 @@ const tag = cva(
     variants: {
       // A tag is a label, not a control — unless it filters, and then it must
       // LOOK clickable rather than merely be clickable.
+      /** Machine values — permission codes, versions, hashes — read as machine
+       *  values only in mono. The brand reserves JetBrains Mono for exactly
+       *  this: hexes, hashes, IDs, counters and log output. */
+      mono: {
+        false: "",
+        true: "font-mono tracking-tight",
+      },
       interactive: {
         false: "border-rule bg-wash-2 text-fg-2",
         // A resting-state difference, not just a hover one: a hover-only
@@ -34,7 +41,7 @@ const tag = cva(
         true: "border-fg-muted/45 bg-wash-2 text-fg hover:border-accent/60 hover:bg-wash-3 duration-instant ease-brand cursor-pointer transition-colors",
       },
     },
-    defaultVariants: { interactive: false },
+    defaultVariants: { interactive: false, mono: false },
   },
 );
 
@@ -49,7 +56,7 @@ export interface TagProps extends VariantProps<typeof tag> {
   className?: string;
 }
 
-export function Tag({ children, dot, onClick, title, className }: TagProps) {
+export function Tag({ children, dot, onClick, title, mono, className }: TagProps) {
   const interactive = onClick !== undefined;
   const content = (
     <>
@@ -69,7 +76,7 @@ export function Tag({ children, dot, onClick, title, className }: TagProps) {
         type="button"
         onClick={onClick}
         title={title}
-        className={cn(tag({ interactive: true }), className)}
+        className={cn(tag({ interactive: true, mono }), className)}
       >
         {content}
       </button>
@@ -77,7 +84,7 @@ export function Tag({ children, dot, onClick, title, className }: TagProps) {
   }
 
   return (
-    <span title={title} className={cn(tag({ interactive: false }), className)}>
+    <span title={title} className={cn(tag({ interactive: false, mono }), className)}>
       {content}
     </span>
   );
@@ -91,13 +98,15 @@ export interface ChipStackItem {
 
 export interface ChipStackProps {
   items: ChipStackItem[];
+  /** Render the chips in mono, for machine values. */
+  mono?: boolean;
   /** Show at most this many; the rest collapse to +n. Keeps a dense table cell
    *  legible where a full list of names would not fit. */
   max?: number;
   className?: string;
 }
 
-export function ChipStack({ items, max = 3, className }: ChipStackProps) {
+export function ChipStack({ items, max = 3, mono, className }: ChipStackProps) {
   const shown = items.slice(0, max);
   const rest = items.slice(max);
 
@@ -112,13 +121,14 @@ export function ChipStack({ items, max = 3, className }: ChipStackProps) {
       )}
     >
       {shown.map((item, index) => (
-        <Tag key={index} dot={item.dot} onClick={item.onClick}>
+        <Tag key={index} dot={item.dot} onClick={item.onClick} mono={mono}>
           {item.label}
         </Tag>
       ))}
       {rest.length > 0 && (
         // The remainder on hover, so nothing is truly hidden.
         <Tag
+          mono={mono}
           title={rest
             .map((item) => (typeof item.label === "string" ? item.label : "…"))
             .join(", ")}

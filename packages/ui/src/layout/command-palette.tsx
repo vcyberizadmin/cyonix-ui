@@ -295,7 +295,7 @@ export function CommandPalette({
             aria-controls={listId}
             aria-activedescendant={optionId(active)}
             autoComplete="off"
-            className="text-fg placeholder:text-fg-muted h-12 flex-1 bg-transparent text-[14px] focus:outline-none"
+            className="text-fg placeholder:text-fg-2 h-12 flex-1 bg-transparent text-[14px] focus:outline-none"
             onKeyDown={(event) => {
               if (event.key === "ArrowDown") {
                 event.preventDefault();
@@ -312,7 +312,7 @@ export function CommandPalette({
               }
             }}
           />
-          <kbd className="border-rule text-fg-muted shrink-0 rounded-sm border px-1.5 py-0.5 font-mono text-[10px]">
+          <kbd className="border-rule text-fg-2 shrink-0 rounded-sm border px-1.5 py-0.5 font-mono text-[10px]">
             esc
           </kbd>
         </div>
@@ -350,7 +350,7 @@ export function CommandPalette({
                     "flex w-full cursor-pointer items-center gap-3 px-4 py-2 text-left text-[13px]",
                     // Orange wash marks the current location in the list.
                     index === active
-                      ? "bg-accent/12 text-accent"
+                      ? "bg-accent/12 text-accent-ink"
                       : "text-fg-2 hover:bg-wash-hover",
                   )}
                 >
@@ -364,7 +364,7 @@ export function CommandPalette({
                     </span>
                   )}
                   {command.shortcut && (
-                    <kbd className="border-rule text-fg-muted ml-auto shrink-0 rounded-sm border px-1.5 py-0.5 font-mono text-[10px]">
+                    <kbd className="border-rule text-fg-2 ml-auto shrink-0 rounded-sm border px-1.5 py-0.5 font-mono text-[10px]">
                       {command.shortcut}
                     </kbd>
                   )}

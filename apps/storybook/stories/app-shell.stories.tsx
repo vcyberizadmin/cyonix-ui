@@ -1,5 +1,11 @@
 import { Card } from "@vcyberizadmin/ui";
-import { AppShell, NavRail, TopBar, type NavGroup } from "@vcyberizadmin/ui/layout";
+import {
+  AppShell,
+  Logo,
+  NavRail,
+  TopBar,
+  type NavGroup,
+} from "@vcyberizadmin/ui/layout";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   useEffect,
@@ -20,23 +26,11 @@ const Dot = () => (
   </svg>
 );
 
-const Brand = ({ module }: { module: string }) => (
-  <span className="flex items-center gap-2">
-    <span className="cx-logo-spark grid size-7 shrink-0 place-items-center rounded-md text-[13px] font-bold text-white">
-      C
-    </span>
-    <span className="font-display text-[15px] font-bold">CYONIX.AI</span>
-    <span className="bg-wash-2 text-fg-muted rounded-sm px-1.5 py-0.5 text-[9px] font-semibold tracking-wider uppercase">
-      {module}
-    </span>
-  </span>
-);
-
-const BrandMini = () => (
-  <span className="cx-logo-spark grid size-8 place-items-center rounded-md text-[13px] font-bold text-white">
-    C
-  </span>
-);
+// Was hand-rolled markup in both of these stories, which is exactly why `Logo`
+// exists: the copies had drifted to a 9px badge at 4.18:1 while the component
+// was fixed. One mark, one place to correct.
+const Brand = ({ module }: { module: string }) => <Logo module={module} />;
+const BrandMini = () => <Logo mini size="lg" />;
 
 const GROUPS: NavGroup[] = [
   {

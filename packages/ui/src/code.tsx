@@ -32,7 +32,7 @@ export function Code({ children, copyable, className }: CodeProps) {
   }, [children]);
 
   const base =
-    "bg-dark-grey text-fg-2 border-rule inline-flex items-center gap-1.5 rounded-sm border px-1.5 py-0.5 font-mono text-[11px]";
+    "bg-dark-grey text-light-grey border-rule inline-flex items-center gap-1.5 rounded-sm border px-1.5 py-0.5 font-mono text-[11px]";
 
   if (!copyable) {
     return <code className={cn(base, className)}>{children}</code>;
@@ -50,7 +50,7 @@ export function Code({ children, copyable, className }: CodeProps) {
       )}
     >
       <span>{children}</span>
-      <span aria-hidden="true" className={cn("text-[10px]", copied && "text-ok")}>
+      <span aria-hidden="true" className={cn("text-[10px]", copied && "text-ok-ink")}>
         {copied ? "✓" : "⧉"}
       </span>
     </button>

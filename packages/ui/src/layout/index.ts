@@ -19,3 +19,14 @@ export {
   type CommandPaletteProps,
   type Command,
 } from "./command-palette.js";
+export { Logo, type LogoProps } from "./logo.js";
+export {
+  ThemeToggle,
+  type ThemeToggleProps,
+  type Theme,
+} from "./theme-toggle.js";
+export {
+  SettingsShell,
+  type SettingsShellProps,
+  type SettingsSection,
+} from "./settings-shell.js";

@@ -174,7 +174,7 @@ function Message({
       id={id}
       className={cn(
         "text-[11px] leading-snug",
-        error ? "text-danger" : "text-fg-muted",
+        error ? "text-danger-ink" : "text-fg-muted",
       )}
     >
       {content}

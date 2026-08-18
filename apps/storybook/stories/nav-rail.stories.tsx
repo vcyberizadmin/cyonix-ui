@@ -1,4 +1,9 @@
-import { NavRail, type NavGroup, type NavRailProps } from "@vcyberizadmin/ui/layout";
+import {
+  Logo,
+  NavRail,
+  type NavGroup,
+  type NavRailProps,
+} from "@vcyberizadmin/ui/layout";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   useEffect,
@@ -19,23 +24,11 @@ const Dot = () => (
   </svg>
 );
 
-const Brand = ({ module }: { module: string }) => (
-  <span className="flex items-center gap-2">
-    <span className="cx-logo-spark grid size-7 shrink-0 place-items-center rounded-md text-[13px] font-bold text-white">
-      C
-    </span>
-    <span className="font-display text-[15px] font-bold">CYONIX.AI</span>
-    <span className="bg-wash-2 text-fg-muted rounded-sm px-1.5 py-0.5 text-[9px] font-semibold tracking-wider uppercase">
-      {module}
-    </span>
-  </span>
-);
-
-const BrandMini = () => (
-  <span className="cx-logo-spark grid size-8 place-items-center rounded-md text-[13px] font-bold text-white">
-    C
-  </span>
-);
+// Was hand-rolled markup in both of these stories, which is exactly why `Logo`
+// exists: the copies had drifted to a 9px badge at 4.18:1 while the component
+// was fixed. One mark, one place to correct.
+const Brand = ({ module }: { module: string }) => <Logo module={module} />;
+const BrandMini = () => <Logo mini size="lg" />;
 
 const Liveness = () => (
   <span className="flex items-center gap-2">
@@ -110,7 +103,7 @@ const SOC_GROUPS: NavGroup[] = [
         // Live slot: the item owns its polling, so one busy badge never
         // re-renders the rail.
         liveBadge: (
-          <span className="bg-warning/15 text-warning rounded-sm px-1.5 py-0.5 font-mono text-[10px] font-bold tabular-nums">
+          <span className="bg-warning/15 text-warning-ink rounded-sm px-1.5 py-0.5 font-mono text-[10px] font-bold tabular-nums">
             14 live
           </span>
         ),

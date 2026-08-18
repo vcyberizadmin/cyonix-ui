@@ -112,7 +112,7 @@ export function PageHeader({
       <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
         <div className="flex min-w-0 flex-col gap-1">
           {eyebrow && (
-            <span className="text-accent font-mono text-[11px] font-semibold tracking-[0.1em] uppercase">
+            <span className="text-accent-ink font-mono text-[11px] font-semibold tracking-[0.1em] uppercase">
               {eyebrow}
             </span>
           )}
@@ -124,7 +124,7 @@ export function PageHeader({
             {fr && showInternal && (
               <span
                 title="Internal requirement reference"
-                className="border-rule bg-wash-2 text-fg-muted shrink-0 rounded-sm border px-1.5 py-0.5 font-mono text-[10px]"
+                className="border-rule bg-wash-2 text-fg-2 shrink-0 rounded-sm border px-1.5 py-0.5 font-mono text-[10px]"
               >
                 {fr}
               </span>

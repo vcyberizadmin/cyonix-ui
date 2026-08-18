@@ -44,6 +44,50 @@ Dark is the default master. Light is opt-in via **either** `.light` or
 (which uses `.light`) and VAPT (which uses `[data-theme]`) can migrate without
 changing their toggles first.
 
+### Ink vs mark — why each semantic hue has two tokens
+
+The brand sets the bar itself: *"Target WCAG 2.2 AA. Operators use this product
+for long shifts, at night, sometimes on bad displays — accessibility is
+legibility."* Its own contrast table checks every hue against **one** ground:
+Onyx Grey, dark theme only.
+
+The library paints those hues on three more grounds that table never evaluated —
+Dark Grey cards, the hue's own 10–20% tint on a card, and the entire light theme.
+Measured across all 57 stories by compositing each text node's real background:
+**261 text nodes below AA in light, 374 in dark.**
+
+One value cannot serve both jobs, and the reason is structural rather than
+aesthetic:
+
+| | Answers to | Needs | Direction |
+| --- | --- | --- | --- |
+| **mark** — bar, dot, chart fill | WCAG 1.4.11 | 3:1, and "deeper = worse" must hold | keeps the brand value exactly |
+| **ink** — an 11px label | WCAG 1.4.3 | 4.5:1 on every ground it lands on | *lighter* on near-black, *darker* on white |
+
+So the bar carries the rank and the label carries the legibility. Use
+`text-danger-ink` for type, `bg-danger` for a fill, and `TONE_INK[tone].glyph`
+for an icon — a glyph takes the mark, so it matches the bar beside it exactly.
+Each ink value is the smallest deviation from its brand hue that clears 4.5:1 on
+page, card, tint and wash, chosen by measurement.
+
+`text-danger` still resolves, so a consumer's existing markup keeps working — but
+it is the mark, and it will not clear AA at small sizes.
+
+Two visible trades this forced, both recorded in `theme.css` at the tokens
+themselves:
+
+- **`--accent-fg` is not white.** White on Sunset Orange is 3.44:1 on Orange 400
+  and 2.98:1 on Orange 350, and no shade of the brand orange carries white text
+  at 4.5:1 while remaining the brand orange. The label darkens so the fill does
+  not have to. Every primary Button now reads orange-with-dark-label.
+- **The danger Button takes `--danger-strong`.** Here the opposite trade is
+  right: a deeper red still reads unmistakably as danger, so the fill darkens and
+  the label stays white. A black-on-red destructive button would be worse.
+
+`--accent-fg` means specifically *ink that sits on the accent fill*. It is not a
+general foreground: the outline Button's label sits on `--bg`, where near-black
+on the 22% orange hover wash measures 1.3:1, so that variant uses `--fg`.
+
 ### Brand rules the code enforces
 
 - **Orange discipline.** `--accent` marks the current location and the primary
@@ -205,6 +249,14 @@ automatically, but there is **no `--duration-*` namespace** — so
 `@utility`. Note that `cyonix-tenants` defines the same duration tokens without
 those declarations, so its `duration-*` classes are likely inert today.
 
+**Never compute a class name.** Tailwind emits a rule only for classes it can
+find as literal text in the source. A derived class —
+`CATEGORICAL[i].replace("bg-", "text-")` — exists only at runtime, so no rule is
+emitted and the mark renders with no colour at all. Nothing errors, and
+`verify-utilities` cannot see it either, because there is no literal to check.
+This was caught in the donut's arcs before release; `CATEGORICAL_INK` and
+`SEQUENTIAL_INK` exist as literal arrays for exactly this reason.
+
 **`verify-merge`** — asserts `cn()` knows this theme's custom `--text-*` and
 `--shadow-*` scales. `tailwind-merge` decides what conflicts from a map of
 Tailwind's *default* scales, so it has never seen `text-h2` and guesses
@@ -252,26 +304,38 @@ mean renaming both packages and every import.
 
 ## Status
 
-Rollout steps 1–8 of 9, less the four components listed as remaining below.
-**21 of 26 components; 47 named exports.**
-
-Built:
+**Complete against the standard: all 9 rollout steps, 26 of 26 components, and
+59 of 59 exports** — verified by diffing the standard's package surface against
+the barrels, not by counting by hand. 71 value exports in total, counting
+additions.
 
 | Export | Components |
 | ------ | ---------- |
-| `@vcyberizadmin/ui` | `Button` (CX-BTN) · `Card` (CX-CRD) · `StatusPill` + `SeverityBadge` (CX-STA) · `Tag` + `ChipStack` + `Code` (CX-TAG) · `EmptyState` + `ErrorState` + `Skeleton` (CX-STE) · `Note` + `InsightPanel` (CX-INS) · `DataTable` + `Toolbar` + `FilterChip` + `SegmentedFilter` + `Pagination` + cells (CX-TBL/FLT/PAG) · `Field` + `Input` + `Textarea` + `Select` + `Checkbox` + `Switch` (CX-FLD) · `StatTile` + `TrendTile` + `StatusTile` + `TileGrid` (CX-TIL) · `cn` |
-| `@vcyberizadmin/ui/lib/status` | vocabulary · `severityRank()` · `bySeverity()` · `extendVocabulary()` · chart ramps · `TONE_INK` |
-| `@vcyberizadmin/ui/layout` | `AppShell` (CX-SHL) · `NavRail` (CX-NAV) · `TopBar` (CX-TOP) · `PageHeader` + `Breadcrumb` (CX-HDR) · `CommandPalette` (CX-CMD) |
+| `@vcyberizadmin/ui` | `Button` + `IconButton` (CX-BTN) · `Card` (CX-CRD) · `StatusPill` + `SeverityBadge` (CX-STA) · `Tag` + `ChipStack` + `Code` (CX-TAG) · `EmptyState` + `ErrorState` + `Skeleton` (CX-STE) · `Note` + `InsightPanel` (CX-INS) · `DataTable` + `Toolbar` + `FilterChip` + `SegmentedFilter` + `Pagination` + cells (CX-TBL/FLT/PAG) · `Field` + `Input` + `Textarea` + `Select` + `Checkbox` + `Switch` (CX-FLD) · `StatTile` + `TrendTile` + `StatusTile` + `TileGrid` (CX-TIL) · `Tabs` + `Segmented` (CX-TAB) · `DefinitionCard` + `DescriptionList` (CX-DEF) · `cn` |
+| `@vcyberizadmin/ui/layout` | `AppShell` (CX-SHL) · `NavRail` (CX-NAV) · `TopBar` (CX-TOP) · `PageHeader` + `Breadcrumb` (CX-HDR) · `CommandPalette` (CX-CMD) · `SettingsShell` (CX-SET) · `Logo` · `ThemeToggle` |
 | `@vcyberizadmin/ui/overlays` | `Modal` (CX-MOD) · `Drawer` (CX-DRW) · `ConfirmDialog` + `ImpactBox` (CX-CNF) · `Menu` (CX-MNU) · `Tooltip` + `Popover` (CX-TIP) · `ToastProvider` + `useToast` (CX-TST) · `useOverlay` |
+| `@vcyberizadmin/ui/charts` | `Sparkline` · `Donut` · `FunnelFlow` · `RankedBars` · `ProportionBar` (CX-CHT) |
+| `@vcyberizadmin/ui/lib/status` | vocabulary · `severityRank()` · `bySeverity()` · `extendVocabulary()` · ramps · `TONE_INK` |
 
-Remaining: `Tabs` + `Segmented` (CX-TAB) · `DefinitionCard` + `DescriptionList`
-(CX-DEF) · `SettingsShell` (CX-SET) · the `./charts` subpath (CX-CHT), plus
-`IconButton`, `ThemeToggle` and `Logo`.
+### Two deliberate deviations from the standard
 
-`TileGrid` is an addition to the standard's export list. The auto-fit 200px
-minimum and the five-tile cap are both rules the standard states and neither
-survives being left to each console — the Tenant list already put seven tiles in
-one row.
+**Charts ship without recharts.** The standard describes `./charts` as the thing
+that "quarantines the recharts dependency". None of the five components needs it:
+a sparkline is a polyline, a proportion bar is the standard's own "no library"
+case, and a donut is one circle with dash offsets. Shipping them as SVG means no
+console pays ~100KB for four shapes. The subpath is kept so the standard's import
+paths hold and chart code stays out of the root chunk. Reach for a real charting
+library when a console needs brushing, zooming or animated transitions — not
+before.
+
+**`SegmentedFilter` delegates to `Segmented`.** The standard lists both names,
+under CX-FLT and CX-TAB, and they are the same radiogroup at two visual weights.
+One implementation with a `variant`, rather than two copies that drift — which is
+what the standard does everywhere else it finds rival implementations.
+
+Additions beyond the 59: `TileGrid` (the auto-fit grid rule, also used for
+definition cards at 320px), `FieldGrid`, `useTabsPanel`, and the overlay hooks
+`useAnchoredPosition` / `useDismissOnOutside` / `usePortalTarget`.
 
 ### Overlays share one hook
 
@@ -325,17 +389,6 @@ retires five rival implementations and is the highest value for the least work.
 - **Field label casing.** Tenant uses uppercase with tracking; SOC uses sentence
   case. The standard recommends sentence case for field labels, keeping caps for
   table headers and rail group labels.
-- **Semantic hues fail WCAG AA at small sizes, in both themes.** Measured across
-  all 41 stories by compositing each text node's real background: light mode has
-  207 text nodes below AA and dark mode 222. The cause is one palette serving two
-  grounds — `--warning` (`#f59e0b`) reaches only 1.74:1 against a white card, and
-  `--sev-crit` (`#b91c1c`) only 2.65:1 against its own dark tint. This is
-  pre-existing and systemic, not tied to any one component: it hits `StatusPill`,
-  `SeverityBadge`, `DueChip`, `SeverityCounts`, `Note`, the nav badges and
-  `StatTile` alike. The fix belongs in the token layer, using the mechanism
-  `--accent` already uses — a light-mode ROLE override per semantic and severity
-  hue — which repairs every component at once. It changes the appearance of all
-  three consoles, so it wants a deliberate decision rather than a quiet patch.
 - **Ship source vs build artifact.** The component standard recommends shipping
   source and letting each Next app transpile it. This repo ships built ESM
   instead, which avoids requiring `transpilePackages` in three separate repos.

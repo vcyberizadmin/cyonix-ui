@@ -116,9 +116,9 @@ export function DueChip({ days, className }: DueChipProps) {
       className={cn(
         "inline-flex items-center rounded-sm px-1.5 py-0.5 font-mono text-[11px] font-semibold tabular-nums",
         overdue
-          ? "text-danger bg-danger/10"
+          ? "text-danger-ink bg-danger/10"
           : soon
-            ? "text-warning bg-warning/10"
+            ? "text-warning-ink bg-warning/10"
             : "text-fg-muted bg-wash-2",
         className,
       )}

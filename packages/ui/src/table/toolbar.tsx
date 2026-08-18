@@ -24,6 +24,7 @@
  */
 import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "../lib/cn.js";
+import { Segmented } from "../tabs.js";
 
 /* ------------------------------------------------------------- Segmented ---- */
 
@@ -48,6 +49,18 @@ export interface SegmentedFilterProps {
   className?: string;
 }
 
+/**
+ * The toolbar's segmented row. Deliberately a thin wrapper over CX-TAB's
+ * `Segmented` rather than a second implementation of the same control: the
+ * standard lists both names, and the only real differences are that a toolbar
+ * segment sits beside other controls (so it takes the lighter tint treatment and
+ * is allowed to wrap onto a second line) and that it always shows counts.
+ *
+ * Keeping one implementation is what stops the two from drifting — the roving
+ * focus, the disabled handling and the ARIA all live in one place. Two separate
+ * copies of a radiogroup is exactly the duplication the standard collapses
+ * everywhere else.
+ */
 export function SegmentedFilter({
   options,
   value,
@@ -56,42 +69,16 @@ export function SegmentedFilter({
   className,
 }: SegmentedFilterProps) {
   return (
-    <div
-      role="radiogroup"
-      aria-label={label}
-      className={cn("inline-flex flex-wrap items-center gap-1", className)}
-    >
-      {options.map((option) => {
-        const active = option.value === value;
-        return (
-          <button
-            key={option.value}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            onClick={() => onChange(option.value)}
-            className={cn(
-              "duration-instant ease-brand inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-[12px] font-medium transition-colors",
-              active
-                ? "border-accent bg-accent/15 text-accent"
-                : "border-rule text-fg-2 hover:bg-wash-hover hover:text-fg",
-            )}
-          >
-            {option.label}
-            {typeof option.count === "number" && (
-              <span
-                className={cn(
-                  "font-mono text-[11px] tabular-nums",
-                  active ? "text-accent" : "text-fg-muted",
-                )}
-              >
-                {option.count}
-              </span>
-            )}
-          </button>
-        );
-      })}
-    </div>
+    <Segmented
+      items={options}
+      value={value}
+      onChange={onChange}
+      label={label}
+      variant="tint"
+      size="sm"
+      overflow="wrap"
+      className={className}
+    />
   );
 }
 
@@ -123,7 +110,7 @@ export function FilterChip({ field, value, onRemove, className }: FilterChipProp
         aria-label={`Remove filter ${typeof field === "string" ? field : ""} ${
           typeof value === "string" ? value : ""
         }`.trim()}
-        className="text-fg-muted hover:text-danger duration-instant ease-brand grid size-4 cursor-pointer place-items-center rounded-full transition-colors"
+        className="text-fg-muted hover:text-danger-ink duration-instant ease-brand grid size-4 cursor-pointer place-items-center rounded-full transition-colors"
       >
         <svg
           viewBox="0 0 24 24"
@@ -292,7 +279,7 @@ function SearchField({
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
         placeholder={placeholder}
-        className="border-rule bg-wash-1 text-fg placeholder:text-fg-muted focus:border-accent duration-instant ease-brand h-8 w-full rounded-sm border pr-2.5 pl-8 text-[12.5px] transition-colors focus:outline-none"
+        className="border-rule bg-wash-1 text-fg placeholder:text-fg-2 focus:border-accent duration-instant ease-brand h-8 w-full rounded-sm border pr-2.5 pl-8 text-[12.5px] transition-colors focus:outline-none"
       />
     </div>
   );

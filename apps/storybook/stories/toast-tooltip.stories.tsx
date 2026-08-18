@@ -173,7 +173,7 @@ export const TooltipsAndPopovers: Story = {
           >
             <button
               type="button"
-              className="text-accent cursor-pointer font-mono text-[12px] underline underline-offset-2"
+              className="text-accent-ink cursor-pointer font-mono text-[12px] underline underline-offset-2"
             >
               api-gateway-prod
             </button>

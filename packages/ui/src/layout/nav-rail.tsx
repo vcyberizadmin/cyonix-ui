@@ -295,7 +295,7 @@ export function NavRail({
                           "relative flex items-center",
                           active
                             ? [
-                                "text-accent",
+                                "text-accent-ink",
                                 "before:bg-accent before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:content-['']",
                                 mini
                                   ? "bg-accent/14"
@@ -337,7 +337,7 @@ export function NavRail({
                             <>
                               <span className="truncate">{item.label}</span>
                               {item.tag && (
-                                <span className="bg-wash-2 text-fg-muted shrink-0 rounded-sm px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.08em] uppercase">
+                                <span className="bg-wash-2 text-fg-2 shrink-0 rounded-sm px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.08em] uppercase">
                                   {item.tag}
                                 </span>
                               )}
@@ -348,7 +348,7 @@ export function NavRail({
                                       className={cn(
                                         "font-mono text-[10px] tabular-nums",
                                         item.countTone === "alert"
-                                          ? "text-warning font-bold"
+                                          ? "text-warning-ink font-bold"
                                           : "text-fg-muted",
                                       )}
                                     >
@@ -412,13 +412,13 @@ export function NavRail({
                               className={cn(
                                 "duration-instant ease-brand flex items-center gap-2 py-2 pl-4 text-[12.5px] leading-tight transition-colors",
                                 child.href === activeHref
-                                  ? "text-accent"
+                                  ? "text-accent-ink"
                                   : "text-fg-2 hover:text-fg",
                               )}
                             >
                               <span className="truncate">{child.label}</span>
                               {child.tag && (
-                                <span className="bg-wash-2 text-fg-muted shrink-0 rounded-sm px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.08em] uppercase">
+                                <span className="bg-wash-2 text-fg-2 shrink-0 rounded-sm px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.08em] uppercase">
                                   {child.tag}
                                 </span>
                               )}

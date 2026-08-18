@@ -26,7 +26,7 @@ import { cn } from "../lib/cn.js";
 import { useFieldControl } from "./field.js";
 
 const base =
-  "bg-wash-1 border-rule text-fg placeholder:text-fg-muted focus:border-accent duration-instant ease-brand w-full rounded-sm border text-[13px] transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50";
+  "bg-wash-1 border-rule text-fg placeholder:text-fg-2 focus:border-accent duration-instant ease-brand w-full rounded-sm border text-[13px] transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50";
 
 /** An invalid control shows it on the border too, not only in the message. */
 const invalid = "aria-invalid:border-danger";

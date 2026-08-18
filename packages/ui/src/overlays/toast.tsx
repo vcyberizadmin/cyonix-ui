@@ -78,10 +78,10 @@ export function useToast(): ToastApi {
 }
 
 const TONE: Record<ToastTone, { rule: string; ink: string; glyph: string }> = {
-  success: { rule: "border-l-ok", ink: "text-ok", glyph: "✓" },
-  error: { rule: "border-l-danger", ink: "text-danger", glyph: "✕" },
-  warning: { rule: "border-l-warning", ink: "text-warning", glyph: "!" },
-  info: { rule: "border-l-info", ink: "text-info", glyph: "i" },
+  success: { rule: "border-l-ok", ink: "text-ok-ink", glyph: "✓" },
+  error: { rule: "border-l-danger", ink: "text-danger-ink", glyph: "✕" },
+  warning: { rule: "border-l-warning", ink: "text-warning-ink", glyph: "!" },
+  info: { rule: "border-l-info", ink: "text-info-ink", glyph: "i" },
 };
 
 export interface ToastProviderProps {
@@ -208,7 +208,7 @@ function ToastItem({
         <p className="text-fg flex items-center gap-2 text-[13px] font-semibold">
           <span className="truncate">{record.title}</span>
           {record.count > 1 && (
-            <span className="bg-wash-2 text-fg-muted shrink-0 rounded-full px-1.5 font-mono text-[10px] tabular-nums">
+            <span className="bg-wash-2 text-fg-2 shrink-0 rounded-full px-1.5 font-mono text-[10px] tabular-nums">
               ×{record.count}
             </span>
           )}
@@ -225,7 +225,7 @@ function ToastItem({
             }}
             // brightness rather than an accent-hover token: the CX-TOK contract has no
             // such token, and Button handles accent hover the same way.
-            className="text-accent duration-instant ease-brand mt-1 w-fit cursor-pointer text-[12px] font-semibold underline underline-offset-2 transition-[filter] hover:brightness-110"
+            className="text-accent-ink duration-instant ease-brand mt-1 w-fit cursor-pointer text-[12px] font-semibold underline underline-offset-2 transition-[filter] hover:brightness-110"
           >
             {record.undo.label ?? "Undo"}
           </button>

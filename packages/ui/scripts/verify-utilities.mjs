@@ -89,6 +89,18 @@ const SVG_PATH_DATA = /^[MmLlHhVvCcSsQqTtAaZz][\d\s.,+-]/;
  *  ("data:image/svg+xml,%3Csvg", "stroke-width='2'"). Skip the whole literal. */
 const URL_OR_DATA_URI = /^(data:|url\(|https?:)|:\/\//;
 
+/**
+ * A CSS function value passed to an inline style — CX-TAB builds a mask with
+ * `linear-gradient(to right, transparent, black 24px)`, which splits on
+ * whitespace into "linear-gradient(to" and friends.
+ *
+ * Matched against an explicit list rather than a generic `^[a-z-]+\(`, because
+ * Tailwind v4's own CSS-variable shorthand looks exactly like that — `w-(--container-rail)`
+ * is a REAL class and must still be checked.
+ */
+const CSS_FUNCTION =
+  /^(repeating-)?(linear|radial|conic)-gradient\(|^(calc|var|clamp|min|max|cubic-bezier|translate|rotate|scale|polygon|rgb|rgba|hsl|hsla|oklch|oklab|color-mix|env)\(/;
+
 /** Attribute names that reach the output as string keys, not classes. */
 const ATTR_PREFIX = /^(aria|data)-/;
 
@@ -174,6 +186,7 @@ for (const file of walk(distDir)) {
   )) {
     if (NOT_CLASSES.has(literal) || specifiers.has(literal)) continue;
     if (SVG_PATH_DATA.test(literal) || URL_OR_DATA_URI.test(literal)) continue;
+    if (CSS_FUNCTION.test(literal)) continue;
     if (isProse(literal)) continue;
     for (const token of literal.split(/\s+/)) {
       if (!token) continue;

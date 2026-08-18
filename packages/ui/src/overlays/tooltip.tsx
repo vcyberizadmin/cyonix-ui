@@ -124,7 +124,7 @@ export function Tooltip({
             id={id}
             role="tooltip"
             className={cn(
-              "bg-dark-grey-2 text-fg border-rule shadow-e2 pointer-events-none fixed z-50 max-w-[280px] rounded-sm border px-2.5 py-1.5 text-[12px] leading-snug",
+              "bg-dark-grey-2 text-white border-rule shadow-e2 pointer-events-none fixed z-50 max-w-[280px] rounded-sm border px-2.5 py-1.5 text-[12px] leading-snug",
               position ? "animate-fade-in" : "invisible",
               className,
             )}
