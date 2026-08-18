@@ -1,10 +1,10 @@
 @import "tailwindcss";
-@import "@cyonix/theme";
+@import "@vcyberizadmin/theme";
 
-/* Points at the workspace path rather than through node_modules/@cyonix/ui,
+/* Points at the workspace path rather than through node_modules/@vcyberizadmin/ui,
    which is a pnpm symlink Tailwind does not follow during source detection.
    A published install resolves a real directory, so consuming apps point at
-   node_modules/@cyonix/ui/dist instead -- see the README.
+   node_modules/@vcyberizadmin/ui/dist instead -- see the README.
 
    Careful: never write a glob like a double-star followed by slash-star inside
    a CSS comment. It contains the star-slash comment terminator, so the comment

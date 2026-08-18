@@ -1,4 +1,4 @@
-import { Button } from "@cyonix/ui";
+import { Button } from "@vcyberizadmin/ui";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const VARIANTS = ["primary", "outline", "solid", "edge", "danger", "ghost"] as const;

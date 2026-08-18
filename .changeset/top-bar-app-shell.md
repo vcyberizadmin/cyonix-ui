@@ -1,8 +1,8 @@
 ---
-"@cyonix/ui": minor
+"@vcyberizadmin/ui": minor
 ---
 
-Complete the navigation frame in `@cyonix/ui/layout`.
+Complete the navigation frame in `@vcyberizadmin/ui/layout`.
 
 - `TopBar` (CX-TOP) — SOC's utility bar plus the two groups VAPT adds and SOC
   lacks: a live clock with timezone, and system health as a dot **and** word.

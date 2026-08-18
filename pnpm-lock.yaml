@@ -17,10 +17,10 @@ importers:
 
   apps/storybook:
     dependencies:
-      '@cyonix/theme':
+      '@vcyberizadmin/theme':
         specifier: workspace:*
         version: link:../../packages/theme
-      '@cyonix/ui':
+      '@vcyberizadmin/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       react:
@@ -69,9 +69,6 @@ importers:
         specifier: ^3.6.0
         version: 3.6.0
     devDependencies:
-      '@cyonix/theme':
-        specifier: workspace:*
-        version: link:../theme
       '@tailwindcss/cli':
         specifier: ^4.3.3
         version: 4.3.3
@@ -81,6 +78,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.1
         version: 19.2.4(@types/react@19.2.18)
+      '@vcyberizadmin/theme':
+        specifier: workspace:*
+        version: link:../theme
       react:
         specifier: ^19.2.0
         version: 19.2.8

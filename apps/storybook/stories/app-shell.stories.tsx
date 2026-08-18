@@ -1,5 +1,5 @@
-import { Card } from "@cyonix/ui";
-import { AppShell, NavRail, TopBar, type NavGroup } from "@cyonix/ui/layout";
+import { Card } from "@vcyberizadmin/ui";
+import { AppShell, NavRail, TopBar, type NavGroup } from "@vcyberizadmin/ui/layout";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   useEffect,

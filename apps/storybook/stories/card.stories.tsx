@@ -1,4 +1,4 @@
-import { Button, Card } from "@cyonix/ui";
+import { Button, Card } from "@vcyberizadmin/ui";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const meta = {

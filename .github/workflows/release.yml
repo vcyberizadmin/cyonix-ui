@@ -1,20 +1,19 @@
-# Publishes @cyonix/theme and @cyonix/ui on merge to main.
+# Publishes @vcyberizadmin/theme and @vcyberizadmin/ui on merge to main.
 #
-# ⚠️  BEFORE THIS WORKS: the npm scope must match the registry.
+# WHY THE SCOPE IS @vcyberizadmin AND NOT @cyonix
+# -----------------------------------------------
+# GitHub Packages requires a package's npm scope to match the account that owns
+# the repository. This repo is owned by `vcyberizadmin`, so `@cyonix/*` is
+# rejected with a 403 no matter how the token is configured. The packages are
+# named for the registry, not for the product.
 #
-# GitHub Packages requires a package's scope to equal the GitHub account that
-# owns the repo. This repo is owned by `vcyberizadmin`, so GitHub Packages will
-# only accept `@vcyberizadmin/*` — it will reject `@cyonix/*` with a 403.
+# To carry the product name instead, either create a GitHub org literally named
+# `cyonix` and transfer the repo, or publish to a paid private npm org. Both
+# mean renaming the two packages and every import in every consumer.
 #
-# Three ways out, pick one and update the package names to match:
-#   1. Create a GitHub org literally named `cyonix` and move the repo there.
-#      Keeps the `@cyonix/*` names cyonix-tenants already uses.
-#   2. Rename the packages to `@vcyberizadmin/theme` / `@vcyberizadmin/ui`.
-#      Works today, no admin needed, but the names read poorly.
-#   3. Use a private npm org named `cyonix` instead of GitHub Packages.
-#      Keeps `@cyonix/*` and is the least friction for consumers; paid.
-#
-# The registry-url below assumes option 1 or 2.
+# Consumers need a matching registry mapping in their own .npmrc:
+#   @vcyberizadmin:registry=https://npm.pkg.github.com
+#   //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
 
 name: Release
 

@@ -1,9 +1,9 @@
 ---
-"@cyonix/ui": minor
-"@cyonix/theme": minor
+"@vcyberizadmin/ui": minor
+"@vcyberizadmin/theme": minor
 ---
 
-Add the overlay family under a new `@cyonix/ui/overlays` export, all sharing one
+Add the overlay family under a new `@vcyberizadmin/ui/overlays` export, all sharing one
 `useOverlay` hook so focus, Escape and scroll-lock behave identically.
 
 - `useOverlay` — focus trap (both directions), focus restore, Escape via an
@@ -17,5 +17,5 @@ Add the overlay family under a new `@cyonix/ui/overlays` export, all sharing one
 - `Menu` (CX-MNU) — portal-positioned with viewport flip, keyboard navigation,
   outside-click dismissal, destructive items sorted last below a separator.
 
-`@cyonix/theme` gains `--container-drawer{,-wide}` and the `modal-in`,
+`@vcyberizadmin/theme` gains `--container-drawer{,-wide}` and the `modal-in`,
 `drawer-in` and `fade-in` animations.

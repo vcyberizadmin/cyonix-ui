@@ -1,10 +1,10 @@
 ---
-"@cyonix/ui": minor
-"@cyonix/theme": minor
+"@vcyberizadmin/ui": minor
+"@vcyberizadmin/theme": minor
 ---
 
 Add CX-STA — `StatusPill` and `SeverityBadge`, plus the vocabulary at
-`@cyonix/ui/lib/status`.
+`@vcyberizadmin/ui/lib/status`.
 
 Two languages that never share an axis: semantic (what happened, shaped dot) and
 severity (how bad, ranked, 3px leading bar). Brand orange is excluded from both.
@@ -17,4 +17,4 @@ Ships `severityRank()` and `bySeverity()` for Critical-first sorting,
 a liveness pulse on running states, and the categorical + sequential chart ramps
 so charts inherit the same discipline.
 
-`@cyonix/theme` gains the `--cat-1..6` and `--seq-1..8` ramps.
+`@vcyberizadmin/theme` gains the `--cat-1..6` and `--seq-1..8` ramps.

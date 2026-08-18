@@ -1,11 +1,11 @@
-import { Button, Card } from "@cyonix/ui";
+import { Button, Card } from "@vcyberizadmin/ui";
 import {
   ConfirmDialog,
   Drawer,
   Menu,
   Modal,
   type MenuItemDef,
-} from "@cyonix/ui/overlays";
+} from "@vcyberizadmin/ui/overlays";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 

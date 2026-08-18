@@ -10,7 +10,7 @@ import { cn } from "./lib/cn.js";
  * Brand rules encoded here, from the design system of record:
  *  · The bottom-right corner is chamfered, never rounded, never mirrored, and
  *    never applied to cards or inputs. It is the most recognisable brand cue in
- *    the system — see .cx-chamfer in @cyonix/theme.
+ *    the system — see .cx-chamfer in @vcyberizadmin/theme.
  *  · Labels are Space Grotesk 600 at 14px. That 14px sits deliberately outside
  *    the body type scale; the brand specifies it for button labels only.
  *  · Hover brightens 110%, active dims to 94%.

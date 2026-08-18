@@ -1,4 +1,4 @@
-import { Card, SeverityBadge, StatusPill } from "@cyonix/ui";
+import { Card, SeverityBadge, StatusPill } from "@vcyberizadmin/ui";
 import {
   BASE_VOCABULARY,
   bySeverity,
@@ -9,7 +9,7 @@ import {
   severityRank,
   STATUS_TONES,
   type Severity,
-} from "@cyonix/ui/lib/status";
+} from "@vcyberizadmin/ui/lib/status";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 /**

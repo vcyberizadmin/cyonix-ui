@@ -6,8 +6,8 @@ Two packages are published from this repo:
 
 | Package         | What it is                                                        | Build step |
 | --------------- | ----------------------------------------------------------------- | ---------- |
-| `@cyonix/theme` | Canonical design tokens, base layer, chamfer, motion utilities     | none       |
-| `@cyonix/ui`    | React components built on those tokens                            | tsup + tsc |
+| `@vcyberizadmin/theme` | Canonical design tokens, base layer, chamfer, motion utilities     | none       |
+| `@vcyberizadmin/ui`    | React components built on those tokens                            | tsup + tsc |
 
 ## Source of authority
 
@@ -63,16 +63,16 @@ changing their toggles first.
 ```css
 /* src/app/globals.css */
 @import "tailwindcss";
-@import "@cyonix/theme";
+@import "@vcyberizadmin/theme";
 
 /* Tailwind only generates classes it can SEE, and it skips node_modules during
    auto-detection, so the library must be pointed at explicitly. Path is
    relative to this file. */
-@source "../../../node_modules/@cyonix/ui/dist/**/*.js";
+@source "../../../node_modules/@vcyberizadmin/ui/dist/**/*.js";
 ```
 
 ```tsx
-import { Button, Card } from "@cyonix/ui";
+import { Button, Card } from "@vcyberizadmin/ui";
 
 <Card title="Scan configuration" hint="Applies to all assets in scope">
   <Button variant="primary">Save changes</Button>
@@ -99,13 +99,13 @@ Space Grotesk tops out at 700 — never a synthetic bold above it.
 
 ```sh
 pnpm install
-pnpm build      # dist/ must exist before Storybook can resolve @cyonix/ui
+pnpm build      # dist/ must exist before Storybook can resolve @vcyberizadmin/ui
 pnpm dev        # tsup --watch + Storybook on http://localhost:6006, together
 pnpm test       # build + typecheck + verify utilities
 ```
 
 Use `pnpm dev` from the **root**, not `pnpm dev` inside `apps/storybook`.
-Storybook resolves `@cyonix/ui` through its `exports` map to `dist/`, so editing
+Storybook resolves `@vcyberizadmin/ui` through its `exports` map to `dist/`, so editing
 a component with only Storybook running shows nothing — you are looking at the
 last build. The root script runs tsup in watch mode alongside it. (Theme edits
 do appear immediately: `theme.css` is consumed directly, with no build step.)
@@ -141,11 +141,22 @@ pnpm changeset
 
 Merging to `main` opens a "Version Packages" PR; merging *that* publishes.
 
-⚠️ **Not yet publishable.** GitHub Packages requires the npm scope to match the
-owning GitHub account, which is `vcyberizadmin` — so `@cyonix/*` gets a 403. See
-the comment block at the top of
-[.github/workflows/release.yml](.github/workflows/release.yml) for the three
-ways to resolve it.
+Published to **GitHub Packages** under the `@vcyberizadmin` scope. That scope is
+not cosmetic: GitHub Packages requires a package's scope to match the account
+that owns the repository, and this repo is owned by `vcyberizadmin`. Publishing
+as `@cyonix/*` would be rejected with a 403.
+
+Consumers need a registry mapping, since the scope is not on npmjs.com:
+
+```ini
+# .npmrc in each consuming app
+@vcyberizadmin:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+If the packages ever need to carry the product name instead, the routes are a
+GitHub org literally named `cyonix`, or a paid private npm org — either would
+mean renaming both packages and every import.
 
 ## Status
 
@@ -155,10 +166,10 @@ Built:
 
 | Export | Components |
 | ------ | ---------- |
-| `@cyonix/ui` | `Button` (CX-BTN) · `Card` (CX-CRD) · `StatusPill` + `SeverityBadge` (CX-STA) · `cn` |
-| `@cyonix/ui/lib/status` | vocabulary · `severityRank()` · `bySeverity()` · `extendVocabulary()` · chart ramps |
-| `@cyonix/ui/layout` | `AppShell` (CX-SHL) · `NavRail` (CX-NAV) · `TopBar` (CX-TOP) |
-| `@cyonix/ui/overlays` | `Modal` (CX-MOD) · `Drawer` (CX-DRW) · `ConfirmDialog` + `ImpactBox` (CX-CNF) · `Menu` (CX-MNU) · `useOverlay` |
+| `@vcyberizadmin/ui` | `Button` (CX-BTN) · `Card` (CX-CRD) · `StatusPill` + `SeverityBadge` (CX-STA) · `cn` |
+| `@vcyberizadmin/ui/lib/status` | vocabulary · `severityRank()` · `bySeverity()` · `extendVocabulary()` · chart ramps |
+| `@vcyberizadmin/ui/layout` | `AppShell` (CX-SHL) · `NavRail` (CX-NAV) · `TopBar` (CX-TOP) |
+| `@vcyberizadmin/ui/overlays` | `Modal` (CX-MOD) · `Drawer` (CX-DRW) · `ConfirmDialog` + `ImpactBox` (CX-CNF) · `Menu` (CX-MNU) · `useOverlay` |
 
 ### Overlays share one hook
 

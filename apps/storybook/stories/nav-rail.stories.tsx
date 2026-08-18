@@ -1,4 +1,4 @@
-import { NavRail, type NavGroup, type NavRailProps } from "@cyonix/ui/layout";
+import { NavRail, type NavGroup, type NavRailProps } from "@vcyberizadmin/ui/layout";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   useEffect,
