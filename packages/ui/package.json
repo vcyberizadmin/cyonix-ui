@@ -39,11 +39,12 @@
   },
   "scripts": {
     "build": "tsup && tsc -p tsconfig.build.json && node scripts/preserve-directives.mjs",
-    "dev": "tsup --watch",
+    "dev": "tsup --watch --no-clean",
     "typecheck": "tsc --noEmit",
     "verify": "node scripts/verify-utilities.mjs",
-    "test": "pnpm build && pnpm typecheck && pnpm verify && pnpm verify:merge",
-    "verify:merge": "node scripts/verify-merge.mjs"
+    "test": "pnpm build && pnpm typecheck && pnpm verify && pnpm verify:merge && pnpm verify:dates",
+    "verify:merge": "node scripts/verify-merge.mjs",
+    "verify:dates": "node scripts/verify-dates.mjs"
   },
   "peerDependencies": {
     "react": ">=18",

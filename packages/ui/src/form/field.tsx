@@ -48,6 +48,26 @@ export function useFieldControl(): ControlProps | null {
   return useContext(FieldContext);
 }
 
+/**
+ * Stops a Field's wiring from reaching controls that are inside the field's
+ * CONTROL rather than being it.
+ *
+ * A composite control — CX-DTE's DatePicker is the case that forced this — is one
+ * Field control on the outside and a panel full of its own controls on the
+ * inside. React context reaches those inner controls too, INCLUDING THROUGH A
+ * PORTAL: a portal moves the DOM node, not the React tree. So the calendar's
+ * month and year selects would each pick up the field's `id`, giving three
+ * elements the same id and pointing `<label for>` at whichever the browser found
+ * first, and they would wear the field's `aria-invalid` — a validation error on
+ * the date reported by the month dropdown, which is not the thing that is wrong.
+ *
+ * Wrap the inner controls and the association stops at the boundary. They still
+ * render, they just carry no association, exactly as a standalone control does.
+ */
+export function FieldBoundary({ children }: { children: ReactNode }) {
+  return <FieldContext.Provider value={null}>{children}</FieldContext.Provider>;
+}
+
 export interface FieldProps {
   label: ReactNode;
   /** Explain the constraint, e.g. "Must be unique. 2-150 characters."

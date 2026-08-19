@@ -4,6 +4,7 @@ export {
   FieldGrid,
   type FieldGridProps,
   useFieldControl,
+  FieldBoundary,
   type ControlProps,
 } from "./field.js";
 export {

@@ -146,6 +146,18 @@ export interface PopoverProps {
   align?: "start" | "center" | "end";
   /** Accessible name for the panel. */
   label?: string;
+  /**
+   * Controlled open state. Omit and the popover manages its own — the common
+   * case, where the trigger is the only thing that opens and closes it.
+   *
+   * Passing it is what lets a panel dismiss ITSELF, which a popover whose
+   * content carries its own actions has to be able to do: CX-DTE's range picker
+   * ends in Cancel and Apply, and neither can work if only the trigger and an
+   * outside click can close the panel.
+   */
+  open?: boolean;
+  /** Fires for every open and close, controlled or not. */
+  onOpenChange?: (open: boolean) => void;
   className?: string;
 }
 
@@ -155,9 +167,20 @@ export function Popover({
   side = "bottom",
   align = "start",
   label,
+  open: openProp,
+  onOpenChange,
   className,
 }: PopoverProps) {
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = openProp ?? uncontrolledOpen;
+
+  const setOpen = (next: boolean) => {
+    // The internal state is kept in step even when controlled, so a caller that
+    // stops passing `open` mid-life does not snap the panel back to closed.
+    setUncontrolledOpen(next);
+    onOpenChange?.(next);
+  };
+
   const anchorRef = useRef<HTMLElement | null>(null);
   const target = usePortalTarget();
   const id = useId();
@@ -191,7 +214,7 @@ export function Popover({
     "aria-expanded": open,
     "aria-controls": open ? id : undefined,
     // Click, never hover — a hover-opened panel containing controls is a trap.
-    onClick: () => setOpen((value) => !value),
+    onClick: () => setOpen(!open),
   } as Record<string, unknown>);
 
   return (
