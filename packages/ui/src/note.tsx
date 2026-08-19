@@ -26,10 +26,10 @@ const NOTE_TONES: Record<NoteTone, string> = {
 };
 
 const NOTE_INK: Record<NoteTone, string> = {
-  info: "text-info",
-  warning: "text-warning",
-  danger: "text-danger",
-  success: "text-ok",
+  info: "text-info-ink",
+  warning: "text-warning-ink",
+  danger: "text-danger-ink",
+  success: "text-ok-ink",
 };
 
 export interface NoteProps {
@@ -104,8 +104,8 @@ export interface InsightPanelProps {
 }
 
 const CONFIDENCE_INK = {
-  high: "text-ok",
-  medium: "text-warning",
+  high: "text-ok-ink",
+  medium: "text-warning-ink",
   low: "text-fg-muted",
 } as const;
 
@@ -131,7 +131,7 @@ export function InsightPanel({
       <div className="flex flex-wrap items-center gap-2">
         {/* Labelled badge header: in a security product, marking AI output is a
             trust requirement, not a nicety. */}
-        <span className="bg-info/20 text-info rounded-sm px-1.5 py-0.5 text-[10px] font-bold tracking-[0.08em] uppercase">
+        <span className="bg-info/20 text-info-ink rounded-sm px-1.5 py-0.5 text-[10px] font-bold tracking-[0.08em] uppercase">
           {label}
         </span>
         {confidence && (
@@ -158,7 +158,7 @@ export function InsightPanel({
               <Link
                 key={index}
                 href={source.href}
-                className="text-info decoration-info/40 text-[11px] underline underline-offset-2 hover:decoration-current"
+                className="text-info-ink decoration-info/40 text-[11px] underline underline-offset-2 hover:decoration-current"
               >
                 {source.label}
               </Link>

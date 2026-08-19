@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../lib/cn.js";
 import {
+  useAnchoredPosition,
   useDismissOnOutside,
   useOverlay,
   usePortalTarget,
@@ -61,9 +62,6 @@ export function Menu({
   className,
 }: MenuProps) {
   const [open, setOpen] = useState(false);
-  const [position, setPosition] = useState<{ top: number; left: number } | null>(
-    null,
-  );
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const target = usePortalTarget();
@@ -85,30 +83,12 @@ export function Menu({
   ];
   const firstDangerIndex = ordered.findIndex((item) => item.danger);
 
-  useEffect(() => {
-    if (!open) {
-      setPosition(null);
-      return;
-    }
-    const triggerEl = triggerRef.current;
-    const panel = panelRef.current;
-    if (!triggerEl || !panel) return;
-
-    const rect = triggerEl.getBoundingClientRect();
-    const { offsetHeight: height, offsetWidth: width } = panel;
-
-    // Flip above when there is not room below and there IS room above.
-    const roomBelow = window.innerHeight - rect.bottom;
-    const flip = roomBelow < height + 8 && rect.top > height + 8;
-
-    const left =
-      align === "end" ? rect.right - width : rect.left;
-
-    setPosition({
-      top: flip ? rect.top - height - 6 : rect.bottom + 6,
-      left: Math.max(8, Math.min(left, window.innerWidth - width - 8)),
-    });
-  }, [open, align, panelRef]);
+  const position = useAnchoredPosition({
+    open,
+    anchorRef: triggerRef,
+    floatingRef: panelRef,
+    align,
+  });
 
   // Roving focus: arrows move, Home/End jump, skipping disabled items.
   const move = (from: number, delta: number) => {
@@ -199,7 +179,7 @@ export function Menu({
                     "duration-instant ease-brand flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-left text-[13px] transition-colors",
                     "disabled:pointer-events-none disabled:opacity-40",
                     item.danger
-                      ? "text-danger hover:bg-danger/10"
+                      ? "text-danger-ink hover:bg-danger/10"
                       : "text-fg-2 hover:bg-wash-hover hover:text-fg",
                   )}
                 >

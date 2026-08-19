@@ -44,6 +44,50 @@ Dark is the default master. Light is opt-in via **either** `.light` or
 (which uses `.light`) and VAPT (which uses `[data-theme]`) can migrate without
 changing their toggles first.
 
+### Ink vs mark — why each semantic hue has two tokens
+
+The brand sets the bar itself: *"Target WCAG 2.2 AA. Operators use this product
+for long shifts, at night, sometimes on bad displays — accessibility is
+legibility."* Its own contrast table checks every hue against **one** ground:
+Onyx Grey, dark theme only.
+
+The library paints those hues on three more grounds that table never evaluated —
+Dark Grey cards, the hue's own 10–20% tint on a card, and the entire light theme.
+Measured across all 57 stories by compositing each text node's real background:
+**261 text nodes below AA in light, 374 in dark.**
+
+One value cannot serve both jobs, and the reason is structural rather than
+aesthetic:
+
+| | Answers to | Needs | Direction |
+| --- | --- | --- | --- |
+| **mark** — bar, dot, chart fill | WCAG 1.4.11 | 3:1, and "deeper = worse" must hold | keeps the brand value exactly |
+| **ink** — an 11px label | WCAG 1.4.3 | 4.5:1 on every ground it lands on | *lighter* on near-black, *darker* on white |
+
+So the bar carries the rank and the label carries the legibility. Use
+`text-danger-ink` for type, `bg-danger` for a fill, and `TONE_INK[tone].glyph`
+for an icon — a glyph takes the mark, so it matches the bar beside it exactly.
+Each ink value is the smallest deviation from its brand hue that clears 4.5:1 on
+page, card, tint and wash, chosen by measurement.
+
+`text-danger` still resolves, so a consumer's existing markup keeps working — but
+it is the mark, and it will not clear AA at small sizes.
+
+Two visible trades this forced, both recorded in `theme.css` at the tokens
+themselves:
+
+- **`--accent-fg` is not white.** White on Sunset Orange is 3.44:1 on Orange 400
+  and 2.98:1 on Orange 350, and no shade of the brand orange carries white text
+  at 4.5:1 while remaining the brand orange. The label darkens so the fill does
+  not have to. Every primary Button now reads orange-with-dark-label.
+- **The danger Button takes `--danger-strong`.** Here the opposite trade is
+  right: a deeper red still reads unmistakably as danger, so the fill darkens and
+  the label stays white. A black-on-red destructive button would be worse.
+
+`--accent-fg` means specifically *ink that sits on the accent fill*. It is not a
+general foreground: the outline Button's label sits on `--bg`, where near-black
+on the 22% orange hover wash measures 1.3:1, so that variant uses `--fg`.
+
 ### Brand rules the code enforces
 
 - **Orange discipline.** `--accent` marks the current location and the primary
@@ -137,7 +181,18 @@ Font tokens reference variables the **consuming app** defines via `next/font`:
 | `--ui`      | Inter         | `--font-inter`            |
 | `--mono`    | JetBrains Mono| `--font-jetbrains-mono`   |
 
-An app that does not define these silently falls back to `system-ui`.
+An app that does not define these does **not** fall back gracefully: a custom
+property whose value contains an unresolvable `var()` becomes invalid at
+computed-value time, so `font-family` falls back to whatever is inherited. There
+is no error and no warning — the type is simply the wrong face.
+
+That is exactly what Storybook was doing until it was caught by measuring the
+rendered `font-family`: every story had been reviewed in the system font rather
+than Space Grotesk and Inter. `.storybook/preview-head.html` now loads the three
+families and `preview.css` maps the three variables, which reproduces what
+`next/font` does in a consumer — so Storybook demonstrates the contract instead
+of quietly violating it.
+
 Space Grotesk tops out at 700 — never a synthetic bold above it.
 
 ## Local development
@@ -167,13 +222,21 @@ Tailwind CLI over the current `dist/`, so it is never stale. If a class looks
 dead in Storybook but `pnpm test` passes, restart the server before debugging
 the component.
 
+`pnpm dev` runs tsup with `--no-clean` for a reason. The build is two tools —
+tsup emits the JS, `tsc` emits the `.d.ts` — and only tsup runs in watch mode. With
+tsup's default `clean: true` every watch rebuild wiped the declaration files `tsc`
+had written, so `pnpm typecheck` in `apps/storybook` started failing with
+*"Could not find a declaration file for module '@vcyberizadmin/ui'"* the moment the
+dev server was running. Nothing was wrong with the types; the files were simply
+gone. `pnpm build` put them back, which made it look intermittent.
+
 Use `pnpm dev` from the **root**, not `pnpm dev` inside `apps/storybook`.
 Storybook resolves `@vcyberizadmin/ui` through its `exports` map to `dist/`, so editing
 a component with only Storybook running shows nothing — you are looking at the
 last build. The root script runs tsup in watch mode alongside it. (Theme edits
 do appear immediately: `theme.css` is consumed directly, with no build step.)
 
-### Two guards worth knowing about
+### Four guards worth knowing about
 
 **`preserve-directives`** — asserts a `"use client"` at the top of a source file
 survives into `dist/`. A stripped directive makes every interactive component
@@ -193,6 +256,47 @@ automatically, but there is **no `--duration-*` namespace** — so
 `duration-instant` was a dead class until the tokens were declared with
 `@utility`. Note that `cyonix-tenants` defines the same duration tokens without
 those declarations, so its `duration-*` classes are likely inert today.
+
+**Never compute a class name.** Tailwind emits a rule only for classes it can
+find as literal text in the source. A derived class —
+`CATEGORICAL[i].replace("bg-", "text-")` — exists only at runtime, so no rule is
+emitted and the mark renders with no colour at all. Nothing errors, and
+`verify-utilities` cannot see it either, because there is no literal to check.
+This was caught in the donut's arcs before release; `CATEGORICAL_INK` and
+`SEQUENTIAL_INK` exist as literal arrays for exactly this reason.
+
+**`verify-merge`** — asserts `cn()` knows this theme's custom `--text-*` and
+`--shadow-*` scales. `tailwind-merge` decides what conflicts from a map of
+Tailwind's *default* scales, so it has never seen `text-h2` and guesses
+"colour", because `text-<anything>` is a valid colour utility. `text-h2` and
+`text-danger` then land in the same conflict group and the later wins:
+
+```
+cn("font-display text-h2 font-bold", "text-danger")
+  →  "font-display font-bold text-danger"     // 30px silently became 15px
+```
+
+Every surviving class resolves, so `verify-utilities` stays green; the only
+symptom is the wrong rendered size. This shipped in `0.1.0` in two places — a
+`StatTile` whose value carried a tone, and every `ImpactBox` row in the confirm
+dialog. `lib/cn.ts` now declares the scales, so genuine conflicts still merge
+(`cn("text-h2", "text-h3")` correctly yields `text-h3`). **Any new `--text-*` or
+`--shadow-*` token must be added there**, or it inherits the same silent bug.
+
+**`verify-dates`** — asserts CX-DTE's arithmetic and the grid it renders. Every
+failure mode in a date component is an off-by-one that renders perfectly: a leap
+day dropped, a "Last 7 Days" that quietly spans eight, a month grid whose leading
+blanks are one column short so every date sits under the wrong weekday, a
+`31 January` minus one month that rolls forward to 3 March. Nothing throws,
+nothing fails a typecheck, and nothing looks wrong in a screenshot unless you
+happen to count.
+
+The dates in it are fixed and deliberately awkward — February 2023 starts on a
+Wednesday, 2024 is a leap year, and the January/December cases straddle a year
+boundary. A date test written against `today` passes for eleven months of the
+year. The render half asserts structure rather than classes: one tab stop per
+grid, both endpoints marked selected, out-of-bounds days announced but still
+focusable, and Apply refusing exactly one state.
 
 ## Publishing
 
@@ -223,16 +327,129 @@ mean renaming both packages and every import.
 
 ## Status
 
-Rollout step 1 of 9 (the token contract) plus two of the step-3 primitives.
-
-Built:
+**Complete against the standard: all 9 rollout steps, 26 of 26 components, and
+59 of 59 exports** — verified by diffing the standard's package surface against
+the barrels, not by counting by hand. 71 value exports in total, counting
+additions.
 
 | Export | Components |
 | ------ | ---------- |
-| `@vcyberizadmin/ui` | `Button` (CX-BTN) · `Card` (CX-CRD) · `StatusPill` + `SeverityBadge` (CX-STA) · `cn` |
-| `@vcyberizadmin/ui/lib/status` | vocabulary · `severityRank()` · `bySeverity()` · `extendVocabulary()` · chart ramps |
-| `@vcyberizadmin/ui/layout` | `AppShell` (CX-SHL) · `NavRail` (CX-NAV) · `TopBar` (CX-TOP) |
-| `@vcyberizadmin/ui/overlays` | `Modal` (CX-MOD) · `Drawer` (CX-DRW) · `ConfirmDialog` + `ImpactBox` (CX-CNF) · `Menu` (CX-MNU) · `useOverlay` |
+| `@vcyberizadmin/ui` | `Button` + `IconButton` (CX-BTN) · `Card` (CX-CRD) · `StatusPill` + `SeverityBadge` (CX-STA) · `Tag` + `ChipStack` + `Code` (CX-TAG) · `EmptyState` + `ErrorState` + `Skeleton` (CX-STE) · `Note` + `InsightPanel` (CX-INS) · `DataTable` + `Toolbar` + `FilterChip` + `SegmentedFilter` + `Pagination` + cells (CX-TBL/FLT/PAG) · `Field` + `Input` + `Textarea` + `Select` + `Checkbox` + `Switch` (CX-FLD) · `StatTile` + `TrendTile` + `StatusTile` + `TileGrid` (CX-TIL) · `Tabs` + `Segmented` (CX-TAB) · `DefinitionCard` + `DescriptionList` (CX-DEF) · `Calendar` + `DatePicker` + `DateRangePicker` + `DateRangeFilter` (CX-DTE) · `cn` |
+| `@vcyberizadmin/ui/layout` | `AppShell` (CX-SHL) · `NavRail` (CX-NAV) · `TopBar` (CX-TOP) · `PageHeader` + `Breadcrumb` (CX-HDR) · `CommandPalette` (CX-CMD) · `SettingsShell` (CX-SET) · `Logo` · `ThemeToggle` |
+| `@vcyberizadmin/ui/overlays` | `Modal` (CX-MOD) · `Drawer` (CX-DRW) · `ConfirmDialog` + `ImpactBox` (CX-CNF) · `Menu` (CX-MNU) · `Tooltip` + `Popover` (CX-TIP) · `ToastProvider` + `useToast` (CX-TST) · `useOverlay` |
+| `@vcyberizadmin/ui/charts` | `Sparkline` · `Donut` · `FunnelFlow` · `RankedBars` · `ProportionBar` (CX-CHT) |
+| `@vcyberizadmin/ui/lib/status` | vocabulary · `severityRank()` · `bySeverity()` · `extendVocabulary()` · ramps · `TONE_INK` |
+
+### Two deliberate deviations from the standard
+
+**Charts ship without recharts.** The standard describes `./charts` as the thing
+that "quarantines the recharts dependency". None of the five components needs it:
+a sparkline is a polyline, a proportion bar is the standard's own "no library"
+case, and a donut is one circle with dash offsets. Shipping them as SVG means no
+console pays ~100KB for four shapes. The subpath is kept so the standard's import
+paths hold and chart code stays out of the root chunk. Reach for a real charting
+library when a console needs brushing, zooming or animated transitions — not
+before.
+
+**`SegmentedFilter` delegates to `Segmented`.** The standard lists both names,
+under CX-FLT and CX-TAB, and they are the same radiogroup at two visual weights.
+One implementation with a `variant`, rather than two copies that drift — which is
+what the standard does everywhere else it finds rival implementations.
+
+Additions beyond the 59: the CX-DTE date set (below), `FieldBoundary`, `TileGrid` (the auto-fit
+grid rule, also used for definition cards at 320px), `FieldGrid`, `useTabsPanel`,
+and the overlay hooks `useAnchoredPosition` / `useDismissOnOutside` /
+`usePortalTarget`.
+
+### CX-DTE — the component the standard names but never specifies
+
+The standard lists **"bound by date with a start–end range"** as an operation
+every filter strip needs (CX-FLT), and ships no control that performs it. CX-FLD
+has the same gap on the form side: Input, Textarea, Select, Checkbox, Switch, and
+no date. Neither omission is a base-app disagreement to reconcile — none of the
+three consoles had a date control at all — so this set is written from scratch
+and given its own ID rather than smuggled into CX-FLT.
+
+`Calendar` is one month as a real ARIA grid. `DateRangePicker` is the panel:
+preset rail, a read-out of what is about to be applied, and one grid per end of
+the range. `DateRangeFilter` drops that panel into the toolbar behind a trigger
+that states the applied range. `DatePicker` is the single-date form control.
+
+**The value type is a `YYYY-MM-DD` string, not a `Date`.** A `Date` is an instant;
+a picked calendar day is not. `new Date("2023-02-10")` parses as UTC midnight,
+which is 9 February in every negative offset, and `toISOString()` on a
+local-midnight `Date` shifts the other way — both bugs invisible in CI, which
+runs in UTC, and visible only to users west of Greenwich. Strings also fall out
+right for the two things CX-FLT actually asks: they are URL-safe without
+encoding, so a filtered view stays linkable, and they compare with `<` and `===`,
+so range maths needs no library. `Date` appears only inside `dates.ts`, always
+pinned to noon — midnight does not exist on some DST-shift days, and a missing
+hour silently moves a date by one.
+
+**This is the one filter with an Apply button, and the deviation is deliberate.**
+CX-FLT is explicit that filters apply immediately. Every other filter in the
+strip reaches a valid state in one interaction; a range is assembled from up to
+six — a month, a year and a day at each end — and the states in between are not
+merely stale, they are wrong. A range with one end filled in reads both as
+"everything since 10 February" and "everything up to 10 February", so applying on
+each click means firing a series of expensive queries, most for a window nobody
+asked for, and showing the last as though it were the answer. The whole panel is
+therefore one transaction: presets, hand-picked days and Clear filters write to a
+draft, Apply commits, Cancel discards. Presets do not shortcut past Apply either
+— a rail where one row applies instantly and the grid beside it does not is a
+worse inconsistency than the button. Apply is disabled in exactly one state, the
+half-built range; clearing both ends and applying is how the filter is removed.
+
+**With nothing applied, the panel opens on today** — today selected at both ends,
+`Today` lit in the rail, Apply live. It is usable on the first click instead of
+the third. `defaultToToday={false}` opens blank.
+
+What that seeds is the **draft**, not the filter, and the distinction is what
+makes it safe as a default: the trigger still reads its idle label and the table
+still shows every row until Apply is pressed, so CX-FLT's rule about applied
+filter state staying visible is untouched. Two states the seed deliberately
+leaves alone — a half-built range, because overwriting a start the operator has
+already chosen is worse than an empty end, and a cleared draft, because a Clear
+that instantly refilled itself would look broken.
+
+An **applied** default is a different thing and stays the caller's decision, since
+only the app knows whether a pre-narrowed table is honest on first paint:
+
+```tsx
+const [range, setRange] = useState(todayRange);   // filtering before you touch it
+const [due, setDue] = useState(todayISO);         // a form field that starts on today
+```
+
+**Ends carry the selection, the band carries the context.** The two selected days
+take the orange fill and the days between take a neutral wash. The brand caps
+orange at "well under a tenth of any screen" and a 30-day band is roughly a third
+of the grid — and an orange band would compete with the two cells holding the
+actual selection. Same division CX-NAV makes: orange bar on the current item,
+neutral wash on hover. Today is marked with a hairline, never a fill, because it
+is a location rather than a selection.
+
+**Unavailable days carry `aria-disabled`, not `disabled`.** The grid is one tab
+stop with a roving tabindex, per the ARIA grid pattern. A truly disabled button
+is not focusable, so a min-bounded calendar opening on a month whose 1st is out
+of range would lose its tab stop and become unreachable by keyboard. The click is
+refused in the handler instead.
+
+Two small changes to existing components fell out of this, both backward
+compatible:
+
+- **`Popover` gained optional `open` / `onOpenChange`.** A panel whose content
+  carries its own Cancel and Apply has to be able to dismiss itself. The
+  uncontrolled default is unchanged.
+- **`FieldBoundary` was added to CX-FLD.** A composite control is one Field
+  control on the outside and a panel of its own controls on the inside, and
+  context reaches those inner controls too — *including through a portal*, since
+  a portal moves the DOM node and not the React tree. Without the boundary the
+  calendar's month and year selects each picked up the field's `id` (three
+  elements, one `id`, `<label for>` pointing at whichever the browser found
+  first) along with its `aria-describedby` and `aria-invalid`, so a bad date was
+  reported by the month dropdown. `verify-dates` asserts all three stay clear,
+  and was checked against the unfixed component to make sure it can actually see
+  the leak.
 
 ### Overlays share one hook
 

@@ -210,3 +210,100 @@ export function useDismissOnOutside(
       document.removeEventListener("pointerdown", onPointerDown, true);
   }, [open, ref, ignoreRef]);
 }
+
+/* ---------------------------------------------------------------------------
+   Anchored positioning, shared by Menu, Tooltip and Popover.
+   --------------------------------------------------------------------------- */
+
+export interface AnchoredPosition {
+  top: number;
+  left: number;
+  /** Which side it actually landed on, after flipping. */
+  side: "top" | "bottom";
+}
+
+export interface UseAnchoredPositionOptions {
+  open: boolean;
+  anchorRef: RefObject<HTMLElement | null>;
+  floatingRef: RefObject<HTMLElement | null>;
+  /** Horizontal alignment against the anchor. */
+  align?: "start" | "center" | "end";
+  /** Preferred side. Flips when there is not room. */
+  side?: "top" | "bottom";
+  gap?: number;
+}
+
+/**
+ * Fixed-position placement against an anchor, flipping to stay in the viewport.
+ *
+ * Returns null until measured, so a caller can keep the panel invisible rather
+ * than flashing it at 0,0 for a frame. Uses viewport coordinates with `position:
+ * fixed`, which is also what lets a portaled panel escape a scroll container.
+ */
+export function useAnchoredPosition({
+  open,
+  anchorRef,
+  floatingRef,
+  align = "start",
+  side = "bottom",
+  gap = 6,
+}: UseAnchoredPositionOptions): AnchoredPosition | null {
+  const [position, setPosition] = useState<AnchoredPosition | null>(null);
+
+  useEffect(() => {
+    if (!open) {
+      setPosition(null);
+      return;
+    }
+
+    const place = () => {
+      const anchor = anchorRef.current;
+      const floating = floatingRef.current;
+      if (!anchor || !floating) return;
+
+      const rect = anchor.getBoundingClientRect();
+      const { offsetHeight: height, offsetWidth: width } = floating;
+
+      const roomBelow = window.innerHeight - rect.bottom;
+      const roomAbove = rect.top;
+      const wanted = side === "bottom" ? roomBelow : roomAbove;
+      const other = side === "bottom" ? roomAbove : roomBelow;
+      const flip = wanted < height + gap && other > wanted;
+      const resolved: "top" | "bottom" = flip
+        ? side === "bottom"
+          ? "top"
+          : "bottom"
+        : side;
+
+      let left =
+        align === "end"
+          ? rect.right - width
+          : align === "center"
+            ? rect.left + rect.width / 2 - width / 2
+            : rect.left;
+      // Never let it hang off the edge.
+      left = Math.max(8, Math.min(left, window.innerWidth - width - 8));
+
+      setPosition({
+        top:
+          resolved === "bottom"
+            ? rect.bottom + gap
+            : rect.top - height - gap,
+        left,
+        side: resolved,
+      });
+    };
+
+    place();
+
+    // Reposition rather than drift when the page moves under it.
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
+    return () => {
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
+    };
+  }, [open, anchorRef, floatingRef, align, side, gap]);
+
+  return position;
+}

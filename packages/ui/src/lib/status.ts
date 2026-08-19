@@ -116,22 +116,22 @@ export function isLive(
 export const TONE_STYLES: Record<StatusTone, { pill: string; dot: string }> = {
   // 10% tint, 25% border, hue as the label — the pill recipe from the standard.
   success: {
-    pill: "text-ok bg-ok/10 border-ok/25",
+    pill: "text-ok-ink bg-ok/10 border-ok/25",
     dot: "rounded-full bg-current",
   },
   warning: {
-    pill: "text-warning bg-warning/10 border-warning/25",
+    pill: "text-warning-ink bg-warning/10 border-warning/25",
     dot: "rounded-full bg-current ring-2 ring-current/30",
   },
   danger: {
     // Diamond. The base implementation gave warning and danger the same haloed
     // circle, which breaks the "each tone a distinct shape" rule exactly where
     // it matters most.
-    pill: "text-danger bg-danger/10 border-danger/25",
+    pill: "text-danger-ink bg-danger/10 border-danger/25",
     dot: "bg-current rotate-45",
   },
   info: {
-    pill: "text-info bg-info/10 border-info/25",
+    pill: "text-info-ink bg-info/10 border-info/25",
     dot: "rounded-full border-[1.5px] border-current",
   },
   neutral: {
@@ -141,6 +141,68 @@ export const TONE_STYLES: Record<StatusTone, { pill: string; dot: string }> = {
   draft: {
     pill: "text-fg-muted border-dashed border-fg-muted/60 bg-transparent",
     dot: "hidden",
+  },
+};
+
+/**
+ * Tone → plain ink and fill, for places that need the hue WITHOUT the pill
+ * chrome: a stat tile's value, a status tile's left rail, a trend arrow.
+ *
+ *   text  INK for type. Cleared 4.5:1 against page, card, tint and wash.
+ *   fill  a solid block — a bar, a dot. The brand MARK value.
+ *   glyph the MARK value as `currentColor`, for an icon or other non-text
+ *         graphic. Icons answer to WCAG 1.4.11 at 3:1, not 1.4.3 at 4.5:1, so
+ *         they take the mark and therefore match the bar or rail beside them
+ *         exactly. Never use this for a label.
+ *   edge  border-left colour, for a rail that must sit FLUSH with the card
+ *         edge. An absolutely-positioned bar cannot: `inset-y-0` resolves
+ *         against the padding box, so a 1px border leaves a hairline of rule
+ *         colour above, below and beside the rail.
+ *
+ * Separate from TONE_STYLES because those are a pill recipe (tint + border +
+ * label) and a 30px headline number must not carry a border. Same vocabulary,
+ * different shape — so a tile and a pill can never disagree about what "danger"
+ * looks like.
+ */
+export const TONE_INK: Record<
+  StatusTone,
+  { text: string; fill: string; glyph: string; edge: string }
+> = {
+  success: {
+    text: "text-ok-ink",
+    fill: "bg-ok",
+    glyph: "text-ok",
+    edge: "border-l-ok",
+  },
+  warning: {
+    text: "text-warning-ink",
+    fill: "bg-warning",
+    glyph: "text-warning",
+    edge: "border-l-warning",
+  },
+  danger: {
+    text: "text-danger-ink",
+    fill: "bg-danger",
+    glyph: "text-danger",
+    edge: "border-l-danger",
+  },
+  info: {
+    text: "text-info-ink",
+    fill: "bg-info",
+    glyph: "text-info",
+    edge: "border-l-info",
+  },
+  neutral: {
+    text: "text-fg",
+    fill: "bg-fg-muted",
+    glyph: "text-fg-muted",
+    edge: "border-l-fg-muted",
+  },
+  draft: {
+    text: "text-fg-muted",
+    fill: "bg-fg-muted",
+    glyph: "text-fg-muted",
+    edge: "border-l-fg-muted",
   },
 };
 
@@ -163,31 +225,31 @@ export const SEVERITY_META: Record<
   Critical: {
     action: "Immediate action · page on-call",
     bar: "bg-sev-crit",
-    text: "text-sev-crit",
+    text: "text-sev-crit-ink",
     surface: "bg-sev-crit/12 border-sev-crit/30",
   },
   High: {
     action: "Same-shift response",
     bar: "bg-sev-high",
-    text: "text-sev-high",
+    text: "text-sev-high-ink",
     surface: "bg-sev-high/12 border-sev-high/30",
   },
   Medium: {
     action: "Queue for triage",
     bar: "bg-sev-med",
-    text: "text-sev-med",
+    text: "text-sev-med-ink",
     surface: "bg-sev-med/12 border-sev-med/30",
   },
   Low: {
     action: "Track, no interrupt",
     bar: "bg-sev-low",
-    text: "text-sev-low",
+    text: "text-sev-low-ink",
     surface: "bg-sev-low/12 border-sev-low/30",
   },
   Info: {
     action: "No action required",
     bar: "bg-sev-info",
-    text: "text-sev-info",
+    text: "text-sev-info-ink",
     surface: "bg-sev-info/12 border-sev-info/30",
   },
 };
@@ -218,6 +280,35 @@ export const CATEGORICAL = [
   "bg-cat-4",
   "bg-cat-5",
   "bg-cat-6",
+] as const;
+
+/**
+ * The same two ramps as INK rather than fill.
+ *
+ * These exist as separate literal arrays instead of being derived — deriving
+ * them (`CATEGORICAL[i].replace("bg-", "text-")`) produces a class that appears
+ * nowhere in the source, so Tailwind never generates it and the mark renders
+ * with no colour at all. Nothing errors, and verify-utilities cannot catch it
+ * because the string only exists at runtime. NEVER COMPUTE A CLASS NAME.
+ */
+export const CATEGORICAL_INK = [
+  "text-cat-1",
+  "text-cat-2",
+  "text-cat-3",
+  "text-cat-4",
+  "text-cat-5",
+  "text-cat-6",
+] as const;
+
+export const SEQUENTIAL_INK = [
+  "text-seq-1",
+  "text-seq-2",
+  "text-seq-3",
+  "text-seq-4",
+  "text-seq-5",
+  "text-seq-6",
+  "text-seq-7",
+  "text-seq-8",
 ] as const;
 
 /** Single-hue magnitude ramp, dark to light. */

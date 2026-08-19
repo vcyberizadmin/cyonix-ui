@@ -140,9 +140,9 @@ function Clock() {
 }
 
 const STATUS_TONE = {
-  ok: "bg-ok text-ok",
-  warning: "bg-warning text-warning",
-  danger: "bg-danger text-danger",
+  ok: "bg-ok text-ok-ink",
+  warning: "bg-warning text-warning-ink",
+  danger: "bg-danger text-danger-ink",
 } as const;
 
 function SystemStatus({ tone, label }: { tone: keyof typeof STATUS_TONE; label: string }) {
@@ -237,7 +237,9 @@ export function TopBar({
             type="button"
             onClick={onSearch}
             aria-label="Open command palette"
-            className="border-rule bg-wash-1 text-fg-muted hover:border-accent/40 hover:text-fg-2 duration-instant ease-brand flex h-8 w-full max-w-md cursor-pointer items-center gap-2 rounded-sm border px-3 text-[12.5px] transition-colors"
+            // text-fg-2, not text-fg-muted: this looks like a placeholder but it is a
+            // real button label, and at 12.5px on a wash muted reaches only 4.37:1.
+            className="border-rule bg-wash-1 text-fg-2 hover:border-accent/40 hover:text-fg duration-instant ease-brand flex h-8 w-full max-w-md cursor-pointer items-center gap-2 rounded-sm border px-3 text-[12.5px] transition-colors"
           >
             <svg
               className="size-3.5 shrink-0"
@@ -252,7 +254,7 @@ export function TopBar({
               <path d="m20 20-3.5-3.5" />
             </svg>
             <span className="truncate">{searchPlaceholder}</span>
-            <kbd className="border-rule text-fg-muted ml-auto shrink-0 rounded-sm border px-1.5 py-0.5 font-mono text-[10px]">
+            <kbd className="border-rule text-fg-2 ml-auto shrink-0 rounded-sm border px-1.5 py-0.5 font-mono text-[10px]">
               {shortcut}
             </kbd>
           </button>

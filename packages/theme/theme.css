@@ -105,11 +105,26 @@
   --surface: var(--dark-grey); /* cards, tables, overlays */
   --rule: var(--dark-grey-2); /* every divider — hairline, never space alone */
   --accent: var(--orange-400); /* current location + primary action ONLY */
-  --accent-fg: var(--white);
+  /* NOT white. White on Sunset Orange is 3.44:1 on Orange 400 and 2.98:1 on
+     Orange 350 — below AA for a 14px button label in BOTH themes, and no
+     shade of the brand orange can carry white text at 4.5:1 without ceasing to
+     be the brand orange. The label darkens so the fill does not have to:
+     4.84:1 on 400, 5.58:1 on 350. This changes how every primary Button,
+     filled segment and skip link reads, and is the one visible trade the
+     accessibility pass makes. */
+  --accent-fg: #1c1e25;
+  /* Means specifically "ink that sits ON the accent fill". It is NOT a general
+     foreground: the outline Button's label sits on --bg (its inset ::before
+     covers the fill), so that variant uses --fg. Near-black on the 22% orange
+     hover wash measures 1.3:1. */
 
   --fg: var(--white);
   --fg-2: var(--light-grey); /* secondary text on Onyx and Dark Grey */
-  --fg-muted: var(--mid-grey); /* disabled */
+  /* Mid Grey is the brand's disabled value and stays that. But this token also
+     carries captions, counts and meta lines, where it measured 3.42:1 — so it
+     lifts to the smallest step that clears 4.5:1 on page, card and wash.
+     Disabled state is exempt from contrast under WCAG 2.2; a caption is not. */
+  --fg-muted: #8a8c9f; /* Mid Grey lifted; 4.67:1 */
 
   /* Alpha derivations — white on dark, black on light. */
   --wash-1: rgb(255 255 255 / 0.04);
@@ -140,6 +155,56 @@
   --duration-emphasis: 400ms; /* modals, drawers, chart draw-in */
   --duration-page: 700ms; /* route and full-panel transitions only */
 
+  /* ---------------------------------------------------------------------
+     INK vs MARK — why each semantic hue has two tokens
+     ---------------------------------------------------------------------
+     The brand sets the target itself: "Target WCAG 2.2 AA. Operators use this
+     product for long shifts, at night, sometimes on bad displays —
+     accessibility is legibility." Its own contrast table checks every hue
+     against ONE ground, Onyx Grey, on the dark theme only.
+
+     The library paints those hues on three more grounds the table never
+     evaluated: Dark Grey cards, the hue's own 10–12% tint on a card, and the
+     entire light theme. Measured across all 57 stories, 261 text nodes fell
+     below AA in light and 374 in dark.
+
+     One value cannot serve both jobs, and the reason is structural rather than
+     aesthetic:
+
+       MARK  a 3px severity bar, a chart fill, a status dot. Needs 3:1 as a
+             non-text element, and needs "deeper = worse" to hold so critical
+             never reads as merely high. KEEPS THE BRAND VALUE EXACTLY.
+       INK   an 11px label. Needs 4.5:1 against the darkest AND lightest ground
+             it lands on, which on a near-black canvas forces it LIGHTER and on
+             white forces it DARKER — the opposite directions.
+
+     So the bar carries the rank and the label carries the legibility. Ink steps
+     below are the SMALLEST deviation from each brand hue that clears 4.5:1 on
+     page, card, tint and wash — chosen by measurement, not by eye.
+
+     Critical and high resolve to distinct ink in both themes deliberately. The
+     naive minimum collapses them onto one value, which would erase the single
+     distinction the severity ladder exists to make. --- */
+  --ok-ink: var(--ok); /* 6.55:1 — the brand value already clears it */
+  --warning-ink: var(--warning); /* 6.88:1 */
+  --danger-ink: #f87171; /* #ef4444 reaches only 4.11:1 on a tint */
+  --info-ink: #c084fc; /* #a855f7 reaches only 3.91:1 */
+
+  /* The fill for a FILLED destructive control, where the label is white. White
+     on --danger is 3.76:1; on this it is 6.49:1. Not a second danger hue for
+     general use — tints, dots and bars stay on --danger. */
+  --danger-strong: #b91c1c;
+
+  --sev-crit-ink: #f87171; /* #b91c1c is 2.39:1 on dark — the worst in the set */
+  --sev-high-ink: #fca5a5; /* softer red, so critical stays the more intense */
+  --sev-med-ink: var(--sev-med); /* 6.88:1 */
+  --sev-low-ink: #60a5fa; /* #3b82f6 reaches only 4.21:1 */
+  --sev-info-ink: var(--sev-info); /* 6.59:1 */
+
+  /* Orange 400 measures exactly 4.50:1 as ink on wash — no headroom at all, so
+     ink steps to Orange 350, the lighter brand step. Fills stay on 400. */
+  --accent-ink: var(--orange-350);
+
   /* Type. Space Grotesk sets headings and button labels and tops out at 700 —
      never a synthetic bold above it. Inter carries the interface. JetBrains
      Mono is reserved for hexes, hashes, IDs, counters and log output. */
@@ -165,7 +230,22 @@
 
   --fg: #1c1e25;
   --fg-2: #5e6175;
-  --fg-muted: var(--mid-grey); /* Mid Grey on light surfaces */
+  --fg-muted: #67697c; /* Mid Grey darkened; 3.92:1 → 4.67:1 */
+
+  /* Ink inverts direction here: on white every hue must go DARKER. These are
+     again the smallest steps that clear 4.5:1 on page, card, tint and wash. */
+  --ok-ink: #166534; /* #22c55e was 1.97:1 on a white card */
+  --warning-ink: #92400e; /* #f59e0b was 1.86:1 — the worst in the set */
+  --danger-ink: #b91c1c;
+  --info-ink: #6b21a8; /* deep enough for InsightPanel's 20% tint, not just 10% */
+
+  --sev-crit-ink: #7f1d1d; /* deeper than high, so the ladder still reads */
+  --sev-high-ink: #b91c1c;
+  --sev-med-ink: #92400e;
+  --sev-low-ink: #1d4ed8;
+  --sev-info-ink: #475569;
+
+  --accent-ink: #9a3412; /* Orange 350 as ink is 2.98:1 on white */
 
   --wash-1: rgb(0 0 0 / 0.03);
   --wash-2: rgb(0 0 0 / 0.05);
@@ -193,6 +273,7 @@
   --color-wash-hover: var(--wash-hover);
   --color-wash-accent: var(--wash-accent);
 
+  /* MARKS — bars, dots, fills, chart series. Brand values, unchanged. */
   --color-ok: var(--ok);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
@@ -203,6 +284,23 @@
   --color-sev-med: var(--sev-med);
   --color-sev-low: var(--sev-low);
   --color-sev-info: var(--sev-info);
+
+  /* INK — labels. Use these for TEXT; use the marks above for everything else.
+     `text-danger` still resolves, so a consumer's existing markup keeps
+     working, but it is the mark and will not clear AA at small sizes. */
+  --color-ok-ink: var(--ok-ink);
+  --color-warning-ink: var(--warning-ink);
+  --color-danger-ink: var(--danger-ink);
+  --color-info-ink: var(--info-ink);
+  --color-danger-strong: var(--danger-strong);
+
+  --color-sev-crit-ink: var(--sev-crit-ink);
+  --color-sev-high-ink: var(--sev-high-ink);
+  --color-sev-med-ink: var(--sev-med-ink);
+  --color-sev-low-ink: var(--sev-low-ink);
+  --color-sev-info-ink: var(--sev-info-ink);
+
+  --color-accent-ink: var(--accent-ink);
 
   --color-cat-1: var(--cat-1);
   --color-cat-2: var(--cat-2);
@@ -261,6 +359,9 @@
   --container-rail: 300px;
   --container-rail-mini: 68px;
 
+  /* Settings rail (CX-SET): 250px, per the standard. */
+  --container-settings-rail: 250px;
+
   /* Drawer geometry (CX-DRW): 480px default, 640px wide variant. */
   --container-drawer: 480px;
   --container-drawer-wide: 640px;
@@ -317,6 +418,17 @@
 }
 @utility duration-page {
   transition-duration: var(--duration-page);
+}
+
+/* A horizontally scrolling control (CX-TAB's tab bar and segmented row) needs
+   to scroll without a visible scrollbar under it — overflow is signalled by a
+   mask fade on whichever edge is actually cut off. Not a Tailwind built-in. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {
@@ -378,6 +490,14 @@
       0 100%
     );
     border-radius: var(--r-sm) var(--r-sm) 0 var(--r-sm);
+  }
+
+  /* IconButton reuses the Button recipe, which carries .cx-chamfer. An 11px
+     chamfer on a 32px square eats a third of the width, so it is switched off
+     here rather than by omitting the shared recipe and duplicating six variants. */
+  .cx-chamfer-none {
+    clip-path: none;
+    border-radius: var(--r-sm);
   }
 
   /* Outlined variants: the "border" is the chamfered fill with a 1px-inset

@@ -7,3 +7,26 @@ export {
 } from "./nav-rail.js";
 export { TopBar, type TopBarProps, type ScopeOption } from "./top-bar.js";
 export { AppShell, type AppShellProps } from "./app-shell.js";
+export {
+  PageHeader,
+  type PageHeaderProps,
+  Breadcrumb,
+  type BreadcrumbProps,
+  type Crumb,
+} from "./page-header.js";
+export {
+  CommandPalette,
+  type CommandPaletteProps,
+  type Command,
+} from "./command-palette.js";
+export { Logo, type LogoProps } from "./logo.js";
+export {
+  ThemeToggle,
+  type ThemeToggleProps,
+  type Theme,
+} from "./theme-toggle.js";
+export {
+  SettingsShell,
+  type SettingsShellProps,
+  type SettingsSection,
+} from "./settings-shell.js";

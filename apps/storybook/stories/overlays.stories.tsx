@@ -1,5 +1,6 @@
 import { Button, Card } from "@vcyberizadmin/ui";
 import {
+  ImpactBox,
   ConfirmDialog,
   Drawer,
   Menu,
@@ -105,7 +106,7 @@ function DrawerDemo() {
             onClick={() => setIndex(recordIndex)}
             className={
               "border-rule hover:bg-wash-hover cursor-pointer rounded-md border px-4 py-3 text-left font-mono text-[13px] " +
-              (index === recordIndex ? "bg-wash-2 text-accent" : "text-fg-2")
+              (index === recordIndex ? "bg-wash-2 text-accent-ink" : "text-fg-2")
             }
           >
             {record}
@@ -286,3 +287,40 @@ function MenuDemo() {
 }
 
 export const MenuStory: Story = { name: "Menu", render: () => <MenuDemo /> };
+
+/**
+ * ImpactBox on its own. ConfirmDialog composes it, but it is exported because
+ * the same "state the consequences before the button" job comes up outside a
+ * dialog — in a drawer, or above a destructive form.
+ */
+export const ImpactBoxAlone: Story = {
+  name: "ImpactBox (standalone)",
+  render: () => (
+    <div className="flex max-w-lg flex-col gap-6">
+      <ImpactBox
+        items={[
+          { text: "All 148 findings and their evidence are destroyed." },
+          { text: "Exported reports keep working; live links break." },
+          { text: "The audit trail is retained for 7 years.", reversible: true },
+          { text: "This cannot be undone." },
+        ]}
+      />
+      <ImpactBox
+        title="What changes"
+        items={[
+          { text: "The tenant is suspended immediately." },
+          { text: "Users are signed out within 60 seconds." },
+          { text: "Data is retained and restored on reactivation.", reversible: true },
+        ]}
+      />
+      <Card title="The one green line" padding="sm">
+        <p className="text-fg-2 text-small">
+          <code>reversible</code> marks a consequence that is <em>not</em> a loss,
+          in the success tone. In a list of red consequences, the single reassuring
+          line is the one an operator most needs to find — so it is the one that
+          gets a different colour.
+        </p>
+      </Card>
+    </div>
+  ),
+};

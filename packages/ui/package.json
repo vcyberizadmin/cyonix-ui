@@ -18,6 +18,10 @@
       "types": "./dist/overlays/index.d.ts",
       "import": "./dist/overlays/index.js"
     },
+    "./charts": {
+      "types": "./dist/charts/index.d.ts",
+      "import": "./dist/charts/index.js"
+    },
     "./lib/status": {
       "types": "./dist/lib/status.d.ts",
       "import": "./dist/lib/status.js"
@@ -35,10 +39,12 @@
   },
   "scripts": {
     "build": "tsup && tsc -p tsconfig.build.json && node scripts/preserve-directives.mjs",
-    "dev": "tsup --watch",
+    "dev": "tsup --watch --no-clean",
     "typecheck": "tsc --noEmit",
     "verify": "node scripts/verify-utilities.mjs",
-    "test": "pnpm build && pnpm typecheck && pnpm verify"
+    "test": "pnpm build && pnpm typecheck && pnpm verify && pnpm verify:merge && pnpm verify:dates",
+    "verify:merge": "node scripts/verify-merge.mjs",
+    "verify:dates": "node scripts/verify-dates.mjs"
   },
   "peerDependencies": {
     "react": ">=18",
