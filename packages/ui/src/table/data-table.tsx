@@ -45,18 +45,42 @@ export interface SortState {
 export interface Column<T> {
   key: string;
   header: ReactNode;
-  cell: (row: T) => ReactNode;
+  /** Cell renderer. The index is the row's position in the RENDERED order, so a
+   *  numbered column stays in step when the table sorts. */
+  cell: (row: T, index: number) => ReactNode;
   sortable?: boolean;
   /** `severity` sorts by rank so Critical comes first, not alphabetically. */
   sortAs?: "text" | "number" | "severity";
   /** Value to sort on. Required for a sortable column — the rendered cell is a
    *  ReactNode and cannot be compared reliably. */
   sortValue?: (row: T) => string | number;
-  align?: "left" | "right";
+  /**
+   * Applied to the header AND the body cells together, so the two can never
+   * disagree.
+   *
+   * "left" (the default) is for text a reader actually reads — names, codes,
+   * descriptions. "center" is for the compact columns that are scanned rather
+   * than read: a status mark, a count, a date, an action group. "right" is for
+   * figures meant to be compared digit by digit, and additionally sets the mono
+   * tabular face that makes them line up.
+   */
+  align?: "left" | "center" | "right";
   /** CSS width, e.g. "20%" or "160px". */
   width?: string;
-  /** Marks the fixed right-hand actions column. Clicks inside it do not
-   *  trigger the row click. */
+  /**
+   * Shrinks the column to its own content instead of letting it take a share of
+   * the table's leftover width — which is what otherwise strands a status mark
+   * or an action group a hand's width from its header. Set it on codes, counts,
+   * dates, statuses and action groups; leave it off the text columns, which then
+   * absorb the space left over.
+   */
+  compact?: boolean;
+  /** Escape hatch, applied to header and body cells alike. For the width and
+   *  visibility utilities the props above cannot express, e.g. `min-w-[20rem]`
+   *  or `hidden md:table-cell`. */
+  className?: string;
+  /** Marks the fixed right-hand actions column: it is compact, never truncates,
+   *  and clicks inside it do not trigger the row click. */
   actions?: boolean;
   /**
    * Text cells truncate with an ellipsis. Set false for a cell whose content is
@@ -92,6 +116,13 @@ export interface DataTableProps<T> {
   stickyHeader?: boolean;
   /** Footer row inside the table's border — Pagination goes here. */
   footer?: ReactNode;
+  /**
+   * Row hover feedback. Defaults on, and should stay on for any table whose rows
+   * are records an operator acts on. Turn it off for a static reference grid — a
+   * permissions matrix, a legend — where a hover wash advertises interactivity
+   * the row does not have.
+   */
+  hoverable?: boolean;
   /** Accessible name for the table. */
   label?: string;
   className?: string;
@@ -126,6 +157,7 @@ export function DataTable<T>({
   empty,
   minWidth = "720px",
   stickyHeader = true,
+  hoverable = true,
   footer,
   label,
   className,
@@ -210,6 +242,10 @@ export function DataTable<T>({
                     className={cn(
                       "border-rule text-fg-2 border-b px-4 py-2.5 text-[11.5px] font-semibold tracking-[0.12em] whitespace-nowrap uppercase",
                       column.align === "right" && "text-right",
+                      column.align === "center" && "text-center",
+                      // An actions column is compact by definition.
+                      (column.compact || column.actions) && "w-px",
+                      column.className,
                     )}
                   >
                     {column.sortable ? (
@@ -249,7 +285,7 @@ export function DataTable<T>({
 
           <tbody>
             {showBody &&
-              ordered.map((row) => {
+              ordered.map((row, index) => {
                 const key = rowKey(row);
                 const selected = key === selectedKey;
                 const clickable = onRowClick !== undefined;
@@ -265,7 +301,7 @@ export function DataTable<T>({
                       clickable && "cursor-pointer",
                       selected
                         ? "bg-accent/8 before:bg-accent before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:content-['']"
-                        : "hover:bg-wash-hover",
+                        : hoverable && "hover:bg-wash-hover",
                       "duration-instant ease-brand transition-colors",
                     )}
                   >
@@ -280,15 +316,25 @@ export function DataTable<T>({
                         }
                         className={cn(
                           "text-fg-2 px-4 py-[11px] text-[13px]",
-                          column.truncate === false
+                          // A compact or actions column is sized by its content,
+                          // so there is no share of the table to truncate against
+                          // — and `truncate`'s overflow:hidden clips a control as
+                          // readily as a long string. An Edit button arriving as
+                          // "dit" is never what the caller meant, which is why
+                          // `actions` alone is enough to opt out.
+                          column.truncate === false ||
+                            column.compact ||
+                            column.actions
                             ? "whitespace-nowrap"
                             : "max-w-0 truncate",
                           column.align === "right" &&
                             "text-right font-mono tabular-nums",
-                          column.actions && "w-px whitespace-nowrap",
+                          column.align === "center" && "text-center",
+                          (column.compact || column.actions) && "w-px",
+                          column.className,
                         )}
                       >
-                        {column.cell(row)}
+                        {column.cell(row, index)}
                       </td>
                     ))}
                   </tr>
