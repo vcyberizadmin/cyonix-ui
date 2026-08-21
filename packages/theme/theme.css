@@ -359,6 +359,18 @@
   --container-rail: 300px;
   --container-rail-mini: 68px;
 
+  /* Dock rail geometry (CX-DCK). Unlike CX-NAV, this rail FLOATS: the panel is
+     absolutely positioned and expands OVER the content on hover rather than
+     pushing it, so the gutter the aside reserves never changes and no table
+     reflows when the pointer crosses the rail. The gutter is the collapsed
+     width plus its 12px inset on both sides. Below xl the panel becomes a
+     horizontal dock pinned to the bottom, whose 68px height comes off the 4px
+     grid (h-17) like every other bar — only the widths need naming, because
+     only the widths are load-bearing for the no-reflow trick above. */
+  --container-dock-rail: 76px;
+  --container-dock-rail-open: 232px;
+  --container-dock-gutter: 100px;
+
   /* Settings rail (CX-SET): 250px, per the standard. */
   --container-settings-rail: 250px;
 

@@ -19,12 +19,29 @@ import { useOverlay } from "../overlays/use-overlay.js";
  *  · A skip-to-content link is the FIRST focusable element on the page.
  *  · Below 768px the rail becomes a drawer instead of holding 300px — the one
  *    gap the standard records against Tenant's shell.
+ *
+ * Two rail modes, because the two rails collapse differently
+ * ----------------------------------------------------------
+ * `sidebar` (default) is CX-NAV: a flush panel with no small-screen story of
+ * its own, so the shell supplies one — a drawer plus the trigger that opens it.
+ *
+ * `dock` is CX-DCK, which already IS its own small-screen story: below xl it
+ * becomes a bar pinned to the bottom of the viewport. Wrapping that in the
+ * drawer would hide a rail that is meant to stay visible and mount a trigger
+ * for a drawer nothing can open. So the shell steps back: it renders the rail
+ * straight through, drops the trigger, and takes on the one duty the dock
+ * cannot do for itself — reserving scroll room at the foot of the content so
+ * the last row is not stranded underneath the floating bar.
  */
 
 export interface AppShellProps {
-  /** Typically <NavRail />. Rendered persistently above md, and inside a
-   *  dismissible drawer below it. */
+  /** Typically <NavRail /> or <DockRail />. How it behaves on a small screen
+   *  depends on `railMode`. */
   rail?: ReactNode;
+  /** `sidebar` (default) hides the rail below md and offers it as a drawer.
+   *  `dock` renders the rail unwrapped and lets it place itself — use this
+   *  with <DockRail />, which is already responsive. */
+  railMode?: "sidebar" | "dock";
   /** Typically <TopBar />. */
   topBar?: ReactNode;
   children: ReactNode;
@@ -53,12 +70,14 @@ function Hamburger() {
 
 export function AppShell({
   rail,
+  railMode = "sidebar",
   topBar,
   children,
   contentId = "main-content",
   className,
   contentClassName,
 }: AppShellProps) {
+  const dock = railMode === "dock";
   const [railOpen, setRailOpen] = useState(false);
 
   // Same machinery as every other overlay: focus trap, Escape, focus restore.
@@ -88,11 +107,14 @@ export function AppShell({
         Skip to content
       </a>
 
-      {/* Persistent rail from md up. It never scrolls with the page. */}
-      {rail && <div className="max-md:hidden">{rail}</div>}
+      {/* A dock rail places itself at every width, so it is rendered straight
+          through. A sidebar rail is persistent from md up only. */}
+      {rail &&
+        (dock ? rail : <div className="max-md:hidden">{rail}</div>)}
 
-      {/* Below md the rail is a drawer rather than a 300px tax on a phone. */}
-      {rail && railOpen && (
+      {/* Below md a sidebar rail is a drawer rather than a 300px tax on a
+          phone. The dock never takes this path — it is already on screen. */}
+      {rail && !dock && railOpen && (
         <div
           className="animate-fade-in fixed inset-0 z-50 flex md:hidden"
           style={{
@@ -118,8 +140,9 @@ export function AppShell({
       <div className="flex min-w-0 flex-1 flex-col">
         {(topBar ?? rail) && (
           <div className="sticky top-0 z-30 flex items-stretch">
-            {/* The drawer trigger only exists where the rail is hidden. */}
-            {rail && (
+            {/* The drawer trigger only exists where the rail is hidden, which
+                is never the case for a dock. */}
+            {rail && !dock && (
               <button
                 type="button"
                 onClick={() => setRailOpen(true)}
@@ -139,6 +162,12 @@ export function AppShell({
           id={contentId}
           className={cn(
             "flex min-w-0 flex-1 flex-col gap-6 p-6",
+            // The dock floats over the content below xl, so the column has to
+            // buy back the room it covers — 68px of bar, its 16px inset, and
+            // clearance for the FAB that overhangs the top edge. 116px is the
+            // source's own figure. Without this the last row of a table is
+            // unreachable at the end of a scroll.
+            dock && "max-xl:pb-[116px]",
             contentClassName,
           )}
         >
