@@ -8,18 +8,21 @@ import { cn } from "./lib/cn.js";
  * CX-BTN
  *
  * Brand rules encoded here, from the design system of record:
- *  · The bottom-right corner is chamfered, never rounded, never mirrored, and
- *    never applied to cards or inputs. It is the most recognisable brand cue in
- *    the system — see .cx-chamfer in @vcyberizadmin/theme.
- *  · Labels are Space Grotesk 600 at 14px. That 14px sits deliberately outside
- *    the body type scale; the brand specifies it for button labels only.
+ *  · The corner is a plain 14px radius. The chamfered bottom-right corner the
+ *    brand calls its "most recognisable cue" was DROPPED on an explicit call to
+ *    match the SOC console, whose button is a rounded rectangle. `.cx-chamfer`
+ *    still ships in @vcyberizadmin/theme for anything that wants it back; this
+ *    component no longer applies it.
+ *  · Labels are Space Grotesk at 14px, weight 800 — the console's weight. The
+ *    brand specified 600; that too was overridden for the match. The 14px still
+ *    sits deliberately outside the body type scale.
  *  · Hover brightens 110%, active dims to 94%.
  *  · The spark gradient is never a button background — it is logo artwork.
  *  · Exactly one `primary` per view.
  */
 const button = cva(
   "relative isolate inline-flex items-center justify-center whitespace-nowrap " +
-    "cx-chamfer font-display text-[14px] font-semibold " +
+    "rounded-lg font-display text-[14px] font-extrabold " +
     "transition-[filter,background-color,color] duration-instant ease-brand " +
     "disabled:pointer-events-none disabled:brightness-100",
   {
@@ -41,7 +44,7 @@ const button = cva(
           // covers the fill with --bg, and on hover with a 22% orange wash over
           // it. Near-black on that wash measures 1.3:1 in dark mode. --fg is
           // correct here because the label sits on the app background.
-          "cx-chamfer-hairline bg-accent text-accent-ink hover:text-fg " +
+          "cx-inset-hairline bg-accent text-accent-ink hover:text-fg " +
           "[--cx-btn-bg:var(--bg)] hover:[--cx-btn-bg:var(--wash-accent)]",
         /**
          * Neutral weight for toolbars and dense rows. The brand specifies a
@@ -49,10 +52,15 @@ const button = cva(
          * flagged as an open light-mode question rather than silently reinvented.
          */
         solid:
-          "bg-dark-grey-2 text-white hover:brightness-110 active:brightness-[0.94]",
+          "bg-neutral-800 text-neutral-0 hover:brightness-110 active:brightness-[0.94]",
         /** Marks the recommended option inside a group of equals. */
         edge:
-          "border-l-[3px] border-l-accent bg-dark-grey-2 text-white " +
+          // The marker is an inset bar clipped by the button's own radius, not
+          // a left border. A 3px border follows the 14px curve and reads as a
+          // crescent; the chamfer used to hide that, and with it gone the bar
+          // has to be drawn rather than bordered.
+          "overflow-hidden bg-neutral-800 text-neutral-0 " +
+          "before:bg-accent before:absolute before:inset-y-0 before:left-0 before:z-0 before:w-[3px] before:content-[''] " +
           "hover:brightness-110 active:brightness-[0.94]",
         /**
          * Destructive. Always confirms through CX-CNF.
@@ -70,10 +78,12 @@ const button = cva(
         ghost: "text-fg hover:bg-wash-hover",
       },
       size: {
-        /* Vertical padding only — the chamfer needs a stable 11px corner
-           budget, so horizontal padding is fixed and height carries the size. */
-        sm: "h-8 px-3",
-        md: "h-10 px-4",
+        /* The console's ladder: 44 / 36 / 28, with its own radius per step —
+           the corner tightens as the control shrinks rather than staying fixed.
+           With the chamfer gone there is no 11px corner budget to protect, so
+           horizontal padding scales with height again. */
+        sm: "h-9 rounded-[11px] px-[.9rem] text-[13px]",
+        md: "h-11 px-5",
         lg: "h-12 px-6",
       },
     },
@@ -166,8 +176,13 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
           button({ variant }),
           // Undo the label geometry the shared recipe carries: no chamfer, no
           // horizontal padding, square box.
-          "cx-chamfer-none grid place-items-center rounded-sm p-0",
-          size === "sm" ? "size-7" : size === "lg" ? "size-10" : "size-8",
+          "grid place-items-center rounded-lg p-0",
+          // .btn-icon is 44px square; .btn-icon.btn-sm is 36px at an 11px corner.
+          size === "sm"
+            ? "size-9 rounded-[11px]"
+            : size === "lg"
+              ? "size-12"
+              : "size-11",
           "after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']",
           disabled && "opacity-50",
           "[&_svg]:size-4",

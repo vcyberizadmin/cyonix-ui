@@ -98,7 +98,20 @@ export function AppShell({
   }, [railOpen]);
 
   return (
-    <div className={cn("flex min-h-dvh", className)}>
+    <div
+      className={cn(
+        "flex min-h-dvh",
+        // A dock rail is absolutely positioned inside its gutter, so it is only
+        // as tall as the flex container — and with the document scrolling, it
+        // scrolls away with the content. The console solves this by being
+        // exactly viewport height at xl and letting the CONTENT column scroll
+        // inside itself, which is what keeps the rail on screen. Below xl the
+        // document scrolls normally; the dock is `fixed` there and stays put on
+        // its own. min-h keeps a short viewport from crushing the layout.
+        dock && "xl:h-dvh xl:min-h-[700px]",
+        className,
+      )}
+    >
       {/* First focusable element on the page. Visually hidden until focused. */}
       <a
         href={`#${contentId}`}
@@ -137,7 +150,7 @@ export function AppShell({
         </div>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className={cn("flex min-w-0 flex-1 flex-col", dock && "xl:min-h-0")}>
         {(topBar ?? rail) && (
           <div className="sticky top-0 z-30 flex items-stretch">
             {/* The drawer trigger only exists where the rail is hidden, which
@@ -168,6 +181,9 @@ export function AppShell({
             // source's own figure. Without this the last row of a table is
             // unreachable at the end of a scroll.
             dock && "max-xl:pb-[116px]",
+            // min-h-0 is the half everyone forgets: without it a flex child
+            // refuses to shrink below its content and never scrolls.
+            dock && "xl:min-h-0 xl:overflow-y-auto",
             contentClassName,
           )}
         >

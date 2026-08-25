@@ -35,182 +35,290 @@
    LAYER 1 — RAMP
    =========================================================================== */
 :root {
-  /* --- Neutrals. Six steps, cool-tinted. Onyx Grey is the canvas; every
-         surface above it steps UP the ramp rather than adding a shadow.
-         Beyond these six, the only permitted variations are white and black at
-         reduced alpha — never a new grey hex. --- */
-  --onyx: #060608;
-  --dark-grey: #15161c;
-  --dark-grey-2: #25282f;
-  --mid-grey: #73758a;
-  --light-grey: #abadbd;
-  --white: #ffffff;
+  /* =========================================================================
+     BASE COLLECTION — the official Cyonix ramps, verbatim.
+     Nothing here is a role. Layer 2 assigns meaning; this layer only names
+     colour. Steps are the design system's own numbering, so a token that reads
+     "Orange 350 (Primary)" in Figma reads --orange-350 here.
+     ========================================================================= */
 
-  /* --- Brand. One hue, two ramp steps. Orange 350 is tuned for light mode;
-         Orange 400 is a half-step deeper so it holds its weight against Onyx
-         without glowing. Picked by background, never by taste.
-         Orange should cover well under a tenth of any screen. --- */
-  --orange-350: #fe6409; /* Sunset Orange — light mode accent */
-  --orange-400: #eb5d09; /* dark mode accent */
+  /* --- Neutral. The spine of both themes: Onyx Black is the dark ground,
+         Cloud the light one, and every surface steps along this one ramp. --- */
+  --neutral-0: #ffffff; /* White */
+  --neutral-50: #f3f7fc; /* Cloud Light */
+  --neutral-100: #e5ecf6; /* Cloud */
+  --neutral-200: #c9d0e2; /* Silver Dust */
+  --neutral-300: #adb4c6; /* Silver */
+  --neutral-400: #9096a8; /* Slate Silver */
+  --neutral-500: #72778a; /* Cool Grey */
+  --neutral-600: #555a69; /* Steel */
+  --neutral-700: #3d4150; /* Slate */
+  --neutral-800: #282b38; /* Graphite */
+  --neutral-850: #1e202b; /* Onyx Dark */
+  --neutral-900: #13141a; /* Onyx Surface */
+  --neutral-950: #060608; /* Onyx Black */
 
-  /* --- Spark gradient. LOGO ARTWORK ONLY. Per the design system of record it
-         must not be re-used as a UI fill, a button background, or a chart
-         colour. Declared here so the one legitimate use has a token and
-         nothing else invents its own. --- */
+  /* --- Orange. The brand. 350 is Primary. --- */
+  --orange-50: #fff9f5;
+  --orange-100: #fff0e6;
+  --orange-150: #ffdac4;
+  --orange-200: #ffbc95;
+  --orange-250: #fe9d64;
+  --orange-300: #fe8035;
+  --orange-350: #fe6409; /* Primary */
+  --orange-400: #eb5d09;
+  --orange-450: #d85508;
+  --orange-500: #b44706;
+  --orange-550: #913905;
+  --orange-600: #722d04;
+
+  /* --- Red. Error / critical. --- */
+  --red-100: #ffe9e7;
+  --red-150: #ffc9c4;
+  --red-200: #ff9f96;
+  --red-250: #fe7265;
+  --red-300: #fe4737;
+  --red-350: #fe1f0b;
+  --red-400: #d81a09;
+  --red-450: #b41608;
+  --red-500: #911206;
+  --red-550: #720e05;
+
+  /* --- Green Onyx. Success. Teal-leaning, not a pure green. --- */
+  --green-50: #f3fcf8;
+  --green-100: #ddf8ee;
+  --green-150: #c4f1e2;
+  --green-200: #a6e8d3;
+  --green-250: #7dddbe;
+  --green-300: #52cea6;
+  --green-350: #2cbf8f;
+  --green-400: #00b37a;
+  --green-450: #009a69;
+  --green-500: #007e57;
+  --green-550: #006445;
+  --green-600: #004732;
+
+  /* --- Amber Onyx. Warning. --- */
+  --amber-50: #fff9ec;
+  --amber-100: #fff0cf;
+  --amber-150: #ffe4a7;
+  --amber-200: #ffd675;
+  --amber-250: #ffc74d;
+  --amber-300: #f7b832;
+  --amber-350: #efa71a;
+  --amber-400: #e19000;
+  --amber-450: #c87e00;
+  --amber-500: #a56700;
+  --amber-550: #7e4f00;
+  --amber-600: #593800;
+
+  /* --- Blue Onyx. Info and links. --- */
+  --blue-50: #f5faff;
+  --blue-100: #e6f2ff;
+  --blue-150: #d2e8ff;
+  --blue-200: #b7d9ff;
+  --blue-250: #94c7ff;
+  --blue-300: #6fb2fa;
+  --blue-350: #4d9cf0;
+  --blue-400: #2e86de;
+  --blue-450: #2674c4;
+  --blue-500: #1f629f;
+  --blue-550: #174c7b;
+  --blue-600: #103454;
+
+  /* --- Amethyst. AI, and AI only. This ramp is reserved: purple in this
+         system means "an agent did this", so it is NOT the info colour.
+         Info is Blue Onyx. --- */
+  --amethyst-50: #f8f5ff;
+  --amethyst-100: #efe7ff;
+  --amethyst-150: #e0d2ff;
+  --amethyst-200: #ccb6ff;
+  --amethyst-250: #b698ff;
+  --amethyst-300: #9e7bff;
+  --amethyst-350: #8965f7;
+  --amethyst-400: #744eeb;
+  --amethyst-450: #653ed4;
+  --amethyst-500: #5232af;
+  --amethyst-550: #41288a;
+  --amethyst-600: #2e1b63;
+
+  /* The one gradient, and the one place it is allowed: logo artwork. */
   --spark: linear-gradient(135deg, #ffa505, #fe1f0b);
-
-  /* --- Semantic. The notification language: toasts, banners, inline
-         validation, connector and job status. One hue per outcome.
-         Brand orange is NEVER a status. --- */
-  --ok: #22c55e;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --info: #a855f7;
-
-  /* --- Severity. The dashboard and chart language for anything RANKED.
-         Maps onto the semantic set and adds exactly two hues it lacks:
-         a deeper critical, so "critical" never reads as merely "high", and a
-         blue low. Info stays on the foundation ramp. --- */
-  --sev-crit: #b91c1c;
-  --sev-high: #ef4444;
-  --sev-med: #f59e0b;
-  --sev-low: #3b82f6;
-  --sev-info: #abadbd;
-
-  /* --- Categorical. UNRANKED series only. Series 1 is Orange 400; none of
-         these is a status hue, and none may be used to encode rank. --- */
-  --cat-1: #eb5d09;
-  --cat-2: #2dd4bf; /* Teal */
-  --cat-3: #818cf8; /* Indigo */
-  --cat-4: #f472b6; /* Pink */
-  --cat-5: #a3e635; /* Lime */
-  --cat-6: #94a3b8; /* Slate — also the "Other" bucket */
-
-  /* --- Sequential. Single-hue magnitude ramp, dark to light. --- */
-  --seq-1: #3f1c08;
-  --seq-2: #622908;
-  --seq-3: #843609;
-  --seq-4: #b24709;
-  --seq-5: #eb5d09;
-  --seq-6: #f08647;
-  --seq-7: #f5ae84;
-  --seq-8: #f9d2ba;
 }
 
 /* ===========================================================================
    LAYER 2 — ROLE  (the CX-TOK contract; dark is the default master)
    =========================================================================== */
 :root {
-  --bg: var(--onyx); /* ground; the rail shares it */
-  --surface: var(--dark-grey); /* cards, tables, overlays */
-  --rule: var(--dark-grey-2); /* every divider — hairline, never space alone */
-  --accent: var(--orange-400); /* current location + primary action ONLY */
-  /* NOT white. White on Sunset Orange is 3.44:1 on Orange 400 and 2.98:1 on
-     Orange 350 — below AA for a 14px button label in BOTH themes, and no
-     shade of the brand orange can carry white text at 4.5:1 without ceasing to
-     be the brand orange. The label darkens so the fill does not have to:
-     4.84:1 on 400, 5.58:1 on 350. This changes how every primary Button,
-     filled segment and skip link reads, and is the one visible trade the
-     accessibility pass makes. */
-  --accent-fg: #1c1e25;
-  /* Means specifically "ink that sits ON the accent fill". It is NOT a general
-     foreground: the outline Button's label sits on --bg (its inset ::before
-     covers the fill), so that variant uses --fg. Near-black on the 22% orange
-     hover wash measures 1.3:1. */
+  /* =========================================================================
+     Dark is the master. Every value below is an official Color Token from the
+     Cyonix set — the comment names the token so a Figma variable and a CSS
+     custom property can be checked against each other by eye.
+     ========================================================================= */
 
-  --fg: var(--white);
-  --fg-2: var(--light-grey); /* secondary text on Onyx and Dark Grey */
-  /* Mid Grey is the brand's disabled value and stays that. But this token also
-     carries captions, counts and meta lines, where it measured 3.42:1 — so it
-     lifts to the smallest step that clears 4.5:1 on page, card and wash.
-     Disabled state is exempt from contrast under WCAG 2.2; a caption is not. */
-  --fg-muted: #8a8c9f; /* Mid Grey lifted; 4.67:1 */
+  /* --- Surface / Background --- */
+  --bg: var(--neutral-950); /* App Background */
+  --surface: var(--neutral-900); /* Cards & Elevated Surfaces */
+  --surface-2: var(--neutral-850); /* Elements */
+  --surface-disabled: var(--neutral-800); /* Disabled Background */
+  --surface-inverse: var(--neutral-0); /* Inverse Background */
+  --surface-brand: var(--orange-400); /* Brand Background */
 
-  /* Alpha derivations — white on dark, black on light. */
+  /* --- Borders --- */
+  --rule: var(--neutral-800); /* border-subtle. Also Divider. */
+  --rule-default: var(--neutral-700); /* border-default */
+  --rule-strong: var(--neutral-600); /* border-strong */
+  --rule-brand: var(--orange-350); /* border-brand */
+
+  /* --- Text --- */
+  --fg: var(--neutral-100); /* Text-Primary */
+  --fg-2: var(--neutral-200); /* Text-Secondary */
+  --fg-muted: var(--neutral-300); /* Text-Tertiary */
+  --fg-quaternary: var(--neutral-400); /* Text-Quaternary */
+  --fg-disabled: var(--neutral-600); /* Text-Disabled */
+  --fg-inverse: var(--neutral-900); /* Text-Inverse */
+  --fg-link: var(--blue-400); /* Text-Link */
+  --fg-on-dark: var(--neutral-950); /* Text-Static Onyx Black */
+  --fg-on-light: var(--neutral-0); /* Text-Static White */
+
+  /* --- Action / Primary. The accent, and its states. --- */
+  --accent: var(--orange-400); /* action-primary-default */
+  --accent-hover: var(--orange-350); /* action-primary-hover */
+  --accent-pressed: var(--orange-450); /* action-primary-pressed */
+  --accent-disabled: var(--neutral-800); /* action-primary-disabled */
+  /* Ink that sits ON the accent fill. The token set does not name one, and no
+     step of the brand orange carries white at 4.5:1 — so this takes
+     Text-Static Onyx Black, which does. Do not swap it for white. */
+  --accent-fg: var(--neutral-950);
+  --accent-ink: var(--orange-400); /* Text-Brand, exactly as specified —
+                                      5.88:1 on --bg, 5.34:1 on --surface. */
+
+  /* --- Action / Secondary and Tertiary --- */
+  --action-secondary: var(--neutral-900);
+  --action-secondary-hover: var(--neutral-850);
+  --action-secondary-pressed: var(--neutral-800);
+  --action-ghost-hover: var(--neutral-800);
+  --action-ghost-pressed: var(--neutral-700);
+  --action-ghost-label: var(--neutral-100);
+
+  /* --- Focus --- */
+  --focus: var(--orange-300); /* focus-default */
+  --focus-critical: var(--red-300); /* focus-critical */
+
+  /* --- Icons --- */
+  --icon: var(--neutral-100);
+  --icon-2: var(--neutral-300);
+  --icon-muted: var(--neutral-500);
+  --icon-disabled: var(--neutral-600);
+  --icon-inverse: var(--neutral-950);
+  --icon-brand: var(--orange-400);
+
+  /* --- Overlay --- */
+  --scrim: #06060899;
+  --scrim-strong: #060608bf;
+
+  /* --- Status. MARK is the fill or bar; INK is the label. The token set
+         separates them the same way, which is why -bg/-text differ. --- */
+  --ok: var(--green-350); /* status-success-solid */
+  --ok-bg: var(--green-550);
+  --ok-border: var(--green-350);
+  --ok-ink: var(--green-200); /* status-success-text */
+
+  --warning: var(--amber-350);
+  --warning-bg: var(--amber-550);
+  --warning-border: var(--amber-350);
+  --warning-ink: var(--amber-200);
+
+  --danger: var(--red-350);
+  --danger-bg: var(--red-550);
+  --danger-border: var(--red-350);
+  --danger-ink: var(--red-200);
+  --danger-strong: var(--red-450); /* white-on-red fills */
+
+  --info: var(--blue-350);
+  --info-bg: var(--blue-550);
+  --info-border: var(--blue-350);
+  --info-ink: var(--blue-200);
+
+  /* --- AI. Amethyst is reserved for agent output; it is not a second info. --- */
+  --ai: var(--amethyst-400); /* ai-solid */
+  --ai-bg: var(--amethyst-550);
+  --ai-border: var(--amethyst-350);
+  --ai-ink: var(--amethyst-200); /* ai-text */
+
+  /* --- Severity. Not in the token set: an ordered scale the console needs,
+         mapped onto the official ramps so it introduces no new hues. --- */
+  --sev-crit: var(--red-400);
+  --sev-high: var(--red-300);
+  --sev-med: var(--amber-350);
+  --sev-low: var(--blue-350);
+  --sev-info: var(--neutral-400);
+  --sev-crit-ink: var(--red-200);
+  --sev-high-ink: var(--red-200);
+  --sev-med-ink: var(--amber-200);
+  --sev-low-ink: var(--blue-200);
+  --sev-info-ink: var(--neutral-300);
+
+  /* --- Data Visualization --- */
+  --cat-1: var(--blue-300); /* data-primary */
+  --cat-2: var(--green-300); /* data-secondary */
+  --cat-3: var(--amethyst-300); /* data-tertiary */
+  --cat-4: var(--amber-300); /* data-quaternary */
+  --cat-5: var(--orange-300); /* data-highlight */
+  --cat-6: var(--neutral-400); /* the "other" bucket */
+
+  /* Sequential ramp for a heatmap, off the Orange ramp. */
+  --seq-1: var(--orange-600);
+  --seq-2: var(--orange-550);
+  --seq-3: var(--orange-500);
+  --seq-4: var(--orange-450);
+  --seq-5: var(--orange-350);
+  --seq-6: var(--orange-300);
+  --seq-7: var(--orange-250);
+  --seq-8: var(--orange-150);
+
+  /* --- Alpha washes. Derived, not from the token set: white on dark. --- */
   --wash-1: rgb(255 255 255 / 0.04);
   --wash-2: rgb(255 255 255 / 0.06);
   --wash-3: rgb(255 255 255 / 0.1);
   --wash-hover: rgb(255 255 255 / 0.055);
-  --wash-accent: rgb(235 93 9 / 0.22); /* outline-button hover wash */
+  --wash-accent: rgb(235 93 9 / 0.22);
 
-  /* Radii. Inputs and cards take these on all four corners; the chamfer is
-     buttons-only and lives in the component layer below. */
-  --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 14px;
-  --r-xl: 20px;
+  /* --- Radius. Global Tokens, verbatim. --- */
+  --r-none: 0;
+  --r-1: 2px;
+  --r-2: 4px;
+  --r-3: 6px;
+  --r-4: 8px;
+  --r-5: 10px;
+  --r-6: 12px;
+  --r-7: 16px;
+  --r-full: 999px;
+  /* Named aliases, so component code reads intent rather than a step number. */
+  --r-sm: var(--r-2);
+  --r-md: var(--r-4);
+  --r-lg: var(--r-6);
+  --r-xl: var(--r-7);
 
-  /* Elevation. On a near-black canvas elevation comes from surface colour
-     first and shadow second. Menu e-2, drawer e-3, modal e-4. Cards at rest
-     take NO shadow — elevation is for overlays. */
+  /* --- Stroke. Global Tokens. --- */
+  --stroke-0: 1px;
+  --stroke-1: 2px;
+  --stroke-2: 4px;
+  --stroke-3: 6px;
+
+  /* --- Elevation. Not in the token set; kept from CX-TOK. On a near-black
+         canvas elevation comes from surface colour first, shadow second. --- */
   --e-1: 0 1px 2px rgb(0 0 0 / 0.4);
   --e-2: 0 4px 12px rgb(0 0 0 / 0.45);
   --e-3: 0 12px 32px rgb(0 0 0 / 0.5);
   --e-4: 0 24px 64px rgb(0 0 0 / 0.55);
 
-  /* Motion. One curve. All motion respects prefers-reduced-motion. */
+  /* --- Motion. One curve. All motion respects prefers-reduced-motion. --- */
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --duration-instant: 120ms; /* hover, focus, small state flips */
-  --duration-standard: 240ms; /* dropdowns, tooltips, inline expansion */
-  --duration-emphasis: 400ms; /* modals, drawers, chart draw-in */
-  --duration-page: 700ms; /* route and full-panel transitions only */
-
-  /* ---------------------------------------------------------------------
-     INK vs MARK — why each semantic hue has two tokens
-     ---------------------------------------------------------------------
-     The brand sets the target itself: "Target WCAG 2.2 AA. Operators use this
-     product for long shifts, at night, sometimes on bad displays —
-     accessibility is legibility." Its own contrast table checks every hue
-     against ONE ground, Onyx Grey, on the dark theme only.
-
-     The library paints those hues on three more grounds the table never
-     evaluated: Dark Grey cards, the hue's own 10–12% tint on a card, and the
-     entire light theme. Measured across all 57 stories, 261 text nodes fell
-     below AA in light and 374 in dark.
-
-     One value cannot serve both jobs, and the reason is structural rather than
-     aesthetic:
-
-       MARK  a 3px severity bar, a chart fill, a status dot. Needs 3:1 as a
-             non-text element, and needs "deeper = worse" to hold so critical
-             never reads as merely high. KEEPS THE BRAND VALUE EXACTLY.
-       INK   an 11px label. Needs 4.5:1 against the darkest AND lightest ground
-             it lands on, which on a near-black canvas forces it LIGHTER and on
-             white forces it DARKER — the opposite directions.
-
-     So the bar carries the rank and the label carries the legibility. Ink steps
-     below are the SMALLEST deviation from each brand hue that clears 4.5:1 on
-     page, card, tint and wash — chosen by measurement, not by eye.
-
-     Critical and high resolve to distinct ink in both themes deliberately. The
-     naive minimum collapses them onto one value, which would erase the single
-     distinction the severity ladder exists to make. --- */
-  --ok-ink: var(--ok); /* 6.55:1 — the brand value already clears it */
-  --warning-ink: var(--warning); /* 6.88:1 */
-  --danger-ink: #f87171; /* #ef4444 reaches only 4.11:1 on a tint */
-  --info-ink: #c084fc; /* #a855f7 reaches only 3.91:1 */
-
-  /* The fill for a FILLED destructive control, where the label is white. White
-     on --danger is 3.76:1; on this it is 6.49:1. Not a second danger hue for
-     general use — tints, dots and bars stay on --danger. */
-  --danger-strong: #b91c1c;
-
-  --sev-crit-ink: #f87171; /* #b91c1c is 2.39:1 on dark — the worst in the set */
-  --sev-high-ink: #fca5a5; /* softer red, so critical stays the more intense */
-  --sev-med-ink: var(--sev-med); /* 6.88:1 */
-  --sev-low-ink: #60a5fa; /* #3b82f6 reaches only 4.21:1 */
-  --sev-info-ink: var(--sev-info); /* 6.59:1 */
-
-  /* Orange 400 measures exactly 4.50:1 as ink on wash — no headroom at all, so
-     ink steps to Orange 350, the lighter brand step. Fills stay on 400. */
-  --accent-ink: var(--orange-350);
-
-  /* Type. Space Grotesk sets headings and button labels and tops out at 700 —
-     never a synthetic bold above it. Inter carries the interface. JetBrains
-     Mono is reserved for hexes, hashes, IDs, counters and log output. */
-  --display: var(--font-space-grotesk), system-ui, sans-serif;
-  --ui: var(--font-inter), system-ui, sans-serif;
-  --mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+  --duration-instant: 120ms;
+  --duration-standard: 240ms;
+  --duration-emphasis: 400ms;
+  --duration-page: 700ms;
 }
 
 /* Light mode. Same geometry, lighter surfaces, Orange 350. Ground and surface
@@ -223,35 +331,123 @@
    (or a Storybook decorator) puts the class on a wrapper instead of <html>. */
 .light,
 [data-theme="light"] {
-  --bg: #eeeef4;
-  --surface: var(--white);
-  --rule: #dedfe9;
-  --accent: var(--orange-350);
+  /* The Light Mode column of the same token set. Note the ground: Cloud, not
+     white — white is reserved for cards, so a card lifts off the page instead
+     of dissolving into it. */
+  --bg: var(--neutral-100); /* App Background */
+  --surface: var(--neutral-0); /* Cards & Elevated Surfaces */
+  --surface-2: var(--neutral-50); /* Elements */
+  --surface-disabled: var(--neutral-100);
+  --surface-inverse: var(--neutral-950);
+  --surface-brand: var(--orange-350);
 
-  --fg: #1c1e25;
-  --fg-2: #5e6175;
-  --fg-muted: #67697c; /* Mid Grey darkened; 3.92:1 → 4.67:1 */
+  --rule: var(--neutral-200);
+  --rule-default: var(--neutral-300);
+  --rule-strong: var(--neutral-400);
+  --rule-brand: var(--orange-350);
 
-  /* Ink inverts direction here: on white every hue must go DARKER. These are
-     again the smallest steps that clear 4.5:1 on page, card, tint and wash. */
-  --ok-ink: #166534; /* #22c55e was 1.97:1 on a white card */
-  --warning-ink: #92400e; /* #f59e0b was 1.86:1 — the worst in the set */
-  --danger-ink: #b91c1c;
-  --info-ink: #6b21a8; /* deep enough for InsightPanel's 20% tint, not just 10% */
+  --fg: var(--neutral-850); /* Text-Primary */
+  --fg-2: var(--neutral-700);
+  --fg-muted: var(--neutral-600);
+  --fg-quaternary: var(--neutral-500);
+  --fg-disabled: var(--neutral-400);
+  --fg-inverse: var(--neutral-0);
+  --fg-link: var(--blue-500); /* Text-Link is Blue 350 in the set; that measures
+                                 2.6:1 on Cloud, so the link takes the next step
+                                 down that clears AA. */
 
-  --sev-crit-ink: #7f1d1d; /* deeper than high, so the ladder still reads */
-  --sev-high-ink: #b91c1c;
-  --sev-med-ink: #92400e;
-  --sev-low-ink: #1d4ed8;
-  --sev-info-ink: #475569;
+  --accent: var(--orange-350); /* action-primary-default */
+  --accent-hover: var(--orange-400);
+  --accent-pressed: var(--orange-450);
+  --accent-disabled: var(--neutral-200);
+  --accent-fg: var(--neutral-950);
+  --accent-ink: var(--orange-600); /* Text-Brand is Orange 350; 2.6:1 on white.
+                                      Orange 600 is the first step that clears
+                                      AA and stays unmistakably brand. */
 
-  --accent-ink: #9a3412; /* Orange 350 as ink is 2.98:1 on white */
+  --action-secondary: var(--neutral-0);
+  --action-secondary-hover: var(--neutral-50);
+  --action-secondary-pressed: var(--neutral-100);
+  --action-ghost-hover: var(--neutral-100);
+  --action-ghost-pressed: var(--neutral-200);
+  --action-ghost-label: var(--neutral-800);
+
+  --focus: var(--orange-350);
+  --focus-critical: var(--red-350);
+
+  --icon: var(--neutral-800);
+  --icon-2: var(--neutral-600);
+  --icon-muted: var(--neutral-500);
+  --icon-disabled: var(--neutral-400);
+  --icon-inverse: var(--neutral-0);
+  --icon-brand: var(--orange-350);
+
+  --scrim: #06060866;
+  --scrim-strong: #06060899;
+
+  --ok: var(--green-350);
+  --ok-bg: var(--green-200);
+  --ok-border: var(--green-350);
+  --ok-ink: var(--green-550); /* status-success-text */
+
+  --warning: var(--amber-350);
+  --warning-bg: var(--amber-200);
+  --warning-border: var(--amber-350);
+  --warning-ink: var(--amber-550);
+
+  --danger: var(--red-350);
+  --danger-bg: var(--red-200);
+  --danger-border: var(--red-350);
+  --danger-ink: var(--red-550);
+  --danger-strong: var(--red-500);
+
+  --info: var(--blue-350);
+  --info-bg: var(--blue-200);
+  --info-border: var(--blue-350);
+  --info-ink: var(--blue-550);
+
+  --ai: var(--amethyst-400);
+  --ai-bg: var(--amethyst-200);
+  --ai-border: var(--amethyst-350);
+  --ai-ink: var(--amethyst-550);
+
+  --sev-crit: var(--red-400);
+  --sev-high: var(--red-300);
+  --sev-med: var(--amber-350);
+  --sev-low: var(--blue-350);
+  --sev-info: var(--neutral-500);
+  --sev-crit-ink: var(--red-550);
+  --sev-high-ink: var(--red-500);
+  --sev-med-ink: var(--amber-550);
+  --sev-low-ink: var(--blue-550);
+  --sev-info-ink: var(--neutral-600);
+
+  --cat-1: var(--blue-350);
+  --cat-2: var(--green-350);
+  --cat-3: var(--amethyst-350);
+  --cat-4: var(--amber-350);
+  --cat-5: var(--orange-350);
+  --cat-6: var(--neutral-500);
+
+  --seq-1: var(--orange-100);
+  --seq-2: var(--orange-150);
+  --seq-3: var(--orange-200);
+  --seq-4: var(--orange-250);
+  --seq-5: var(--orange-300);
+  --seq-6: var(--orange-350);
+  --seq-7: var(--orange-450);
+  --seq-8: var(--orange-550);
 
   --wash-1: rgb(0 0 0 / 0.03);
   --wash-2: rgb(0 0 0 / 0.05);
   --wash-3: rgb(0 0 0 / 0.08);
   --wash-hover: rgb(0 0 0 / 0.04);
   --wash-accent: rgb(254 100 9 / 0.22);
+
+  --e-1: 0 1px 2px rgb(20 24 32 / 0.06);
+  --e-2: 0 4px 12px rgb(20 24 32 / 0.1);
+  --e-3: 0 12px 32px rgb(20 24 32 / 0.14);
+  --e-4: 0 24px 64px rgb(20 24 32 / 0.18);
 }
 
 /* ===========================================================================
@@ -318,13 +514,55 @@
   --color-seq-7: var(--seq-7);
   --color-seq-8: var(--seq-8);
 
-  /* Ramp exposed for the rare legitimate case (Solid button takes Dark Grey 2
-     directly). Components should reach for a ROLE token first. */
-  --color-onyx: var(--onyx);
-  --color-dark-grey: var(--dark-grey);
-  --color-dark-grey-2: var(--dark-grey-2);
-  --color-mid-grey: var(--mid-grey);
-  --color-light-grey: var(--light-grey);
+  /* The Neutral ramp, exposed for the rare legitimate case where a component
+     needs a specific step rather than a role. Reach for a ROLE token first. */
+  --color-neutral-0: var(--neutral-0);
+  --color-neutral-50: var(--neutral-50);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-850: var(--neutral-850);
+  --color-neutral-900: var(--neutral-900);
+  --color-neutral-950: var(--neutral-950);
+
+  /* New roles from the official set. */
+  --color-surface-2: var(--surface-2);
+  --color-surface-disabled: var(--surface-disabled);
+  --color-surface-inverse: var(--surface-inverse);
+  --color-surface-brand: var(--surface-brand);
+  --color-rule-default: var(--rule-default);
+  --color-rule-strong: var(--rule-strong);
+  --color-rule-brand: var(--rule-brand);
+  --color-fg-quaternary: var(--fg-quaternary);
+  --color-fg-disabled: var(--fg-disabled);
+  --color-fg-inverse: var(--fg-inverse);
+  --color-fg-link: var(--fg-link);
+  --color-fg-on-dark: var(--fg-on-dark);
+  --color-fg-on-light: var(--fg-on-light);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-pressed: var(--accent-pressed);
+  --color-accent-disabled: var(--accent-disabled);
+  --color-focus: var(--focus);
+  --color-focus-critical: var(--focus-critical);
+  --color-icon: var(--icon);
+  --color-icon-2: var(--icon-2);
+  --color-icon-muted: var(--icon-muted);
+  --color-icon-brand: var(--icon-brand);
+  --color-scrim: var(--scrim);
+  --color-scrim-strong: var(--scrim-strong);
+  --color-ok-bg: var(--ok-bg);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger-bg: var(--danger-bg);
+  --color-info-bg: var(--info-bg);
+  --color-ai: var(--ai);
+  --color-ai-bg: var(--ai-bg);
+  --color-ai-border: var(--ai-border);
+  --color-ai-ink: var(--ai-ink);
 
   --font-display: var(--display);
   --font-ui: var(--ui);
@@ -529,6 +767,20 @@
       0 100%
     );
     border-radius: 5px 5px 0 5px;
+  }
+
+  /* The rounded counterpart, for outlined controls that do NOT carry the
+     chamfer — which, since the console match, is every Button. Same trick: the
+     "border" is the accent fill with a 1px-inset fill on top, so the hairline
+     is one shape rather than a border fighting a clip-path. The inset radius is
+     one pixel under the button's own, so the two curves stay concentric. */
+  .cx-inset-hairline::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    z-index: 0;
+    background: var(--cx-btn-bg, var(--bg));
+    border-radius: calc(var(--r-lg) - 1px);
   }
 
   /* The spark gradient's one legitimate use: logo artwork. Scoped so it is

@@ -386,10 +386,42 @@ export function Segmented({
   className,
 }: SegmentedProps) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const groupRef = useRef<HTMLDivElement>(null);
   const { ref: scroller, scrollerStyle } = useEdgeFades([items.length]);
   const onKeyDown = useRovingKeys(items, refs, onChange, { selectOnMove: true });
   const selectedIndex = items.findIndex((item) => item.value === value);
   const wrap = overflow === "wrap";
+
+  /**
+   * The sliding pill behind the selected segment — the console's `.seg-ink`.
+   *
+   * Only in a single row. A pill cannot slide between rows, so a wrapping
+   * control keeps the filled-button treatment instead: same colours, no slide.
+   */
+  const [ink, setInk] = useState<{ left: number; width: number } | null>(null);
+  useEffect(() => {
+    if (wrap) {
+      setInk(null);
+      return;
+    }
+    const group = groupRef.current;
+    const active = refs.current[selectedIndex];
+    if (!group || !active) {
+      setInk(null);
+      return;
+    }
+    const measure = () => {
+      const node = refs.current[selectedIndex];
+      if (!node) return;
+      setInk({ left: node.offsetLeft, width: node.offsetWidth });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(group);
+    // Web fonts land after first paint and change every segment's width.
+    document.fonts?.ready.then(measure).catch(() => {});
+    return () => observer.disconnect();
+  }, [selectedIndex, items, wrap]);
   // Only meaningful when scrolling; a wrapping row has nothing to scroll.
   useKeepSelectedVisible(scroller, refs, wrap ? -1 : selectedIndex);
 
@@ -404,14 +436,31 @@ export function Segmented({
       )}
     >
       <div
+        ref={groupRef}
         role="radiogroup"
         aria-label={label}
         onKeyDown={onKeyDown}
         className={cn(
-          "flex items-center gap-1",
-          wrap ? "flex-wrap" : "w-max",
+          "relative flex items-center",
+          // The console's track: the group is a rounded well the segments sit
+          // in, not a row of separate pills. Wrapping keeps the old gapped row,
+          // where a single track would leave dead space on the short last line.
+          wrap ? "flex-wrap gap-1" : "bg-wash-1 w-max gap-0 rounded-full p-1",
         )}
       >
+        {ink && (
+          <span
+            aria-hidden="true"
+            className={cn(
+              "duration-standard ease-brand pointer-events-none absolute top-1 bottom-1 rounded-full transition-all",
+              // The ink carries the variant, not just the geometry. `tint`
+              // pairs a 15% wash with an orange label; painting it solid put
+              // orange text on an orange pill.
+              variant === "fill" ? "bg-accent" : "bg-accent/15",
+            )}
+            style={{ left: ink.left, width: ink.width }}
+          />
+        )}
         {items.map((item, index) => {
           const active = item.value === value;
           return (
@@ -430,16 +479,29 @@ export function Segmented({
               title={item.disabled ? item.disabledReason : undefined}
               onClick={() => onChange(item.value)}
               className={cn(
-                "duration-instant ease-brand inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border font-medium whitespace-nowrap transition-colors",
+                "duration-instant ease-brand relative z-10 inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full font-bold whitespace-nowrap transition-colors",
                 "disabled:cursor-not-allowed disabled:opacity-40",
                 size === "sm"
-                  ? "px-2.5 py-1 text-[12px]"
-                  : "px-3 py-1.5 text-[13px]",
+                  ? "h-7 px-3 text-[12px]"
+                  : "h-8 px-4 text-[12.5px]",
+                // Tracked, the ink behind carries the fill and the segment only
+                // colours its label. Wrapped, there is no ink, so the segment
+                // has to carry the fill and its border as it always did.
+                wrap && "border",
                 active
-                  ? variant === "fill"
-                    ? "border-accent bg-accent text-accent-fg"
-                    : "border-accent bg-accent/15 text-accent-ink"
-                  : "border-rule text-fg-2 enabled:hover:bg-wash-hover enabled:hover:text-fg",
+                  ? wrap
+                    ? variant === "fill"
+                      ? "border-accent bg-accent text-accent-fg"
+                      : "border-accent bg-accent/15 text-accent-ink"
+                    : variant === "fill"
+                      ? "text-accent-fg font-extrabold"
+                      : "text-accent-ink font-extrabold"
+                  : cn(
+                      "text-fg-2 enabled:hover:text-fg",
+                      wrap
+                        ? "border-rule enabled:hover:bg-wash-hover"
+                        : "enabled:hover:bg-wash-hover",
+                    ),
               )}
             >
               {item.label}

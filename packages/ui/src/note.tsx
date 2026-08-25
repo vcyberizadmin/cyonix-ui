@@ -54,7 +54,7 @@ export function Note({
   return (
     <div
       className={cn(
-        "flex gap-3 rounded-sm border px-4 py-3",
+        "flex gap-3 rounded-md border px-4 py-3 text-[13.5px] font-bold",
         NOTE_TONES[tone],
         className,
       )}

@@ -401,7 +401,12 @@ function ScopeSwitcher({
           appearing at the wrong place first. */}
       <span
         aria-hidden="true"
-        className="bg-accent duration-standard ease-brand pointer-events-none absolute bottom-0 h-[3px] rounded-full transition-all"
+        // The glow is the console's, and it is why the ink reads as lit rather
+        // than drawn. It is a class, not an inline style: only left and width
+        // are dynamic. It stays an arbitrary value because the elevation scale
+        // is four neutral drop shadows for overlays and none of them is a
+        // coloured halo — this is not a missing step on that scale.
+        className="bg-accent shadow-[0_0_16px_var(--accent)] duration-standard ease-brand pointer-events-none absolute bottom-0 h-[3px] rounded-full transition-all"
         style={{ left: ink.left, width: ink.width }}
       />
     </nav>
