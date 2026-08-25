@@ -104,6 +104,25 @@ const CSS_FUNCTION =
 /** Attribute names that reach the output as string keys, not classes. */
 const ATTR_PREFIX = /^(aria|data)-/;
 
+/**
+ * Dash-cased values of SVG presentation attributes.
+ *
+ * These reach the scanner as bare string literals — `vectorEffect` renders as
+ * `vector-effect="non-scaling-stroke"` — and are indistinguishable from a class
+ * by shape alone. Unlike a gradient id, they cannot be renamed: they are
+ * keywords the SVG spec defines. Add to this set, do not work around it in a
+ * component.
+ */
+const SVG_ATTR_VALUES = new Set([
+  "non-scaling-stroke",
+  "non-scaling-size",
+  "non-rotation",
+  "fixed-position",
+  "currentColor",
+  "userSpaceOnUse",
+  "objectBoundingBox",
+]);
+
 /** `group` / `peer` (and their named forms) are markers for variants elsewhere;
  *  they emit no rule of their own, so there is nothing to look up. */
 const MARKER = /^(group|peer)(\/[\w-]+)?$/;
@@ -198,6 +217,7 @@ for (const file of walk(distDir)) {
       // Skip import specifiers, attribute names, and other path-ish literals.
       if (token.startsWith(".") || token.startsWith("@")) continue;
       if (ATTR_PREFIX.test(token) || MARKER.test(token)) continue;
+      if (SVG_ATTR_VALUES.has(token)) continue;
       if (CSS_SELECTOR_FRAGMENT.test(token)) continue;
       if (TRAILING_COLON.test(token)) continue;
       if (!candidates.has(token)) candidates.set(token, new Set());
