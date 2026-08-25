@@ -195,6 +195,25 @@ of quietly violating it.
 
 Space Grotesk tops out at 700 — never a synthetic bold above it.
 
+### The same class of bug, in the theme toolbar
+
+Storybook's light/dark control put `.light` on a wrapper `<div>`. Overlays
+portal to `document.body` — see `usePortalTarget` — so every portalled panel
+rendered OUTSIDE that scope and kept the dark tokens while the page behind it
+was light. `Menu`, `Popover`, `Modal`, `Drawer`, `Tooltip` and `DatePicker` were
+all affected, and nothing errored: the panel simply looked wrong in a theme
+nobody was checking it in.
+
+Caught the same way as the fonts — by measuring rather than by looking.
+`forms-date-picker--single-date` had a panel background of `rgb(21, 22, 28)` on
+a light page; it is `rgb(255, 255, 255)` now. The decorator sets the class on
+`document.documentElement` instead, which is where an app puts it anyway. The
+theme sheet already anticipated this: `.light` is scoped to the element rather
+than to `:root`, with a comment saying so, precisely so it can live on `<html>`.
+
+Storybook exists to catch a token that only works in one theme. This was the
+harness quietly disabling the one check it is for.
+
 ## Local development
 
 ```sh
@@ -335,7 +354,7 @@ additions.
 | Export | Components |
 | ------ | ---------- |
 | `@vcyberizadmin/ui` | `Button` + `IconButton` (CX-BTN) · `Card` (CX-CRD) · `StatusPill` + `SeverityBadge` (CX-STA) · `Tag` + `ChipStack` + `Code` (CX-TAG) · `EmptyState` + `ErrorState` + `Skeleton` (CX-STE) · `Note` + `InsightPanel` (CX-INS) · `DataTable` + `Toolbar` + `FilterChip` + `SegmentedFilter` + `Pagination` + cells (CX-TBL/FLT/PAG) · `Field` + `Input` + `Textarea` + `Select` + `Checkbox` + `Switch` (CX-FLD) · `StatTile` + `TrendTile` + `StatusTile` + `TileGrid` (CX-TIL) · `Tabs` + `Segmented` (CX-TAB) · `DefinitionCard` + `DescriptionList` (CX-DEF) · `Calendar` + `DatePicker` + `DateRangePicker` + `DateRangeFilter` (CX-DTE) · `cn` |
-| `@vcyberizadmin/ui/layout` | `AppShell` (CX-SHL) · `NavRail` (CX-NAV) · `TopBar` (CX-TOP) · `PageHeader` + `Breadcrumb` (CX-HDR) · `CommandPalette` (CX-CMD) · `SettingsShell` (CX-SET) · `Logo` · `ThemeToggle` |
+| `@vcyberizadmin/ui/layout` | `AppShell` (CX-SHL) · `NavRail` (CX-NAV) · `DockRail` (CX-DCK) · `TopBar` (CX-TOP) · `ConsoleBar` (CX-CBR) · `PageHeader` + `Breadcrumb` (CX-HDR) · `CommandPalette` (CX-CMD) · `SettingsShell` (CX-SET) · `Logo` · `ThemeToggle` |
 | `@vcyberizadmin/ui/overlays` | `Modal` (CX-MOD) · `Drawer` (CX-DRW) · `ConfirmDialog` + `ImpactBox` (CX-CNF) · `Menu` (CX-MNU) · `Tooltip` + `Popover` (CX-TIP) · `ToastProvider` + `useToast` (CX-TST) · `useOverlay` |
 | `@vcyberizadmin/ui/charts` | `Sparkline` · `Donut` · `FunnelFlow` · `RankedBars` · `ProportionBar` (CX-CHT) |
 | `@vcyberizadmin/ui/lib/status` | vocabulary · `severityRank()` · `bySeverity()` · `extendVocabulary()` · ramps · `TONE_INK` |
@@ -490,6 +509,74 @@ Live counts are a **slot** (`liveBadge`), so an item that polls owns its own
 polling and one busy badge never re-renders the rail. Nesting is capped at two
 levels in the type system — `NavChild` has no `children`, which is the
 standard's "cap it at two" made unrepresentable rather than merely documented.
+
+### DockRail, and why it is not a NavRail variant
+
+CX-DCK is the SOC console's rail, ported. It sits **beside** CX-NAV rather than
+replacing it, because the two answer different questions: `NavRail` for a
+console with groups and sub-items, `DockRail` for one whose whole surface fits
+in four or five destinations.
+
+Four differences make it a component rather than a prop:
+
+- **It floats.** The panel is absolutely positioned inside a fixed 100px gutter
+  and expands to 232px *over* the content, so the gutter never changes.
+  `NavRail`'s collapse resizes the grid — correct at 300px, wrong here, because
+  a rail that reflows a table whenever the pointer passes it is unusable.
+- **Expansion is hover**, so there is no persisted state to own: no storage key,
+  no controlled/uncontrolled pair. Bound to `focus-within` too, so tabbing in
+  reveals the labels a mouse user gets for free. Labels collapse to zero width
+  rather than unmounting, which is what keeps the accessible name intact at
+  every width.
+- **Below `xl` it is a bottom dock**, not a drawer — always visible, thumb-
+  reachable, primary action lifted out of its centre as a FAB.
+- **Nesting is unrepresentable.** `DockItem` has no `children`, the same
+  type-level cap `NavChild` uses one level further down.
+
+It keeps CX-NAV's two portability choices unchanged — `activeHref` as a prop,
+`linkComponent` injectable — for the same reasons.
+
+**One deliberate departure from the source.** The deployed console paints the
+entire rail Sunset Orange in light mode. That is dropped: orange marks the
+current location and nothing else, and an orange rail leaves the active item
+distinguishing itself from a field of its own colour. The surface is `--surface`
+in both themes and the only orange is the ink tab on the active item.
+
+`AppShell` gains `railMode="dock"` to go with it, which renders the rail
+unwrapped, drops the drawer and its trigger, and reserves scroll room at the
+foot of the content column so the dock never covers the last row.
+
+### ConsoleBar, and the two ways a scope goes missing
+
+CX-CBR is the SOC console's header. It stands beside CX-TOP on the same terms
+CX-DCK stands beside CX-NAV: `TopBar` is a 52px utility strip of small controls;
+`ConsoleBar` is a 68/78px identity bar built around the question an operator
+asks all shift — *whose data am I looking at?*
+
+Scope leads, far left, as tabs with a moving ink. Tabs rather than a dropdown
+because it is switched constantly; far left because it qualifies everything to
+its right. The ink is the only orange in the bar, which is the location rule
+holding: scope IS location.
+
+The interesting part is keeping the current scope visible, because it can go
+missing two ways and the source only handles one:
+
+1. **It is not pinned** — the picker button takes over its name. The source does
+   this.
+2. **It is pinned but the breakpoint dropped it.** The inline tabs shed one at a
+   time as the bar narrows, so a pinned scope can be hidden by CSS, leaving the
+   picker saying "Tenants" and no ink anywhere. Handled here by measuring
+   `offsetWidth` — the breakpoint is a CSS fact, and reading the DOM back is the
+   only way to know it — so the picker takes over in this case too.
+
+Below `xl` the theme and settings controls fold INTO the profile panel as
+labelled rows (`compactOnly`) rather than being dropped. One definition, an icon
+button on a wide screen and a row on a narrow one, never both at once.
+
+All three panels are CX-TIP's `Popover`, so the overlay behaviour is shared
+rather than written three more times. The bar does no date arithmetic — a
+notification's `time` arrives pre-formatted, so the bar needs no clock and
+cannot disagree with the server.
 
 The component standard defines ~25 components with a designated base app for
 each, sequenced in a 9-step rollout. Step 2 is status & severity (CX-STA), which

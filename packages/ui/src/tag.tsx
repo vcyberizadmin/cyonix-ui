@@ -21,7 +21,7 @@ import { cn } from "./lib/cn.js";
 export type CategoricalIndex = 1 | 2 | 3 | 4 | 5 | 6;
 
 const tag = cva(
-  "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium whitespace-nowrap",
+  "inline-flex h-[22px] items-center gap-1.5 rounded-sm border px-[.55rem] text-[10.5px] font-extrabold tracking-[.03em] uppercase whitespace-nowrap",
   {
     variants: {
       // A tag is a label, not a control — unless it filters, and then it must

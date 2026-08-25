@@ -540,3 +540,117 @@ export function Donut({
     </div>
   );
 }
+
+/* -------------------------------------------------------------------- Gauge -- */
+
+export interface GaugeProps {
+  slices: Slice[];
+  ramp?: Ramp;
+  /** Rendered under the total in the well. */
+  totalLabel?: string;
+  /** Width in px. Height follows the 200 × 172 arch. */
+  size?: number;
+  thickness?: number;
+  legend?: boolean;
+  linkComponent?: ElementType;
+  className?: string;
+}
+
+/**
+ * A 180° arch, filled left to right.
+ *
+ * The sibling of `Donut`, for the same data shape. Reach for the arch when the
+ * reading is a LEVEL — how full, how far through — and for the donut when it is
+ * a SPLIT. A ring implies the parts close back on themselves; an arch has a
+ * floor and a ceiling, which is what a severity or capacity reading has.
+ *
+ * The path carries `pathLength="100"`, so every segment is its own percentage
+ * and the arithmetic never touches the geometry. Change the shape and the
+ * segments still land.
+ *
+ * Server-safe: no state, no hooks.
+ */
+export function Gauge({
+  slices,
+  ramp = "categorical",
+  totalLabel,
+  size = 200,
+  thickness = 25,
+  legend = true,
+  linkComponent,
+  className,
+}: GaugeProps) {
+  const total = slices.reduce((sum, s) => sum + s.value, 0);
+  const percents = sharePercents(slices.map((s) => s.value));
+
+  /* Vertical sides with a rounded shoulder — an arch, not a half-circle, so the
+     ends sit level with the label row instead of floating. */
+  const ARCH = "M22 162V66a44 44 0 0 1 44-44h68a44 44 0 0 1 44 44v96";
+
+  let offset = 0;
+  const segments = slices.map((slice, index) => {
+    const length = percents[index] ?? 0;
+    const seg = { slice, length, offset, index };
+    offset += length;
+    return seg;
+  });
+
+  return (
+    <div className={cn("flex flex-col items-center gap-4", className)}>
+      <div className="relative" style={{ width: size }}>
+        <svg
+          // The legend is the accessible equivalent, so the arch is decorative
+          // rather than a second thing to keep in sync.
+          aria-hidden="true"
+          viewBox="0 0 200 172"
+          width={size}
+          height={size * (172 / 200)}
+          fill="none"
+        >
+          <g strokeLinecap="butt" strokeWidth={thickness}>
+            <path d={ARCH} pathLength={100} className="stroke-fg/8" />
+            {total > 0 &&
+              segments.map(({ slice, length, offset: start, index }) =>
+                length > 0 ? (
+                  <path
+                    key={slice.label}
+                    d={ARCH}
+                    pathLength={100}
+                    strokeDasharray={`${length} 100`}
+                    strokeDashoffset={-start}
+                    // Same trick the donut uses: the ramp hands back a Tailwind
+                    // CLASS, not a colour, so it cannot be dropped into a
+                    // `stroke` attribute — that renders nothing, silently. Set
+                    // the text colour and let the stroke follow currentColor.
+                    className={cn(
+                      "[stroke:currentColor]",
+                      rampInk(ramp, index, slice.label),
+                    )}
+                  />
+                ) : null,
+              )}
+          </g>
+        </svg>
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-6">
+          <span className="font-display text-[34px] leading-none font-bold tabular-nums">
+            {compact(total)}
+          </span>
+          {totalLabel && (
+            <span className="text-fg-2 mt-1.5 text-[13px] font-semibold">
+              {totalLabel}
+            </span>
+          )}
+        </div>
+      </div>
+      {legend && (
+        <Legend
+          slices={slices}
+          percents={percents}
+          ramp={ramp}
+          linkComponent={linkComponent}
+          columns={2}
+        />
+      )}
+    </div>
+  );
+}

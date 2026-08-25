@@ -26,7 +26,7 @@ import { cn } from "../lib/cn.js";
 import { useFieldControl } from "./field.js";
 
 const base =
-  "bg-wash-1 border-rule text-fg placeholder:text-fg-2 focus:border-accent duration-instant ease-brand w-full rounded-sm border text-[13px] transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50";
+  "bg-wash-1 border-rule text-fg placeholder:text-fg-2 focus:border-accent duration-instant ease-brand w-full rounded-lg border text-[13.5px] font-semibold transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50";
 
 /** An invalid control shows it on the border too, not only in the message. */
 const invalid = "aria-invalid:border-danger";
@@ -43,7 +43,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       ref={ref}
       {...field}
       {...props}
-      className={cn(base, invalid, "h-9 px-2.5", className)}
+      className={cn(base, invalid, "h-11 px-4", className)}
     />
   );
 });
@@ -59,7 +59,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         rows={rows}
         {...field}
         {...props}
-        className={cn(base, invalid, "resize-y px-2.5 py-2", className)}
+        className={cn(base, invalid, "resize-y px-4 py-3", className)}
       />
     );
   },
@@ -83,7 +83,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           className={cn(
             base,
             invalid,
-            "h-9 cursor-pointer appearance-none px-2.5 pr-8",
+            "h-11 cursor-pointer appearance-none px-4 pr-9",
             className,
           )}
         >
@@ -149,7 +149,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
     // nothing and only the label could toggle it.
     <span
       className={cn(
-        "relative inline-block h-4.5 w-8 shrink-0 align-middle",
+        "relative inline-block h-[30px] w-[52px] shrink-0 align-middle",
         className,
       )}
     >
@@ -169,7 +169,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
       {/* Knob. */}
       <span
         aria-hidden="true"
-        className="bg-fg duration-instant ease-brand pointer-events-none absolute top-1/2 left-0.5 size-3.5 -translate-y-1/2 rounded-full transition-transform peer-checked:translate-x-3.5 peer-checked:bg-white peer-disabled:opacity-50"
+        className="bg-fg duration-instant ease-brand pointer-events-none absolute top-1/2 left-1 size-[22px] -translate-y-1/2 rounded-full shadow-e1 transition-transform peer-checked:translate-x-[22px] peer-checked:bg-white peer-disabled:opacity-50"
       />
     </span>
   );

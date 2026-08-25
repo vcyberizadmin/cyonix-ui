@@ -5,7 +5,21 @@ export {
   type NavItem,
   type NavChild,
 } from "./nav-rail.js";
+export {
+  DockRail,
+  type DockRailProps,
+  type DockItem,
+  DockReveal,
+  type DockRevealProps,
+} from "./dock-rail.js";
 export { TopBar, type TopBarProps, type ScopeOption } from "./top-bar.js";
+export {
+  ConsoleBar,
+  type ConsoleBarProps,
+  type ConsoleScope,
+  type ConsoleNotification,
+  type ConsoleMenuItem,
+} from "./console-bar.js";
 export { AppShell, type AppShellProps } from "./app-shell.js";
 export {
   PageHeader,

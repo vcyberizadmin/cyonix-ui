@@ -21,7 +21,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "./lib/cn.js";
 
-const card = cva("rounded-md border border-rule", {
+const card = cva("rounded-xl border border-rule", {
   variants: {
     /** Nested cards step down to the ground colour. One level only. */
     nested: {

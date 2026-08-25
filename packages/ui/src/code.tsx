@@ -32,7 +32,7 @@ export function Code({ children, copyable, className }: CodeProps) {
   }, [children]);
 
   const base =
-    "bg-dark-grey text-light-grey border-rule inline-flex items-center gap-1.5 rounded-sm border px-1.5 py-0.5 font-mono text-[11px]";
+    "bg-neutral-900 text-neutral-300 border-rule inline-flex items-center gap-1.5 rounded-sm border px-1.5 py-0.5 font-mono text-[11px]";
 
   if (!copyable) {
     return <code className={cn(base, className)}>{children}</code>;

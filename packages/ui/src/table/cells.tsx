@@ -145,7 +145,7 @@ export function Progress({ value, showValue = true, className }: ProgressProps) 
         aria-valuenow={pct}
         aria-valuemin={0}
         aria-valuemax={100}
-        className="bg-wash-2 h-1.5 w-16 shrink-0 overflow-hidden rounded-full"
+        className="bg-wash-2 h-2 w-16 shrink-0 overflow-hidden rounded-full"
       >
         {/* Accent is legitimate here: this is progress, not a status or a rank. */}
         <span
