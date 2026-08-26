@@ -386,7 +386,13 @@
   --action-ghost-pressed: var(--neutral-200);
   --action-ghost-label: var(--neutral-800);
 
-  --focus: var(--orange-350);
+  /* Orange 450, not the 350 that --accent uses. WCAG 2.2 1.4.11 asks 3:1 of a
+     focus indicator, and on the Cloud ground Orange 350 measures 2.51:1 — the
+     ring is there and a low-vision user cannot find it. 450 measures 3.38:1 on
+     --bg, 4.02 on --surface and 3.74 on --surface-2, the lightest step that
+     clears on all three. Dark mode needs no such lift: Orange 300 on Onyx is
+     6.44:1. --focus-critical already clears at 3.26:1 and is unchanged. */
+  --focus: var(--orange-450);
   --focus-critical: var(--red-350);
 
   --icon: var(--neutral-800);
@@ -721,9 +727,15 @@
     stroke-linejoin: round;
   }
 
-  /* 2px accent focus ring, 3px offset. Never removed. */
+  /* 2px focus ring, 3px offset. Never removed.
+     Reads --focus, not --accent. They are near-identical oranges and the two
+     were used interchangeably, which left --focus and --focus-critical defined,
+     promoted to utilities, and read by nothing — while the ring that actually
+     painted took a colour chosen for brand fills rather than for visibility.
+     Splitting them is what lets light mode lift the ring to 3:1 without
+     touching the brand primary. */
   :focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--focus);
     outline-offset: 3px;
   }
 

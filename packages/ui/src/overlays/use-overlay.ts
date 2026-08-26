@@ -95,6 +95,57 @@ export function useOverlay<T extends HTMLElement = HTMLElement>({
     onCloseRef.current = onClose;
   }, [onClose]);
 
+  /**
+   * The panel arrives LATE, and focus has to wait for it.
+   *
+   * Every overlay here renders through a portal, and `usePortalTarget` only
+   * resolves in an effect — so on the render where `open` becomes true the
+   * panel is not in the DOM yet and `panelRef.current` is still null. An
+   * overlay that transitions closed → open gets away with it, because the
+   * effect re-runs on the next `open` change by which time the panel exists.
+   * One mounted ALREADY open does not: the effect fires once against a null
+   * ref, never runs again, and focus silently stays on <body>. The dialog
+   * title is never announced, and since the Tab trap below only intervenes
+   * once focus is already inside, the first Tab walks into the page behind
+   * the scrim.
+   *
+   * Mirroring the node into state gives the focus effect a dependency that
+   * actually changes when the panel lands. Deliberately NOT a `ready` flag
+   * passed in by each overlay: this is the third time this hook has had to
+   * absorb a portal-timing detail, and a flag every future overlay must
+   * remember to pass is the same bug waiting to happen. Tracking the node
+   * covers any reason the panel is late, not just this one.
+   */
+  const [panelNode, setPanelNode] = useState<T | null>(null);
+  useEffect(() => {
+    // No dependency array: this is a cheap identity check that has to run
+    // after every render, because a ref assignment does not trigger one.
+    if (panelRef.current !== panelNode) setPanelNode(panelRef.current);
+  });
+
+  /**
+   * Focus, kept separate from the machinery below because it is the only part
+   * that depends on the panel EXISTING. Escape, the scroll lock and the Tab
+   * trap all work off `open` and the document, so they can start immediately.
+   */
+  useEffect(() => {
+    if (!open || !manageFocus) return;
+
+    // Focus lands on the panel, not the first input, so a screen reader
+    // announces the dialog title before any field.
+    const node = initialFocus?.current ?? panelNode;
+    if (!node) return; // Panel not mounted yet — re-runs when it is.
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    node.focus();
+
+    return () => {
+      // Return the user to where they were. Without this, closing a dialog
+      // drops focus on <body> and the tab journey restarts from the top.
+      if (previouslyFocused?.isConnected) previouslyFocused.focus();
+    };
+  }, [open, panelNode, manageFocus, initialFocus]);
+
   useEffect(() => {
     if (!open) return;
 
@@ -102,13 +153,6 @@ export function useOverlay<T extends HTMLElement = HTMLElement>({
     stack.push(id);
 
     if (shouldLockScroll) lockScroll();
-
-    // Focus lands on the panel, not the first input, so a screen reader
-    // announces the dialog title before any field.
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    if (manageFocus) {
-      (initialFocus?.current ?? panelRef.current)?.focus();
-    }
 
     const onKeyDown = (event: KeyboardEvent) => {
       // Only the innermost overlay reacts, so Escape peels one layer.
@@ -157,12 +201,8 @@ export function useOverlay<T extends HTMLElement = HTMLElement>({
       const index = stack.indexOf(id);
       if (index !== -1) stack.splice(index, 1);
       if (shouldLockScroll) releaseScroll();
-      // Return the user to where they were.
-      if (manageFocus && previouslyFocused?.isConnected) {
-        previouslyFocused.focus();
-      }
     };
-  }, [open, closeOnEscape, trapFocus, shouldLockScroll, manageFocus, initialFocus]);
+  }, [open, closeOnEscape, trapFocus, shouldLockScroll]);
 
   return { panelRef };
 }

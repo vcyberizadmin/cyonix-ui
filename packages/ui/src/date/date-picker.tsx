@@ -130,7 +130,7 @@ export function DatePicker({
           className={cn(
             // The CX-FLD input recipe: wash fill, hairline that goes orange on
             // focus, radius-sm on all four corners.
-            "bg-wash-1 border-rule text-fg focus:border-accent aria-invalid:border-danger duration-instant ease-brand flex h-9 w-full cursor-pointer items-center gap-2 rounded-sm border px-2.5 text-left text-[13px] transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+            "bg-wash-1 border-rule text-fg focus:border-focus aria-invalid:border-danger duration-instant ease-brand flex h-9 w-full cursor-pointer items-center gap-2 rounded-sm border px-2.5 text-left text-[13px] transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
             !value && "text-fg-2",
             showClear ? "pr-9" : "pr-2.5",
           )}

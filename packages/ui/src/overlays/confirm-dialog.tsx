@@ -191,7 +191,7 @@ export function ConfirmDialog({
                 setReasonText(event.target.value);
                 onReasonChange?.(event.target.value);
               }}
-              className="bg-wash-1 border-rule text-fg placeholder:text-fg-2 focus:border-accent duration-instant ease-brand rounded-sm border px-3 py-2 text-[13px] transition-colors focus:outline-none"
+              className="bg-wash-1 border-rule text-fg placeholder:text-fg-2 focus:border-focus duration-instant ease-brand rounded-sm border px-3 py-2 text-[13px] transition-colors focus:outline-none"
             />
           </label>
         )}
@@ -212,7 +212,7 @@ export function ConfirmDialog({
               }}
               autoComplete="off"
               spellCheck={false}
-              className="bg-wash-1 border-rule text-fg focus:border-accent duration-instant ease-brand rounded-sm border px-3 py-2 font-mono text-[13px] transition-colors focus:outline-none"
+              className="bg-wash-1 border-rule text-fg focus:border-focus duration-instant ease-brand rounded-sm border px-3 py-2 font-mono text-[13px] transition-colors focus:outline-none"
             />
           </label>
         )}

@@ -26,7 +26,7 @@ import { cn } from "../lib/cn.js";
 import { useFieldControl } from "./field.js";
 
 const base =
-  "bg-wash-1 border-rule text-fg placeholder:text-fg-2 focus:border-accent duration-instant ease-brand w-full rounded-lg border text-[13.5px] font-semibold transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50";
+  "bg-wash-1 border-rule text-fg placeholder:text-fg-2 focus:border-focus duration-instant ease-brand w-full rounded-lg border text-[13.5px] font-semibold transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50";
 
 /** An invalid control shows it on the border too, not only in the message. */
 const invalid = "aria-invalid:border-danger";
@@ -118,7 +118,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         {...field}
         {...props}
         className={cn(
-          "border-rule bg-wash-1 accent-accent focus:border-accent duration-instant ease-brand size-4 cursor-pointer rounded-sm border transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+          "border-rule bg-wash-1 accent-accent focus:border-focus duration-instant ease-brand size-4 cursor-pointer rounded-sm border transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
       />
@@ -164,7 +164,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
       {/* Track. Driven by peer-checked, so no JS state is involved. */}
       <span
         aria-hidden="true"
-        className="bg-wash-3 border-rule peer-checked:bg-accent peer-checked:border-accent peer-focus-visible:border-accent duration-instant ease-brand pointer-events-none absolute inset-0 rounded-full border transition-colors peer-disabled:opacity-50"
+        className="bg-wash-3 border-rule peer-checked:bg-accent peer-checked:border-accent peer-focus-visible:border-focus duration-instant ease-brand pointer-events-none absolute inset-0 rounded-full border transition-colors peer-disabled:opacity-50"
       />
       {/* Knob. */}
       <span

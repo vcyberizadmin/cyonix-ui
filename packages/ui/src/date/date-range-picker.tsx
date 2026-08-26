@@ -386,7 +386,7 @@ export function DateRangeFilter({
       <button
         type="button"
         className={cn(
-          "border-rule bg-wash-1 focus:border-accent duration-instant ease-brand flex h-8 cursor-pointer items-center gap-1.5 rounded-sm border px-2.5 text-[12.5px] transition-colors focus:outline-none",
+          "border-rule bg-wash-1 focus:border-focus duration-instant ease-brand flex h-8 cursor-pointer items-center gap-1.5 rounded-sm border px-2.5 text-[12.5px] transition-colors focus:outline-none",
           applied ? "text-fg" : "text-fg-2 hover:text-fg",
           triggerClassName,
         )}
