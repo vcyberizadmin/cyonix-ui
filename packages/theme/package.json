@@ -18,6 +18,8 @@
     "access": "restricted"
   },
   "scripts": {
-    "build": "echo \"@vcyberizadmin/theme is published as-is (no build step)\" && exit 0"
+    "build": "echo \"@vcyberizadmin/theme is published as-is (no build step)\" && exit 0",
+    "verify:tokens": "node scripts/verify-tokens.mjs",
+    "test": "pnpm verify:tokens"
   }
 }

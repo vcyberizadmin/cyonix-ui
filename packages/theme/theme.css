@@ -313,6 +313,20 @@
   --e-3: 0 12px 32px rgb(0 0 0 / 0.5);
   --e-4: 0 24px 64px rgb(0 0 0 / 0.55);
 
+  /* --- Typography. The HOST APP CONTRACT, restated in one place.
+         These three are the only bridge between the families a consuming app
+         loads (--font-space-grotesk and friends, via next/font) and the
+         --font-* utilities Layer 3 generates. Deleting them breaks every
+         heading and every line of body text in the library, and it breaks
+         SILENTLY: a custom property whose value contains an unresolvable
+         var() is invalid at computed-value time, so font-family simply
+         inherits and nothing errors. That is exactly what happened when this
+         file's ramp layer was rewritten — see verify-tokens, which now fails
+         the build rather than letting it happen again. --- */
+  --display: var(--font-space-grotesk), system-ui, sans-serif;
+  --ui: var(--font-inter), system-ui, sans-serif;
+  --mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+
   /* --- Motion. One curve. All motion respects prefers-reduced-motion. --- */
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --duration-instant: 120ms;
