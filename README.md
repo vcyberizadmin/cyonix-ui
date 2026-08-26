@@ -255,7 +255,7 @@ a component with only Storybook running shows nothing — you are looking at the
 last build. The root script runs tsup in watch mode alongside it. (Theme edits
 do appear immediately: `theme.css` is consumed directly, with no build step.)
 
-### Four guards worth knowing about
+### Five guards worth knowing about
 
 **`preserve-directives`** — asserts a `"use client"` at the top of a source file
 survives into `dist/`. A stripped directive makes every interactive component
@@ -316,6 +316,68 @@ boundary. A date test written against `today` passes for eleven months of the
 year. The render half asserts structure rather than classes: one tab stop per
 grid, both endpoints marked selected, out-of-bounds days announced but still
 focusable, and Apply refusing exactly one state.
+
+**`verify-tokens`** — asserts every fallback-less `var(--x)` in `theme.css`
+resolves to a token the file defines. A dangling custom property fails silently
+and totally: the declaration is invalid at computed-value time, so the property
+does not fall back to the previous rule, it **inherits from the parent**. There
+is no error, no warning and no visual clue.
+
+That is not hypothetical. Rewriting the ramp layer deleted `--display`, `--ui`
+and `--mono` while the file kept referencing them, and every heading and every
+line of body text silently lost its typeface. Only a bare `var(--x)` is an
+error — `var(--x, fallback)` degrades safely and is a deliberate pattern.
+
+## Tests
+
+`pnpm test` runs, per package: the build, `tsc`, the guards above, and a Vitest
+suite. Roughly 1,180 assertions, about two seconds.
+
+The guards and the tests catch different things and neither replaces the other.
+A guard reads an artefact as text — the compiled CSS, the built `dist/` — and
+proves a property of it. A test renders a component and asserts what it does.
+The font regression that prompted this suite is the clearest example: a guard
+now proves no token reference dangles, and a test proves `--display` resolves to
+a real stack and that Tailwind's `font-display` utility is still wired to it.
+
+| Suite | What it holds the library to |
+| --- | --- |
+| `theme/tests/typography` | The three font roles resolve, reach the host `--font-*`, and keep a concrete fallback. The regression test for the bug above. |
+| `theme/tests/tokens` | Layer discipline: ramps are literals, light overrides every colour role dark defines and nothing more, `@theme inline` is still `inline`, no semantic utility is wired straight to the ramp. |
+| `theme/tests/contrast` | WCAG 2.2 AA on every text role against every ground it sits on, in both themes, with translucent washes composited first — plus 1.4.11 on the focus indicator. |
+| `ui/tests/smoke` | Every exported component mounts, renders something, unmounts, and logs no React warning. |
+| `ui/tests/exports` | The public surface. Every entrypoint export is defined, every component has a fixture, every fixture names a real export, and the export list is snapshotted. |
+| `ui/tests/ssr` | Every component renders through `react-dom/server` **with no DOM present at all**. |
+| `ui/tests/a11y` | Six mechanical rules swept across all 70 fixtures: accessible names, no positive `tabindex`, decorative graphics hidden, widget roles focusable, no skipped heading levels. |
+| `ui/tests/dates`, `tabs`, `form`, `overlays`, `table`, `navigation`, `charts` | Behaviour: keyboard contracts, ARIA state, controlled-vs-uncontrolled, date arithmetic, sort order, chart maths. |
+
+### Three conventions worth keeping
+
+**Fixtures are exhaustive by assertion, not by discipline.** `tests/fixtures.tsx`
+holds one minimal instance of every exported component, and `exports.test.ts`
+fails if an export has no fixture. Adding a component without covering it is not
+possible; the smoke, SSR and a11y sweeps all iterate that one registry, so a new
+component picks up ~10 assertions for free.
+
+**`tests/ssr.test.tsx` runs in plain node**, not jsdom — `// @vitest-environment
+node` at the top. That is the whole point: in jsdom, a component that reaches for
+`window` during render simply works. The shared `setup.ts` is guarded for both
+environments for the same reason.
+
+**A test that found a bug keeps guarding it.** Writing the suite surfaced four
+defects, all since fixed. Each one's test stayed, rewritten to assert the
+correct behaviour with the original failure described above it — so the comment
+explains why an otherwise unremarkable assertion is load-bearing:
+
+| Was | Now guarded by |
+| --- | --- |
+| Overlays mounted already open never took focus — the portal target resolves in an effect, so `panelRef.current` was null when `useOverlay` fired, and the effect keyed on `open` never re-ran. `ConfirmDialog`'s "Cancel holds focus" was inert with it. | `overlays.test.tsx` sweeps all three dialogs; `navigation.test.tsx` covers the palette |
+| The focus ring was painted with `--accent`, leaving `--focus` dead and light mode at 2.51:1 | `contrast.test.ts` asserts 3:1 in both modes **and** that the base rule still reads `--focus` |
+| A single-day range printed its date twice, which is what the `today` preset produces | `dates.test.ts` |
+
+There is no register of accepted failures, and adding one should be a
+deliberate act with a named owner in review — not a way to make a red test
+green.
 
 ## Publishing
 
