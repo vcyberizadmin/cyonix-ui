@@ -1,6 +1,6 @@
 {
   "name": "@vcyberizadmin/ui",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Shared React component library for the Cyonix apps",
   "license": "UNLICENSED",
   "type": "module",

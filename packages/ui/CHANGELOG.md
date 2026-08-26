@@ -1,5 +1,267 @@
 # @vcyberizadmin/ui
 
+## 1.0.0
+
+### Major Changes
+
+- f00a600: Adopt the official Cyonix token set. The theme is now a direct transcription of
+  `Cyonix_Token_Variables` — Base Collection, Color Tokens for both modes, and
+  Global Tokens — rather than a hand-built ramp.
+
+  **Base Collection.** Seven official ramps replace the old six-step neutral and
+  its ad-hoc semantic hues: `--neutral-*` (0 → 950, thirteen steps),
+  `--orange-*`, `--red-*`, `--green-*`, `--amber-*`, `--blue-*`, `--amethyst-*`.
+  Every step is the design system's own number, so `Orange 350 (Primary)` in Figma
+  is `--orange-350` here and the two can be checked against each other by eye.
+
+  **Two semantic changes worth reading twice:**
+
+  - **Purple means AI now, not info.** Amethyst is reserved for agent output; Info
+    is Blue Onyx. Anything that used `--info` for a purple tint is now blue, and
+    there is a new `--ai` / `--ai-bg` / `--ai-border` / `--ai-ink` group.
+  - **Success is teal, not green.** Green Onyx 350 is `#2cbf8f`, where the old
+    `--ok` was `#22c55e`.
+
+  **Light mode's ground is Cloud (`#e5ecf6`), not white.** White is reserved for
+  cards, so a card lifts off the page instead of dissolving into it.
+
+  **New roles the set defines and we did not have:** action states
+  (`--accent-hover` / `-pressed` / `-disabled`, plus secondary and ghost),
+  `--rule-default` / `-strong` / `-brand`, the icon group, `--scrim` and
+  `--scrim-strong`, `--surface-2`, `--fg-quaternary`, `--fg-disabled`,
+  `--fg-link`, `--fg-on-dark` / `--fg-on-light`, and per-status `-bg` / `-border`.
+
+  **Global Tokens** replace the old radius scale: `--r-1` … `--r-7`
+  (2 / 4 / 6 / 8 / 10 / 12 / 16) plus `--r-none` and `--r-full`, with `--r-sm|md|lg|xl`
+  kept as named aliases so component code still reads intent. `--stroke-0` … `-3`
+  are new.
+
+  **Two deviations, both forced by contrast, both minimal:**
+
+  | token              | as specified | measured            | shipped as          |
+  | ------------------ | ------------ | ------------------- | ------------------- |
+  | `Text-Brand` light | Orange 350   | **2.51:1** on Cloud | Orange 600 (8.44:1) |
+  | `Text-Link` light  | Blue 350     | **2.41:1** on Cloud | Blue 500 (5.34:1)   |
+
+  Both are the saturated mid-ramp step used as small text on a light ground; each
+  moves to the first darker step on the same ramp that clears 4.5:1, so the hue is
+  unchanged. Everything else is verbatim. `Text-Brand` dark stays Orange 400 as
+  specified — it measures 5.88:1 and needed no help.
+
+  All 48 ink-on-surface pairs clear AA in both themes, and the set's own
+  `status-*-text` on `status-*-bg` pairings measure 5.0–6.2:1 as designed.
+
+  **The real Cyonix logo.** `Logo` no longer draws a "C" monogram and a text
+  wordmark — it renders the official artwork, paths lifted verbatim from
+  `Cyonix Logo_Light Mode.svg` and `_Dark Mode_Inversed.svg`. Those two files
+  differ only in the wordmark fill (`#1C1E25` against `white`), so this ships as
+  ONE component whose letterforms take `currentColor`: colour it with a text
+  utility and it follows the theme. There is no light/dark pair to keep in sync
+  and no way to ship the wrong one.
+
+  The spark gradient (`#FFA505 → #FE1F0B`) survives as SVG gradient stops on the
+  four-point star and the two angled strokes inside the Y and the X — still the
+  only sanctioned use of it. `mini` renders the star alone: the brand ships no
+  separate short mark, and the star is the one self-contained element that reads
+  at 32px. Swap it if a real short mark is issued.
+
+  **Breaking.** `--onyx`, `--dark-grey`, `--dark-grey-2`, `--mid-grey` and
+  `--light-grey` are gone with their `--color-*` utilities; the Neutral ramp
+  replaces them. Four components reached for a ramp step directly and were
+  repointed: `Code`, `Button` (solid and edge), `Tooltip`, `TopBar`.
+
+### Minor Changes
+
+- 63f8fc2: CX-CHT — four new charts: `Gauge`, `AxisBars`, `Heatmap` and `StepArea`. Still
+  no chart library; all four are arithmetic and SVG.
+
+  - **`Gauge`** is the sibling of `Donut` for the same data shape. Reach for the
+    arch when the reading is a LEVEL — how full, how far through — and the donut
+    when it is a SPLIT: a ring implies the parts close back on themselves, an arch
+    has a floor and a ceiling. The path carries `pathLength="100"`, so each
+    segment is its own percentage and the arithmetic never touches the geometry.
+  - **`AxisBars`** adds gridlines and a zero-based axis. `highlight` draws one
+    window at full contrast and lets the rest recede, because the question in a
+    bar set is almost never "what is every bar".
+  - **`Heatmap`** renders as a real `<table>`, not a grid of divs — a matrix IS
+    tabular, so the row and column headers carry the meaning for free. `null` is a
+    dashed empty cell rather than the bottom of the ramp: "we saw nothing" and "we
+    did not look" are different findings, and conflating them makes the chart
+    worse than no chart.
+  - **`StepArea`** is the only one that is not server-safe, and it ships in its
+    own file so that fact does not leak into the others. A line between two
+    samples asserts the value moved smoothly between them, which for a polled
+    metric is a fiction; the step holds each reading flat and joins them with a
+    short S-curve.
+
+  **`verify-utilities` gained an `SVG_ATTR_VALUES` exclusion.** It flagged
+  `non-scaling-stroke` — a value of the `vector-effect` attribute, which reaches
+  the scanner as a bare dashed string and is indistinguishable from a class by
+  shape. Unlike a gradient id it cannot be renamed; it is an SVG keyword. Extend
+  that set rather than contorting a component around the scanner.
+
+  **Still to come:** `DualSeries`, `Radar`, `SquircleRing`, `LiquidFill` and a
+  Sankey. The Sankey is worth a deliberate decision rather than a drive-by:
+  `FunnelFlow` exists precisely because a Sankey's ribbons encode the same single
+  number as a bar's width while being harder to read, so building one reverses
+  that call.
+
+- 83ce43a: CX-CBR — `ConsoleBar`, the SOC console's header, ported. Sits beside `TopBar`
+  rather than replacing it.
+
+  Same relationship CX-DCK has to CX-NAV, for the same reason: the two answer
+  different questions. `TopBar` is a 52px utility strip — scope, clock, health, a
+  menu — where every group is a small control and the whole thing reads as chrome.
+  `ConsoleBar` is a 68/78px identity bar built around the question an operator
+  asks constantly ("whose data am I looking at?") and the three panels they open
+  all shift. It is taller, its search affordance is sized to be _seen_, and its
+  scope switcher is a row of tabs with a moving ink rather than a dropdown.
+
+  **Scope is the point.** It sits far left because it qualifies everything to its
+  right, and it reads as tabs because it is switched far more often than anything
+  else in the bar. The ink beneath the current scope is the ONE orange thing here
+  — scope is location, and location is what orange means.
+
+  **Two ways the current scope can stop being visible, both handled.** The source
+  handles one: an unpinned scope makes the picker button take over its name. The
+  other it misses — the inline tabs shed one at a time as the bar narrows, so a
+  _pinned_ scope can be hidden by a breakpoint, leaving the picker saying
+  "Tenants" and no ink anywhere. This measures `offsetWidth` rather than inferring
+  from the breakpoint (CSS is the only thing that knows, and only the DOM can read
+  it back), so the picker takes over in that case too. The bar never stops showing
+  where you are.
+
+  **Controls fold rather than vanish.** Below `xl` there is no room for the theme
+  and settings buttons, so they move INTO the profile panel as labelled rows —
+  `ConsoleMenuItem.compactOnly`. One definition, visible as an icon button on a
+  wide screen and a row on a narrow one, never both at once. A control that
+  disappears on a laptop is a control the operator cannot reach.
+
+  **Counts take the danger tone, never orange** — the same rule CX-DCK's badges
+  follow — and a zero renders no badge at all.
+
+  All three panels are CX-TIP's `Popover`, so Escape, click-outside, focus return,
+  portalling and anchored positioning come from the shared overlay stack instead
+  of being reimplemented three times. The bar does no date arithmetic:
+  `ConsoleNotification.time` is pre-formatted by the app, so it needs no clock and
+  cannot disagree with the server.
+
+  **Departure from the source, consistent with CX-DCK:** the bar is painted with
+  the library's own tokens rather than the console's `--bell`/`--badge` pair,
+  which puts orange on the notification bell in light mode. Orange stays on
+  location and primary action.
+
+- 83ce43a: CX-DCK — `DockRail`, the floating dock rail, ported from the SOC console. Plus
+  `railMode` on `AppShell` so the shell knows not to wrap it in a drawer.
+
+  Ported from the deployed SOC console, whose rail is the one piece of that app's
+  chrome no library component could express. It ships **beside** `NavRail`, not in
+  place of it: both are legitimate, and which one an app wants is decided by how
+  many destinations it has, not by which is newer.
+
+  **Why it could not be a `NavRail` variant.** Four differences, each of which
+  alone would be a prop, but together are a different component:
+
+  - **It floats.** The panel is absolutely positioned inside a fixed-width gutter
+    and expands _over_ the content, so the gutter never changes and nothing
+    reflows when the pointer crosses the rail. `NavRail`'s collapse resizes the
+    grid — deliberately, because at 300px it has to. This one must not, because a
+    rail that reshuffles a table every time the mouse passes it is unusable.
+  - **Expansion is hover, not a click.** So there is no persisted state, no
+    storage key, no controlled/uncontrolled pair, and nothing for a user to set.
+    Bound to `focus-within` as well, so the keyboard gets what the mouse gets.
+  - **Below `xl` it is a bottom dock, not a drawer.** Thumb-reachable and always
+    visible, with the primary action lifted out of its centre as a FAB. `action`
+    is dock-only and renders nothing above `xl`: the expanded rail is a column of
+    destinations, and a button among them reads as one more place to go. On a wide
+    screen the primary action belongs in the console bar, where there is room to
+    label it.
+  - **Nesting is not supported, by type.** `DockItem` has no `children` field. A
+    dock with sub-items is a sidebar wearing the wrong clothes; that is what
+    `NavRail` is for.
+
+  **The one deliberate departure from the source.** The SOC console paints the
+  whole rail Sunset Orange in its light theme. That is dropped. The design system
+  reserves orange for exactly one thing at a time — the current location — and an
+  orange rail puts the accent everywhere, leaving the active item to distinguish
+  itself from a field of its own colour. Here the rail surface is `--surface` in
+  both themes, hover is a neutral wash, and the only orange is the ink tab welded
+  to the active item's edge. Same geometry, same motion, same crossfade; the
+  colour rule the rest of the library follows now holds here too.
+
+  **Counts** take the danger tone, never orange, and `0` renders nothing rather
+  than a zero badge — an empty queue is not a state worth a glance.
+
+  **`DockReveal`** ships alongside, for text that collapses with the rail. The
+  module badge needs it: the source keeps the "S" of "SOC" visible at 76px and
+  reveals only the "OC", so the badge reads as one letter collapsed and the whole
+  word expanded rather than appearing out of nothing —
+  `footer={<>S<DockReveal>OC</DockReveal></>}`. It shares the nav label's collapse
+  mechanics from a single constant, so the two cannot drift apart.
+
+  **`AppShell` gains `railMode`.** `sidebar` (the default) is unchanged. `dock`
+  renders the rail straight through and drops the drawer and its trigger, which
+  would otherwise hide a rail meant to stay visible and mount a button that opens
+  nothing. In exchange the shell takes on the one duty the dock cannot do for
+  itself: reserving scroll room at the foot of the content column below `xl`, so
+  the last row of a table is not stranded under the floating bar.
+
+  **Theme** adds `--container-dock-rail` (76px), `--container-dock-rail-open`
+  (232px) and `--container-dock-gutter` (100px). Only the widths are named,
+  because only the widths are load-bearing for the no-reflow behaviour above.
+
+- 13fc529: CX-TBL — `compact`, `align: "center"`, per-column `className` and the row index
+  reach `Column`; `hoverable` reaches the table. Fixes an actions column that
+  clipped its own controls.
+
+  Found by migrating a real consumer. `cyonix-tenants` had independently arrived at
+  a column vocabulary this table could not express, and used it **73 times** across
+  eight tables: `compact` on 42 columns and `align: "center"` on 31. Porting to the
+  library would have meant deleting both and inventing percentage widths in their
+  place — the library forcing a regression on an app, which is backwards.
+
+  - **`compact`** sizes a column to its own content rather than giving it a share
+    of the table's leftover width. Without it a status mark or an action group ends
+    up stranded a hand's width from its header, because the six text columns and
+    the one-glyph column all divide the remaining space equally. `actions` already
+    did this privately; `compact` is that behaviour named and made available to the
+    codes, counts, dates and statuses that need it and must _not_ also swallow the
+    row click.
+
+  - **`align: "center"`** completes an axis that was half-built. `align` drove the
+    header and body together — the property that stops the two disagreeing — but
+    offered only `left` and `right`, so a centred column was unreachable through
+    the API. `right` continues to carry the mono tabular face, since a column of
+    figures compared digit by digit needs it and a centred date does not.
+
+  - **`className`** is the escape hatch for what the props above cannot say —
+    `min-w-[20rem]` on a message column, `hidden md:table-cell` on one that drops
+    out on narrow screens. Applied to header and body alike, for the same reason
+    `align` is.
+
+  - **`cell` now receives the rendered index**, so a numbered column follows the
+    sort instead of contradicting it. Passing an extra argument to callbacks that
+    ignore it is invisible to existing code.
+
+  - **`hoverable`** turns off the row hover wash. It stays on by default and
+    should stay on for any table whose rows are records an operator acts on, but a
+    static reference grid — a permissions matrix, a legend — has nothing to click,
+    and a hover wash there advertises interactivity the row does not have.
+
+  **The bug.** `actions: true` did not exempt its cell from the default
+  `max-w-0 truncate`, and `overflow: hidden` clips a `<button>` exactly as readily
+  as a long string. Every actions column rendered its controls cut off — an `Edit`
+  button arriving as `dit` — and it survived unnoticed because the story's actions
+  column holds a single `⋯` glyph narrow enough to fit. Nothing errors, nothing
+  fails a typecheck, and a screenshot looks plausible unless you read the label.
+
+  `compact`, `actions` and `truncate: false` now all opt out of truncation, which
+  is not three special cases but one rule: a column sized by its content has no
+  share of the table to truncate against.
+
+  Every addition is optional and `Column`'s required fields are unchanged, so no
+  consumer needs to touch anything.
+
 ## 0.3.0
 
 ### Minor Changes
