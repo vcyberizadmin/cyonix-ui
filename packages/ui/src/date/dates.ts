@@ -244,6 +244,11 @@ export function formatDateRange(range: DateRange, short = false): string {
   if (to && !from) return formatISODate(to, short);
   if (!from || !to) return "";
 
+  // A one-day range is a day, not a span. Without this the "Today" preset —
+  // which resolves to { from: X, to: X } — renders its own date twice, and
+  // DateRangeFilter's trigger reads "26 Aug – 26 Aug 2026".
+  if (from === to) return formatISODate(from, short);
+
   const dash = " – ";
   if (short && getYear(from) === getYear(to)) {
     const start = `${getDay(from)} ${MONTH_ABBREVIATIONS[getMonth(from)]}`;

@@ -20,6 +20,12 @@
   "scripts": {
     "build": "echo \"@vcyberizadmin/theme is published as-is (no build step)\" && exit 0",
     "verify:tokens": "node scripts/verify-tokens.mjs",
-    "test": "pnpm verify:tokens"
+    "test": "pnpm verify:tokens && pnpm typecheck && pnpm test:unit",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^26.3.0",
+    "vitest": "^4.1.11"
   }
 }

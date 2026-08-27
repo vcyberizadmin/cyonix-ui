@@ -185,7 +185,7 @@ export function Toolbar({
               <select
                 value={savedViews.currentId ?? ""}
                 onChange={(event) => savedViews.onSelect(event.target.value)}
-                className="border-rule bg-surface text-fg-2 focus:border-accent cursor-pointer rounded-sm border px-1.5 py-0.5 text-[12px] focus:outline-none"
+                className="border-rule bg-surface text-fg-2 focus:border-focus cursor-pointer rounded-sm border px-1.5 py-0.5 text-[12px] focus:outline-none"
               >
                 <option value="">All records</option>
                 {savedViews.views.map((view) => (
@@ -279,7 +279,7 @@ function SearchField({
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
         placeholder={placeholder}
-        className="border-rule bg-wash-1 text-fg placeholder:text-fg-2 focus:border-accent duration-instant ease-brand h-8 w-full rounded-sm border pr-2.5 pl-8 text-[12.5px] transition-colors focus:outline-none"
+        className="border-rule bg-wash-1 text-fg placeholder:text-fg-2 focus:border-focus duration-instant ease-brand h-8 w-full rounded-sm border pr-2.5 pl-8 text-[12.5px] transition-colors focus:outline-none"
       />
     </div>
   );

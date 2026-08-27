@@ -460,7 +460,7 @@ export function ConsoleBar({
           <button
             type="button"
             onClick={onSearch}
-            className="bg-surface text-fg duration-instant ease-brand hidden h-11 w-[268px] cursor-pointer items-center gap-2.5 rounded-[14px] px-4 text-left transition-shadow lg:flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="bg-surface text-fg duration-instant ease-brand hidden h-11 w-[268px] cursor-pointer items-center gap-2.5 rounded-[14px] px-4 text-left transition-shadow lg:flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           >
             {searchIcon && (
               <span className="text-accent shrink-0 [&_svg]:size-[18px]">
