@@ -1,5 +1,76 @@
 # @vcyberizadmin/ui
 
+## 1.0.1
+
+### Patch Changes
+
+- 94418c4: Give the focus indicator its own token, and lift it to WCAG AA in light mode
+
+  `--focus` and `--focus-critical` were defined, promoted to `--color-focus`
+  utilities, and read by nothing. `@layer base` painted `:focus-visible` with
+  `var(--accent)` instead, and the 17 components that strip that outline to draw
+  their own border or ring followed suit.
+
+  They are near-identical oranges, so nothing looked wrong. The cost was that the
+  focus ring took a colour chosen for brand fills rather than for visibility, and
+  in light mode that colour measures **2.51:1** against the Cloud ground — below
+  the 3:1 WCAG 2.2 1.4.11 requires of a focus indicator. Every input, select,
+  combobox and search field was affected, because those are exactly the controls
+  that replace the base outline with `focus:border-accent`.
+
+  - Light `--focus` moves from Orange 350 to **Orange 450** — 3.38:1 on `--bg`,
+    4.02 on `--surface`, 3.74 on `--surface-2`. The lightest step that clears on
+    all three. Dark mode already measured 6.44:1 and is unchanged, as is
+    `--focus-critical` at 3.26:1.
+  - `:focus-visible` now reads `var(--focus)`.
+  - Components use `border-focus` / `ring-focus` in place of the accent.
+
+  `--accent` itself is untouched: it stays Orange 350 in light and Orange 400 in
+  dark. Splitting the two tokens is what allows the ring to clear AA without
+  moving the brand primary.
+
+  **Visible change.** The focus ring is a slightly deeper orange in light mode and
+  a slightly brighter one in dark. Anything relying on the ring matching
+  `--accent` exactly will now differ.
+
+- 94418c4: Fix overlays not taking focus when mounted already open
+
+  `Modal`, `Drawer`, `ConfirmDialog` and `CommandPalette` moved focus into the
+  panel only when they transitioned closed → open. One rendered already open —
+  from a route, or from URL state — left focus on `<body>`.
+
+  Every overlay renders through a portal, and `usePortalTarget` only resolves in
+  an effect, so on the render where `open` becomes true the panel is not in the
+  DOM yet and `panelRef.current` is still null. `useOverlay`'s effect keyed on
+  `open`, fired once against that null ref, and never ran again.
+
+  Nothing errored. Escape and the scroll lock still worked, so the overlay looked
+  correct. What was lost:
+
+  - The dialog title was never announced — the reason focus goes to the panel
+    rather than the first field.
+  - The Tab trap only intervenes once focus is already inside the panel, so the
+    first Tab walked into the page behind the scrim.
+  - `ConfirmDialog`'s guarantee that Cancel holds default focus was inert, so
+    Enter could reach the destructive action. `initialFocus` points at a node
+    inside the portal, which was null at exactly the same moment.
+
+  `useOverlay` now mirrors the panel node into state and focuses in a separate
+  effect that depends on it, so focus happens whenever the panel actually lands.
+  Deliberately not a `ready` flag each overlay passes in: a flag every future
+  overlay must remember is the same bug waiting to happen.
+
+- 94418c4: Stop `formatDateRange` printing a single-day range twice
+
+  A range whose ends are equal rendered as `26 August 2026 – 26 August 2026`.
+  That is not an edge case: the `today` preset resolves to `{ from: X, to: X }`,
+  and `DateRangeFilter`'s trigger renders `formatDateRange(value, true)` — so
+  choosing **Today** in the filter read `26 Aug – 26 Aug 2026`. It now reads
+  `26 Aug 2026`.
+
+  Genuine two-day spans are unaffected; the collapse keys on the two ends being
+  the same date, not on them sharing a month.
+
 ## 1.0.0
 
 ### Major Changes
