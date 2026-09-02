@@ -1,0 +1,48 @@
+name: Mirror to GitLab
+
+# Pushes GitHub `main` to the GitLab `github` branch.
+#
+# Requires repository secret GITLAB_DEPLOY_KEY: the private half of an SSH key
+# whose public half is registered on the GitLab project as a deploy key with
+# write access enabled. See docs/platform-sync.md.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Serialise runs so two pushes in quick succession cannot race each other.
+concurrency:
+  group: mirror-to-gitlab
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out full history
+        uses: actions/checkout@v4
+        with:
+          # A shallow clone cannot be pushed to another host.
+          fetch-depth: 0
+
+      - name: Load GitLab deploy key
+        env:
+          GITLAB_DEPLOY_KEY: ${{ secrets.GITLAB_DEPLOY_KEY }}
+        run: |
+          if [ -z "$GITLAB_DEPLOY_KEY" ]; then
+            echo "::error::GITLAB_DEPLOY_KEY secret is not set. See docs/platform-sync.md."
+            exit 1
+          fi
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$GITLAB_DEPLOY_KEY" > ~/.ssh/gitlab_deploy
+          chmod 600 ~/.ssh/gitlab_deploy
+          ssh-keyscan -t rsa,ecdsa,ed25519 gitlab.com >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Push main to GitLab github branch
+        env:
+          GIT_SSH_COMMAND: ssh -i ~/.ssh/gitlab_deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes
+        run: |
+          # No --force. A rejected push means GitLab holds commits that GitHub
+          # does not, which needs a human to look at it rather than a clobber.
+          git push git@gitlab.com:vcyberiz/cyonix-ui.git HEAD:refs/heads/github
