@@ -210,6 +210,19 @@
          in light it inverts to a solid brand column (see the light block).
          Without these five tokens the rail cannot carry the reference's
          treatment, which is why NavRail previously read `bg-bg`. --- */
+  /* --- Chrome. Three small filled roles the top bar needs, which no other
+         token covers: the logo chip, the notification bell, and the count on
+         it. Bell and badge SWAP between modes — dark bell with an orange
+         badge here, orange bell with a dark badge in light — so exactly one
+         of the pair is ever the accent. That is "one accent, earned" applied
+         to a two-part control rather than to a screen. --- */
+  --chip: var(--neutral-925);
+  --chip-fg: var(--neutral-0);
+  --bell: var(--neutral-925);
+  --bell-fg: var(--neutral-0);
+  --badge: var(--orange-350);
+  --badge-fg: var(--neutral-0);
+
   --rail: var(--neutral-850); /* #2b2e33, the reference's #26282C step */
   --rail-fg: var(--neutral-0);
   --rail-fg-dim: var(--neutral-600);
@@ -470,6 +483,15 @@
      the reference's most recognisable single feature. Active state is a white
      wash rather than an accent tint, because the ground is already the
      accent. */
+  --chip: var(--neutral-975);
+  --chip-fg: var(--neutral-0);
+  /* Inverted against dark: the bell carries the accent here and the badge on
+     it goes dark, so the pair still spends exactly one accent between them. */
+  --bell: var(--orange-350);
+  --bell-fg: var(--neutral-0);
+  --badge: var(--neutral-975);
+  --badge-fg: var(--neutral-0);
+
   --rail: var(--orange-350);
   --rail-fg: var(--neutral-0);
   --rail-fg-dim: rgb(255 255 255 / 0.66);
@@ -611,6 +633,12 @@
   --color-surface-3: var(--surface-3);
   --color-thread: var(--thread);
   --color-track: var(--track);
+  --color-chip: var(--chip);
+  --color-chip-fg: var(--chip-fg);
+  --color-bell: var(--bell);
+  --color-bell-fg: var(--bell-fg);
+  --color-badge: var(--badge);
+  --color-badge-fg: var(--badge-fg);
   --color-rail: var(--rail);
   --color-rail-fg: var(--rail-fg);
   --color-rail-fg-dim: var(--rail-fg-dim);

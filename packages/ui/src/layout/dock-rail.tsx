@@ -25,10 +25,18 @@ import { cn } from "../lib/cn.js";
  *    sidebar wearing the wrong clothes; reach for `NavRail` instead.
  *
  * Brand rules encoded here, same as CX-NAV:
- *  · Orange appears in exactly ONE place at a time — the current location.
- *    The rail surface is neutral in both themes and hover is a neutral wash,
- *    so "where I am" never competes with "where my cursor is".
- *  · Active is the accent ink tab welded to the rail's edge, plus accent text.
+ *  · The rail is its OWN surface, --rail, and it inverts: a raised grey slab
+ *    in dark, a solid brand column in light. That is the reference's most
+ *    recognisable single feature, and it is why the rail cannot simply borrow
+ *    --bg the way a flush sidebar does.
+ *  · Which means "one accent, earned" is satisfied differently in each theme.
+ *    In dark the ink tab is orange against grey. In light the whole column is
+ *    orange, so the ink goes WHITE — an orange marker on an orange ground
+ *    would be invisible. --rail-ink carries that inversion, so neither theme
+ *    ends up with two oranges competing.
+ *  · Active is the ink tab welded to the rail's edge, plus full-strength rail
+ *    ink. Collapsed it also takes a wash; expanded it does not, because the
+ *    tab alone marks it.
  *  · A count that needs attention takes the danger tone, never orange.
  *
  * Framework-agnostic by design, for the same reasons as CX-NAV: it takes
@@ -167,7 +175,7 @@ export function DockRail({
           // scrolling content and needs the shadow to separate. At xl it sits
           // in its own gutter against the page ground, so the shadow goes —
           // and comes back only while expanded, when it IS overlapping again.
-          "bg-surface h-17 rounded-[30px] px-3 shadow-e3",
+          "bg-rail h-17 rounded-[30px] px-3 shadow-e3",
           "xl:h-auto xl:flex-col xl:items-stretch xl:rounded-[28px] xl:px-3.5 xl:py-7 xl:shadow-none",
           // Floating and self-sizing: absolute inside the gutter, inset 12px.
           "xl:absolute xl:top-3 xl:bottom-3 xl:left-3 xl:z-[60] xl:w-dock-rail",
@@ -237,9 +245,9 @@ export function DockRail({
                         // at 68px tall the edge tab alone is easy to miss. The
                         // xl rail drops it and relies on the tab — one signal,
                         // not two competing.
-                        "text-accent-ink bg-wash-2 xl:bg-transparent"
+                        "text-rail-fg bg-rail-active xl:bg-transparent"
                       : // Hover is feedback, not state: no tab, no orange.
-                        "text-fg-2 hover:bg-wash-hover hover:text-fg",
+                        "text-rail-fg-dim hover:bg-rail-active hover:text-rail-fg",
                   )}
                 >
                   {/* The ink tab. Under the icon in the dock; welded to the
@@ -248,7 +256,7 @@ export function DockRail({
                   <span
                     aria-hidden="true"
                     className={cn(
-                      "bg-accent duration-instant ease-brand absolute -bottom-[7px] left-1/2 h-1 w-5 -translate-x-1/2 rounded-full transition-opacity",
+                      "bg-rail-ink duration-instant ease-brand absolute -bottom-[7px] left-1/2 h-1 w-5 -translate-x-1/2 rounded-full transition-opacity",
                       "xl:top-1/2 xl:-left-3.5 xl:h-[34px] xl:w-[9px] xl:translate-x-0 xl:-translate-y-1/2 xl:rounded-l-none xl:rounded-r-[9px]",
                       active ? "opacity-100" : "opacity-0",
                     )}
@@ -259,11 +267,11 @@ export function DockRail({
                       null}
 
                     {showCount && (
-                      // ring-surface, not ring-bg: the badge overhangs the
+                      // ring-rail, not ring-bg: the badge overhangs the
                       // icon and is punched out of the RAIL, which is --surface.
                       <span
                         className={cn(
-                          "ring-surface absolute top-1 right-1 grid h-[17px] min-w-[17px] place-items-center rounded-full px-1 text-[10px] font-extrabold tabular-nums ring-2",
+                          "ring-rail absolute top-1 right-1 grid h-[17px] min-w-[17px] place-items-center rounded-full px-1 text-[10px] font-extrabold tabular-nums ring-2",
                           item.countTone === "alert"
                             ? "bg-danger-strong text-white"
                             : "bg-wash-3 text-fg",
@@ -307,7 +315,7 @@ export function DockRail({
           // A div, not the source's <button>: that button carries no handler
           // and no destination, so as a control it is a focus stop that does
           // nothing. The hover wash goes with it.
-          <div className="text-fg-2 hidden h-12 shrink-0 items-center pl-[19px] text-[16px] leading-none font-extrabold tracking-tight xl:flex">
+          <div className="text-rail-fg-dim hidden h-12 shrink-0 items-center pl-[19px] text-[16px] leading-none font-extrabold tracking-tight xl:flex">
             {footer}
           </div>
         )}
