@@ -733,7 +733,11 @@
   --radius-md: var(--r-md);
   --radius-lg: var(--r-lg);
   --radius-xl: var(--r-xl);
-  --radius-2xl: var(--r-2xl);
+  /* NOT --radius-2xl. Tailwind's stock rounded-2xl is 16px, which is exactly
+     what the reference's rail items, module badge and .row all use. Claiming
+     that name for the 28px panel radius silently made every one of them too
+     round. The panel asks for its 28px explicitly instead. */
+  --radius-3xl: var(--r-2xl);
 
   /* The reference's weight scale, as font-body / font-strong / font-heavy. */
   --font-weight-body: var(--weight-body);

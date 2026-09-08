@@ -20,6 +20,8 @@ import { Note, InsightPanel } from "../src/note.js";
 import { Skeleton } from "../src/skeleton.js";
 import { EmptyState, ErrorState } from "../src/states.js";
 import { SeverityBadge, StatusPill } from "../src/status.js";
+import { RecordCard } from "../src/record-card.js";
+import { QueueRow, RowFacts } from "../src/queue-row.js";
 import { Segmented, Tabs } from "../src/tabs.js";
 import { ChipStack, Tag } from "../src/tag.js";
 import { StatTile, StatusTile, TileGrid, TrendTile } from "../src/tile.js";
@@ -112,6 +114,24 @@ export const FIXTURES: Record<string, () => ReactElement> = {
   ChipStack: () => <ChipStack items={[{ label: "prod" }, { label: "eu-west" }]} />,
   StatusPill: () => <StatusPill status="active" />,
   SeverityBadge: () => <SeverityBadge severity="Critical" />,
+  RecordCard: () => (
+    <RecordCard
+      severity="Critical"
+      title="Suspected credential theft"
+      meta={<StatusPill status="active" />}
+      footer="2 alerts"
+      onOpen={() => {}}
+    />
+  ),
+  QueueRow: () => (
+    <QueueRow
+      severity="High"
+      title="Beaconing to newly registered domain"
+      facts={<RowFacts items={["AL-2288", "NET-BCN-007"]} />}
+      onOpen={() => {}}
+    />
+  ),
+  RowFacts: () => <RowFacts items={["AL-2288", "NET-BCN-007"]} />,
   Note: () => <Note>Heads up.</Note>,
   InsightPanel: () => <InsightPanel>Traffic is up.</InsightPanel>,
   EmptyState: () => <EmptyState variant="empty" title="Nothing yet" />,
