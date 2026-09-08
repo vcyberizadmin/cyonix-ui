@@ -37,7 +37,10 @@ import { cn } from "../lib/cn.js";
  *  · Active is the ink tab welded to the rail's edge, plus full-strength rail
  *    ink. Collapsed it also takes a wash; expanded it does not, because the
  *    tab alone marks it.
- *  · A count that needs attention takes the danger tone, never orange.
+ *  · A count that needs attention takes --sev-crit, never orange: orange is
+ *    location here, and a badge is not a location. A count that needs
+ *    nothing takes --surface-3, a solid step off the rail rather than a
+ *    translucent wash over it.
  *
  * Framework-agnostic by design, for the same reasons as CX-NAV: it takes
  * `activeHref` as a prop rather than calling `usePathname()`, and renders links
@@ -272,9 +275,21 @@ export function DockRail({
                       <span
                         className={cn(
                           "ring-rail absolute top-1 right-1 grid h-[17px] min-w-[17px] place-items-center rounded-full px-1 text-[10px] font-extrabold tabular-nums ring-2",
+                          // The reference's own two fills: --sev-critical for
+                          // a count that needs attention, --surface-3 for one
+                          // that is merely a count.
+                          //
+                          // This took --danger-strong, a DEEPER red chosen so
+                          // white clears AA on a 14px label. On a 10px badge
+                          // that is the wrong trade: nothing here is read as
+                          // prose, and the deeper red reads as a different,
+                          // muddier state beside the severity ladder the rest
+                          // of the console uses. The resting fill was a 10%
+                          // white wash, which on the rail's own dark slab
+                          // barely separated from it at all.
                           item.countTone === "alert"
-                            ? "bg-danger-strong text-white"
-                            : "bg-wash-3 text-fg",
+                            ? "bg-sev-crit text-white"
+                            : "bg-surface-3 text-fg",
                         )}
                       >
                         {item.count}
