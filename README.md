@@ -104,15 +104,30 @@ on the 22% orange hover wash measures 1.3:1, so that variant uses `--fg`.
 
 ## Using it in an app
 
+```sh
+pnpm add @cyonix/ui @cyonix/theme
+pnpm add -D tailwindcss @tailwindcss/postcss
+```
+
+Tailwind v4 is a peer dependency: the components are built from utility classes
+and ship no CSS of their own, so without it they render unstyled.
+
+**Full walkthrough in [docs/installation.md](docs/installation.md)**, covering
+the `@source` path, the font contract, light/dark, the client boundary and what
+each failure looks like. The essentials:
+
 ```css
 /* src/app/globals.css */
 @import "tailwindcss";
 @import "@cyonix/theme";
 
 /* Tailwind only generates classes it can SEE, and it skips node_modules during
-   auto-detection, so the library must be pointed at explicitly. Path is
-   relative to this file. */
-@source "../../../node_modules/@cyonix/ui/dist/**/*.js";
+   auto-detection, so the library must be pointed at explicitly.
+
+   The path is relative to THIS FILE, not to the project root. From
+   src/app/globals.css: ../ is src/, ../../ is the root. Count your own hops;
+   a file at src/globals.css needs one fewer. */
+@source "../../node_modules/@cyonix/ui/dist/**/*.js";
 ```
 
 ```tsx
