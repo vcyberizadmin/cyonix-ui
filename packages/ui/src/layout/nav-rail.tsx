@@ -71,6 +71,17 @@ export interface NavRailProps {
   brand?: ReactNode;
   /** Brand block, shown minimised. Falls back to `brand`. */
   brandMini?: ReactNode;
+  /**
+   * Which console this is — "SOC", "VAPT", "TENANT".
+   *
+   * Pinned to the BOTTOM of the rail, not beside the wordmark, and it reveals
+   * itself with the rail: the first letter is always visible and the remainder
+   * slides in when the rail expands, so a collapsed rail reads "S" and an
+   * expanded one "SOC". That is the reference's treatment, and it is why
+   * `Logo`'s own `module` pill should not be used as the rail's `brand` — the
+   * reference has no such pill anywhere.
+   */
+  moduleBadge?: string;
   /** System-liveness strip pinned to the bottom. */
   footer?: ReactNode;
   /** Link implementation. Defaults to `a`; apps pass `next/link`. */
@@ -165,6 +176,7 @@ export function NavRail({
   activeHref,
   brand,
   brandMini,
+  moduleBadge,
   footer,
   linkComponent,
   storageKey = "cyonix.nav",
@@ -436,6 +448,29 @@ export function NavRail({
 
       {/* Dropped entirely when minimised rather than emptied — an empty
           bordered strip reads as a rendering bug, and 68px has no room for it. */}
+      {moduleBadge && (
+        <button
+          type="button"
+          aria-label={moduleBadge}
+          className="text-rail-fg-dim hover:text-rail-fg hover:bg-rail-active duration-instant ease-brand mx-2 mb-2 flex h-12 shrink-0 cursor-pointer items-center rounded-2xl transition-colors"
+        >
+          <span className="flex h-12 shrink-0 items-center pl-[19px] text-[16px] leading-none font-extrabold tracking-tight">
+            {moduleBadge.slice(0, 1)}
+            {/* The remainder is width-animated rather than faded, so the
+                letters appear to slide out of the first one as the rail opens.
+                max-w-0 + overflow-hidden is what collapses it without
+                reserving space. */}
+            <span
+              className={cn(
+                "ease-brand overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-standard",
+                mini ? "max-w-0 opacity-0" : "max-w-[150px] opacity-100",
+              )}
+            >
+              {moduleBadge.slice(1)}
+            </span>
+          </span>
+        </button>
+      )}
       {footer && !mini && (
         <div className="border-rule text-fg-muted shrink-0 border-t px-4 py-3 text-[11px]">
           {footer}

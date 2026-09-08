@@ -91,7 +91,7 @@ export function Foundations() {
             <Logo mini size="lg" /><Spec>short mark · collapsed rail</Spec>
           </Demo>
           <Demo className="flex min-h-[190px] flex-col items-center justify-center gap-5">
-            <Logo size="lg" module="SOC" /><Spec>module badge</Spec>
+            <Logo size="lg" /><Spec>lockup · rail brand</Spec>
           </Demo>
           <Demo className="flex min-h-[190px] flex-col items-center justify-center gap-5">
             <span className="grid size-[76px] place-items-center rounded-[26px]"
