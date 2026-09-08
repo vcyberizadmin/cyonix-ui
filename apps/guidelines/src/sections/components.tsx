@@ -43,7 +43,7 @@ export function Components() {
   return (
     <>
       <Section id="buttons" title="Buttons"
-        lede="One primary per view. The corner is a plain radius; the label is Space Grotesk at 14px.">
+        lede="One primary per view. The corner is a plain radius; the label is Plus Jakarta Sans at 14px, weight 800.">
         <div className="grid gap-4">
           <Demo label="Variants">
             <div className="flex flex-wrap items-center gap-3">

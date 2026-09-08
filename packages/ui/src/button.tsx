@@ -13,7 +13,7 @@ import { cn } from "./lib/cn.js";
  *    match the SOC console, whose button is a rounded rectangle. `.cx-chamfer`
  *    still ships in @cyonix/theme for anything that wants it back; this
  *    component no longer applies it.
- *  · Labels are Space Grotesk at 14px, weight 800 — the console's weight. The
+ *  · Labels are Plus Jakarta Sans at 14px, weight 800 — the console's weight. The
  *    brand specified 600; that too was overridden for the match. The 14px still
  *    sits deliberately outside the body type scale.
  *  · Hover brightens 110%, active dims to 94%.

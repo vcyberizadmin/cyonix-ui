@@ -160,7 +160,7 @@ export function Foundations() {
       </Section>
 
       <Section id="type" title="Typography"
-        lede="Space Grotesk for display, Inter for interface, JetBrains Mono for data. The theme names no families — the host app supplies them, the way next/font does.">
+        lede="Plus Jakarta Sans for both display and interface, JetBrains Mono for data. Display and interface separate by weight and size, not by typeface. The theme names no families — the host app supplies them, the way next/font does.">
         <div className="bg-surface border-rule divide-rule divide-y rounded-xl border">
           {[
             ["Display / 40 / 700", "font-display text-[40px] font-bold tracking-tight", "Cyonix Console"],
