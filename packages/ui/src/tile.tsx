@@ -124,7 +124,7 @@ function TileShell({
     <Root
       {...(isLink ? { href } : {})}
       className={cn(
-        "border-rule bg-surface relative overflow-hidden rounded-md border p-4",
+        "bg-surface relative overflow-hidden rounded-xl p-4",
         // No shadow at rest: elevation belongs to overlays (CX-CRD).
         // The link affordance is surface + motion, never the accent — a KPI is
         // not an action, even when it navigates.

@@ -199,7 +199,7 @@ export function ProportionBar({
       <div
         aria-hidden="true"
         className={cn(
-          "bg-wash-2 flex w-full overflow-hidden rounded-full",
+          "bg-track flex w-full overflow-hidden rounded-full",
           size === "sm" ? "h-1.5" : "h-2.5",
         )}
       >
@@ -298,7 +298,7 @@ export function RankedBars({
               </span>
               <span
                 aria-hidden="true"
-                className="bg-wash-2 h-1.5 w-full overflow-hidden rounded-full"
+                className="bg-track h-2 w-full overflow-hidden rounded-full"
               >
                 <span
                   className={cn(
@@ -407,7 +407,7 @@ export function FunnelFlow({
               </span>
               <span
                 aria-hidden="true"
-                className="bg-wash-2 h-2.5 w-full overflow-hidden rounded-sm"
+                className="bg-track h-2 w-full overflow-hidden rounded-full"
               >
                 <span
                   className={cn(

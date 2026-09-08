@@ -97,7 +97,7 @@ export function FilterChip({ field, value, onRemove, className }: FilterChipProp
   return (
     <span
       className={cn(
-        "border-rule bg-wash-2 text-fg-2 inline-flex h-[34px] items-center gap-1.5 rounded-full border pr-2 pl-[.85rem] text-[12.5px] font-bold",
+        "bg-surface text-fg-2 hover:text-fg duration-instant ease-brand inline-flex h-[34px] items-center gap-[.4rem] rounded-full pr-2 pl-[.85rem] text-[12.5px] font-bold transition-colors",
         className,
       )}
     >

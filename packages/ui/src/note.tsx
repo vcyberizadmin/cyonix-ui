@@ -54,7 +54,7 @@ export function Note({
   return (
     <div
       className={cn(
-        "flex gap-3 rounded-md border px-4 py-3 text-[13.5px] font-bold",
+        "flex items-start gap-[.7rem] rounded-[13px] px-4 py-3 text-[13.5px] font-bold",
         NOTE_TONES[tone],
         className,
       )}
@@ -124,7 +124,7 @@ export function InsightPanel({
     <div
       className={cn(
         // Info-tinted, radius-md. Never orange.
-        "border-info/30 bg-info/10 flex flex-col gap-3 rounded-md border p-4",
+        "bg-info/10 flex flex-col gap-3 rounded-[13px] p-4",
         className,
       )}
     >

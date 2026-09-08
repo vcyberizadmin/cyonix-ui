@@ -445,7 +445,7 @@ export function Segmented({
           // The console's track: the group is a rounded well the segments sit
           // in, not a row of separate pills. Wrapping keeps the old gapped row,
           // where a single track would leave dead space on the short last line.
-          wrap ? "flex-wrap gap-1" : "bg-wash-1 w-max gap-0 rounded-full p-1",
+          wrap ? "flex-wrap gap-1" : "bg-track w-max gap-0 rounded-full p-1",
         )}
       >
         {ink && (

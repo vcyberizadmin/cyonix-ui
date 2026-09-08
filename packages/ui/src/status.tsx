@@ -46,7 +46,7 @@ export function StatusPill({
   return (
     <span
       className={cn(
-        "inline-flex h-[22px] items-center gap-1.5 rounded-sm border px-[.55rem] text-[10.5px] font-extrabold tracking-[.03em] whitespace-nowrap",
+        "inline-flex h-[22px] items-center gap-[.3rem] rounded-sm px-[.55rem] text-[10.5px] font-extrabold tracking-[.03em] whitespace-nowrap",
         styles.pill,
         className,
       )}
@@ -56,7 +56,8 @@ export function StatusPill({
       <i
         aria-hidden="true"
         className={cn(
-          "size-2 shrink-0",
+          // The reference's .sev-dot is 9px, not 8.
+          "size-[9px] shrink-0",
           styles.dot,
           pulsing && "animate-pulse",
         )}
@@ -84,7 +85,7 @@ export function SeverityBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 overflow-hidden rounded-sm border py-0.5 pr-2 pl-0 text-[11px] font-semibold whitespace-nowrap",
+        "inline-flex items-center gap-2 overflow-hidden rounded-sm py-0.5 pr-2 pl-0 text-[11px] font-bold whitespace-nowrap",
         meta.surface,
         meta.text,
         className,
@@ -92,7 +93,12 @@ export function SeverityBadge({
     >
       {/* 3px leading bar, not a dot — the shape that separates ranked from
           semantic before either label is read. */}
-      <i aria-hidden="true" className={cn("h-4 w-[3px] shrink-0", meta.bar)} />
+      {/* The reference's .sev-bar: 4px wide, pill-rounded, stretched to the
+          full height of the row rather than a fixed 16px. */}
+      <i
+        aria-hidden="true"
+        className={cn("w-[4px] shrink-0 self-stretch rounded-full", meta.bar)}
+      />
       {severity}
       {withAction && (
         <span className="text-fg-2 font-normal">{meta.action}</span>
