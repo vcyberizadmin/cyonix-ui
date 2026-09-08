@@ -278,16 +278,11 @@ pnpm add @cyonix/ui @cyonix/theme
 Then, in the consuming app's CSS entry point:
 
 ```css
+@import "tailwindcss";
 @import "@cyonix/theme";
-@source "../../../node_modules/@cyonix/ui/dist/**/*.js";
+@source "../../node_modules/@cyonix/ui/dist/**/*.js";
 ```
 
-The `@source` line is what tells Tailwind v4 to scan the shipped components for
-the utility classes they reference. Miss it and the components render completely
-unstyled.
-
-The path is relative to the CSS file, so count the hops from wherever that file
-actually sits up to `node_modules`. The three levels above suit a file at
-`src/styles/app.css`; a file at `src/main.css` needs two. Getting this wrong
-fails silently, with no error and no styles, so verify it renders rather than
-assuming. See the README's integration section for the full walkthrough.
+See **[installation.md](installation.md)** for the full consumer walkthrough,
+including how to count that `@source` path, which is the one step that fails
+silently.
