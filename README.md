@@ -389,6 +389,10 @@ pnpm changeset
 
 Merging to `main` opens a "Version Packages" PR; merging *that* publishes.
 
+**See [docs/publishing.md](docs/publishing.md)** for the full guide: one-time npm
+and CI setup, choosing a version bump, publishing by hand, verifying a release,
+and what each publish error actually means.
+
 Published publicly to **npmjs.com** under the `@cyonix` scope. Consumers need
 no registry mapping, no `.npmrc` and no token:
 
