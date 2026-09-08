@@ -102,8 +102,8 @@ function Overview() {
     <div className="space-y-4 xl:space-y-5">
       <Kpis />
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_400px] xl:gap-5">
-        <Card padding="none" className="p-5">
+      <div className="grid gap-4 xl:grid-cols-3 xl:gap-5">
+        <Card padding="none" className="flex min-h-[320px] flex-col p-5 xl:col-span-2">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h2 className="text-h3 font-extrabold tracking-tight">
@@ -127,9 +127,11 @@ function Overview() {
             labels={VOLUME_LABELS}
             label="Alert volume over the last 24 hours"
             height={190}
-            className="mt-4"
+            className="mt-4 flex-1"
           />
 
+          {/* Full width, so the segment boundaries line up with the plot
+              above rather than huddling at the left. */}
           <Segmented
             items={[
               { value: "24h", label: "24h" },
@@ -140,11 +142,12 @@ function Overview() {
             value={window}
             onChange={setWindow}
             label="Time window"
-            className="mt-4 w-full"
+            stretch
+            className="mt-4"
           />
         </Card>
 
-        <Card padding="none" className="p-5">
+        <Card padding="none" className="flex min-h-[320px] flex-col p-5">
           <div className="flex items-start justify-between gap-2">
             <h2 className="text-h3 font-extrabold tracking-tight">
               Open by severity

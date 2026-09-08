@@ -48,8 +48,9 @@
          visible divergence between the two systems in light mode.
          Every step here is a value the reference actually uses, so a surface
          role can land on the reference's colour exactly rather than near it.
-         The intermediate steps (450, 650, 850) are interpolated to keep the
-         ramp even, and are not reference values. --- */
+         Steps 450 and 650 are interpolated to keep the ramp even and are
+         not reference values. Every other step is one the reference uses.
+         --- */
   --neutral-0: #ffffff; /* light shell, and dark Text-Primary */
   --neutral-50: #f3f3f5; /* light surface */
   --neutral-100: #e9eaed; /* light surface-2 */
@@ -67,7 +68,11 @@
   --neutral-700: #3e4348; /* dark thread */
   --neutral-750: #3b4046; /* dark surface-3 */
   --neutral-800: #31353a; /* dark surface-2 */
-  --neutral-850: #2b2e33; /* interpolated */
+  --neutral-850: #26282c; /* dark rail. One point off --neutral-900 in red
+                            and identical in green and blue — the reference
+                            separates its rail from its surface by that much
+                            and no more, so the rail reads as part of the
+                            same family rather than a lighter panel. */
   --neutral-900: #25282c; /* dark surface */
   --neutral-925: #212427; /* dark line */
   --neutral-950: #101213; /* dark shell */
@@ -223,7 +228,7 @@
   --badge: var(--orange-350);
   --badge-fg: var(--neutral-0);
 
-  --rail: var(--neutral-850); /* #2b2e33, the reference's #26282C step */
+  --rail: var(--neutral-850); /* #26282c */
   --rail-fg: var(--neutral-0);
   --rail-fg-dim: var(--neutral-600);
   --rail-active: rgb(255 255 255 / 0.07);
