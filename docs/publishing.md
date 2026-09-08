@@ -110,10 +110,18 @@ Trusted publishing also generates provenance attestations automatically for
 public packages from public repos, which makes the separate provenance section
 below unnecessary once it is on.
 
-Until that is in place, `NPM_TOKEN` as a repository secret (GitHub repo >
-Settings > Secrets and variables > Actions) holding a granular token with read
-and write on the `@cyonix` scope and **Bypass 2FA** enabled will publish. Give it
-an expiry before January 2027 so it fails loudly rather than mysteriously.
+Until that is in place, releases run on a granular token held as the repository
+secret `NPM_TOKEN` (GitHub repo > Settings > Secrets and variables > Actions).
+Generate it at npmjs.com > Access Tokens > Granular Access Token with:
+
+- **Packages and scopes**: read and write, selecting the **`@cyonix` scope**
+  rather than individual packages. A token limited to named packages cannot
+  create new ones, so scoping it to packages breaks the first publish of any
+  name that does not exist yet.
+- **Bypass 2FA**: enabled. Without it CI fails with `EOTP`, because it cannot
+  answer an authenticator prompt.
+- **Expiration**: before January 2027, so it fails loudly on a date you chose
+  rather than mysteriously on one npm chose.
 
 ## The normal release flow
 
