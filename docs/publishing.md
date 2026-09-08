@@ -54,29 +54,66 @@ npm org ls cyonix # your role in the org
 billing. If `npm whoami` reports `ENEEDAUTH`, run `npm login` and complete the
 browser flow.
 
-### The CI token
+### CI credentials, and the January 2027 deadline
 
-Releases run from GitHub Actions, which needs its own credential:
+**Do not build the release pipeline on a long-lived publish token.** npm is
+retiring them:
 
-1. npmjs.com > your avatar > **Access Tokens** > **Generate New Token** >
-   **Granular Access Token**.
-2. Set these:
-   - **Packages and scopes**: read and write on the `@cyonix` scope.
-   - **Bypass 2FA**: enabled. This is the part that matters. The org requires
-     two-factor authentication to publish, and CI cannot answer an OTP prompt.
-     Without it every publish fails with `E403 ... Two-factor authentication or
-     granular access token with bypass 2fa enabled is required`.
-   - **Expiration**: set a real date and calendar a reminder. A silently expired
-     token turns every release red.
-3. GitHub repo > **Settings > Secrets and variables > Actions** > new repository
-   secret named `NPM_TOKEN`.
+| When | What changes |
+| ---- | ------------ |
+| August 2026 (done) | Bypass-2FA tokens can no longer perform sensitive account, package or org actions: creating tokens, changing 2FA or email, altering package access or maintainers, editing trusted-publishing config, managing org membership. |
+| January 2027 | Bypass-2FA tokens lose direct publish. Their remaining surface is reading private packages and *staging* a publish that a maintainer must then approve with 2FA. |
 
-The older **Classic > Automation** token type also bypasses 2FA and still works,
-but npm is steering new tokens toward granular ones because they can be scoped
-to a single org rather than to everything the account can reach.
+So a granular token with **Bypass 2FA** will publish today and stop working in
+January. It is a stopgap, not the destination.
 
-`.github/workflows/release.yml` reads it as both `NPM_TOKEN` and
-`NODE_AUTH_TOKEN`, and `actions/setup-node` writes the `.npmrc` for it.
+The destination is **trusted publishing**: GitHub Actions proves its identity to
+npm over OIDC and receives a short-lived, workflow-scoped credential. Nothing
+long-lived is stored anywhere, so there is no token to leak, rotate or watch
+expire. Configure it at npmjs.com > the package > **Settings > Trusted
+Publisher**:
+
+| Field | Value |
+| ----- | ----- |
+| Organization/username | `vcyberizadmin` |
+| Repository | `cyonix-ui` |
+| Workflow filename | `release.yml` |
+| Environment | optional, for deployment protection |
+
+Then in the workflow:
+
+```yaml
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write   # required for OIDC
+```
+
+Once it works, npmjs.com offers **"Require two-factor authentication and
+disallow tokens"** on the package, which closes off token publishing entirely.
+
+Three things to check before relying on it, none of which are configured in this
+repo yet:
+
+- **npm CLI 11.5.1+ and Node 22.14.0+.** `actions/setup-node@v4` with
+  `node-version: 22` currently supplies npm 10.x, which is too old. The workflow
+  needs an explicit `npm i -g npm@latest` step or a newer pinned Node.
+- **Whether `changeset publish` under pnpm negotiates OIDC.** Releases here go
+  through changesets, not a bare `npm publish`, and that path needs verifying
+  against the installed versions before the first trusted-publish release.
+- **Whether a package must already exist** before a trusted publisher can be
+  configured for it. npm's docs describe navigating to an existing package's
+  settings and do not address pre-publication setup, so assume the first publish
+  of any new name is manual.
+
+Trusted publishing also generates provenance attestations automatically for
+public packages from public repos, which makes the separate provenance section
+below unnecessary once it is on.
+
+Until that is in place, `NPM_TOKEN` as a repository secret (GitHub repo >
+Settings > Secrets and variables > Actions) holding a granular token with read
+and write on the `@cyonix` scope and **Bypass 2FA** enabled will publish. Give it
+an expiry before January 2027 so it fails loudly rather than mysteriously.
 
 ## The normal release flow
 
@@ -200,6 +237,9 @@ Deprecation leaves the version installable but prints a warning, which is the
 right tool when something is wrong but not dangerous.
 
 ## Optional: build provenance
+
+Trusted publishing turns this on by itself, so this section only applies while
+releases still run on a token.
 
 npm can attach a signed, verifiable link from a published package back to the
 exact source commit and workflow run that built it, shown as a "Provenance"
