@@ -1,5 +1,5 @@
-import { Logo } from "@vcyberizadmin/ui/layout";
-import { cn } from "@vcyberizadmin/ui";
+import { Logo } from "@cyonix/ui/layout";
+import { cn } from "@cyonix/ui";
 import { useEffect, useState, type ReactNode } from "react";
 import { ALL_SECTIONS, NAV } from "./nav.js";
 

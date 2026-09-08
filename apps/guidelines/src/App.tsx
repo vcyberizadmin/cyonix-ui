@@ -40,8 +40,8 @@ export function App() {
             </h1>
             <p className="text-fg-2 mt-5 max-w-[620px] text-[16px] leading-relaxed">
               The visual language behind the Cyonix consoles. Everything on this page is
-              rendered from <code className="font-mono text-[14px]">@vcyberizadmin/ui</code> and{" "}
-              <code className="font-mono text-[14px]">@vcyberizadmin/theme</code> — the same
+              rendered from <code className="font-mono text-[14px]">@cyonix/ui</code> and{" "}
+              <code className="font-mono text-[14px]">@cyonix/theme</code> — the same
               components and tokens the products run on, so this page cannot drift from them.
               Flip the theme in the top bar to check any component in both modes.
             </p>
@@ -61,15 +61,15 @@ export function App() {
                 <p className="text-fg-quaternary mb-2.5 font-mono text-[11.5px] font-semibold tracking-[0.04em] uppercase">
                   Install
                 </p>
-                <Pre>{`pnpm add @vcyberizadmin/ui @vcyberizadmin/theme`}</Pre>
+                <Pre>{`pnpm add @cyonix/ui @cyonix/theme`}</Pre>
               </div>
               <div>
                 <p className="text-fg-quaternary mb-2.5 font-mono text-[11.5px] font-semibold tracking-[0.04em] uppercase">
                   app.css
                 </p>
                 <Pre>{`@import "tailwindcss";
-@import "@vcyberizadmin/theme";
-@source "../node_modules/@vcyberizadmin/ui/dist/**/*.js";
+@import "@cyonix/theme";
+@source "../node_modules/@cyonix/ui/dist/**/*.js";
 
 /* theme.css names no families — supply them, as next/font does. */
 :root {

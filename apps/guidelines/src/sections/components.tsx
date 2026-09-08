@@ -3,9 +3,9 @@ import {
   Field, FilterChip, IconButton, Input, Note, Progress, Segmented, Select,
   SeverityBadge, Skeleton, StatTile, StatusPill, StatusTile, Switch, Tag,
   Textarea, TileGrid, TrendTile, type Column,
-} from "@vcyberizadmin/ui";
-import { Breadcrumb, PageHeader } from "@vcyberizadmin/ui/layout";
-import { Menu, Popover, Tooltip } from "@vcyberizadmin/ui/overlays";
+} from "@cyonix/ui";
+import { Breadcrumb, PageHeader } from "@cyonix/ui/layout";
+import { Menu, Popover, Tooltip } from "@cyonix/ui/overlays";
 import { useState } from "react";
 import { Demo, Section, Spec } from "../chrome.js";
 

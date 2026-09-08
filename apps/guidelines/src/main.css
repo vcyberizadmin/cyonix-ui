@@ -1,7 +1,7 @@
 @import "tailwindcss";
-@import "@vcyberizadmin/theme";
+@import "@cyonix/theme";
 
-/* Points at the workspace path rather than through node_modules/@vcyberizadmin/ui,
+/* Points at the workspace path rather than through node_modules/@cyonix/ui,
    which is a pnpm symlink Tailwind does not follow during source detection. */
 @source "../../../packages/ui/dist/**/*.js";
 

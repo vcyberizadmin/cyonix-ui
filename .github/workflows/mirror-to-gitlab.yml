@@ -46,3 +46,12 @@ jobs:
           # No --force. A rejected push means GitLab holds commits that GitHub
           # does not, which needs a human to look at it rather than a clobber.
           git push git@gitlab.com:vcyberiz/cyonix-ui.git HEAD:refs/heads/github
+
+      - name: Push tags to GitLab
+        env:
+          GIT_SSH_COMMAND: ssh -i ~/.ssh/gitlab_deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes
+        run: |
+          # Tags do not travel with a branch push. Changesets tags each release
+          # on GitHub; this carries them over so GitLab shows the same version
+          # markers. Existing identical tags are a no-op.
+          git push git@gitlab.com:vcyberiz/cyonix-ui.git --tags

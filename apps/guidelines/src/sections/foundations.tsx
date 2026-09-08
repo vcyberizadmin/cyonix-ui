@@ -1,4 +1,4 @@
-import { Logo } from "@vcyberizadmin/ui/layout";
+import { Logo } from "@cyonix/ui/layout";
 import { useEffect, useState } from "react";
 import { Demo, Section, Spec } from "../chrome.js";
 

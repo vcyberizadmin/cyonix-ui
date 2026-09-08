@@ -1,7 +1,7 @@
 import {
   AxisBars, Donut, FunnelFlow, Gauge, Heatmap, ProportionBar, RankedBars,
   Sparkline, StepArea,
-} from "@vcyberizadmin/ui/charts";
+} from "@cyonix/ui/charts";
 import { Demo, Section, Spec } from "../chrome.js";
 
 const VOLUME = [42, 48, 44, 58, 52, 66, 60, 74, 71, 88, 82, 95];

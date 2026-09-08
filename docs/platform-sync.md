@@ -76,6 +76,42 @@ credential that can write beyond the one repository it needs.
 Both private keys are generated without a passphrase, since an unattended job
 cannot answer a prompt. Delete the local copies once installed.
 
+## Package publishing on GitLab
+
+GitHub's release workflow publishes `@cyonix/theme` and `@cyonix/ui` publicly
+to npmjs.com, so a GitLab identity needs nothing special to install them:
+
+```sh
+pnpm add @cyonix/ui @cyonix/theme
+```
+
+That was not always true. The packages used to go to GitHub Packages, which a
+GitLab identity can never authenticate against, and the GitLab pipeline grew a
+second job, `publish-to-gitlab-registry`, to work around it: on every mirror of
+`github` it compares each package.json version against the GitLab project's own
+npm registry and publishes anything missing. Non-release commits skip in
+seconds; a release commit triggers a real publish. It authenticates with
+`CI_JOB_TOKEN`, so it needs no configured secret.
+
+That job is now redundant for most purposes and can be deleted along with the
+block below. It is kept for GitLab CI that would rather resolve packages inside
+its own trust boundary than reach out to npmjs.com. Consumers that want it point
+an `.npmrc` at the project registry:
+
+```ini
+@cyonix:registry=https://gitlab.com/api/v4/projects/<PROJECT_ID>/packages/npm/
+//gitlab.com/api/v4/projects/<PROJECT_ID>/packages/npm/:_authToken=<TOKEN>
+```
+
+`<PROJECT_ID>` is the numeric id shown on the GitLab project's home page.
+`<TOKEN>` is either a personal access token with `read_api`, or a project
+deploy token with `read_package_registry` (Settings > Repository > Deploy
+tokens), which is the better choice for CI and for people who should only pull
+packages.
+
+Version numbers stay in lockstep with GitHub automatically, because both
+registries publish from the same release commit.
+
 ## Manual fallback
 
 ```bash
@@ -103,5 +139,7 @@ clone, including the `github` channel branch.
 - A red mirror-to-gitlab run usually means GitLab-side work is waiting for review
   on the GitHub `gitlab` branch. Merging that pull request into `main` resolves
   it; the next Actions run fast-forwards cleanly.
-- Tags are not mirrored by either job. Push them explicitly when cutting a
-  release: `git push gitlab --tags`.
+- Tags are mirrored by a dedicated step in the Actions workflow (`--tags`, no
+  force), so GitLab carries the same release tags as GitHub. GitHub Releases
+  entries (the changesets changelogs) stay on GitHub; the CHANGELOG.md files in
+  each package carry the same content and do travel with the branch.

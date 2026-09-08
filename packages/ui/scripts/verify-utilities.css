@@ -2,6 +2,6 @@
    Mirrors exactly what a consuming app's globals.css does, so the check
    exercises the real integration path rather than a simulation of it. */
 @import "tailwindcss";
-@import "@vcyberizadmin/theme";
+@import "@cyonix/theme";
 
 @source "../dist/**/*.js";

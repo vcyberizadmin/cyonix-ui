@@ -3,7 +3,7 @@ import {
   DefinitionCard,
   DescriptionList,
   TileGrid,
-} from "@vcyberizadmin/ui";
+} from "@cyonix/ui";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 /**

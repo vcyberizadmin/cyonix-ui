@@ -1,11 +1,11 @@
-import { Card } from "@vcyberizadmin/ui";
+import { Card } from "@cyonix/ui";
 import {
   Donut,
   FunnelFlow,
   ProportionBar,
   RankedBars,
   Sparkline,
-} from "@vcyberizadmin/ui/charts";
+} from "@cyonix/ui/charts";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 /**

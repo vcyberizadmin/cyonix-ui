@@ -7,7 +7,7 @@ import { cn } from "../lib/cn.js";
  * Dark / light switch.
  *
  * Writes `data-theme` on `<html>`, which is one of the two selectors
- * @vcyberizadmin/theme's light block matches. It sets the attribute EXPLICITLY in
+ * @cyonix/theme's light block matches. It sets the attribute EXPLICITLY in
  * both directions rather than toggling a `.light` class, so an app whose server
  * HTML says dark can be flipped to light and back without the attribute ever
  * being absent — an absent attribute means "follow the default", which is a

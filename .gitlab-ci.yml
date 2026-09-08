@@ -9,6 +9,7 @@
 
 stages:
   - mirror
+  - publish
 
 mirror-to-github:
   stage: mirror
@@ -36,3 +37,47 @@ mirror-to-github:
     # No --force. A rejected push means GitHub holds commits that GitLab does
     # not, which needs a human to look at it rather than a clobber.
     - git push git@github.com:vcyberizadmin/cyonix-ui.git HEAD:refs/heads/gitlab
+
+# Publishes @cyonix/theme and @cyonix/ui to this project's npm package registry.
+#
+# This job predates the move to npmjs.com and is now redundant for most
+# consumers: the packages are public on npmjs.com and install with no token and
+# no .npmrc. It is kept because it costs seconds when there is nothing to do,
+# and it gives GitLab-side CI a registry inside its own trust boundary. Delete
+# it, and the .npmrc block in docs/platform-sync.md, if that is not wanted.
+#
+# Runs on every mirror of `github` but only actually publishes when the version
+# in package.json is not in the registry yet, i.e. when a release commit lands.
+# Consumers point .npmrc at the project registry; see docs/platform-sync.md.
+publish-to-gitlab-registry:
+  stage: publish
+  image: node:22-alpine
+  rules:
+    - if: $CI_COMMIT_BRANCH == "github"
+  script:
+    # Scope registry + job-token auth. Written by the shell so the variables
+    # expand here rather than relying on npm's .npmrc interpolation.
+    - REGISTRY_PATH="gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/npm/"
+    - printf '@cyonix:registry=https://%s\n//%s:_authToken=%s\n' "$REGISTRY_PATH" "$REGISTRY_PATH" "$CI_JOB_TOKEN" > .npmrc
+    # Decide what needs publishing before paying for install + build.
+    - NEED=""
+    - |
+      for dir in packages/theme packages/ui; do
+        name=$(node -p "require('./$dir/package.json').name")
+        version=$(node -p "require('./$dir/package.json').version")
+        if npm view "$name@$version" version > /dev/null 2>&1; then
+          echo "$name@$version already in the registry, skipping"
+        else
+          echo "$name@$version is new, will publish"
+          NEED="$NEED $dir"
+        fi
+      done
+    - if [ -z "$NEED" ]; then echo "Nothing to publish."; exit 0; fi
+    - corepack enable
+    - pnpm install --frozen-lockfile
+    - pnpm build
+    # pnpm (not npm) so workspace: protocol ranges are rewritten on publish.
+    - |
+      for dir in $NEED; do
+        (cd "$dir" && pnpm publish --no-git-checks)
+      done

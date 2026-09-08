@@ -1,11 +1,11 @@
-import { Card } from "@vcyberizadmin/ui";
+import { Card } from "@cyonix/ui";
 import {
   AppShell,
   Logo,
   NavRail,
   TopBar,
   type NavGroup,
-} from "@vcyberizadmin/ui/layout";
+} from "@cyonix/ui/layout";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   useEffect,

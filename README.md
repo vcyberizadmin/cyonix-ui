@@ -6,8 +6,8 @@ Two packages are published from this repo:
 
 | Package         | What it is                                                        | Build step |
 | --------------- | ----------------------------------------------------------------- | ---------- |
-| `@vcyberizadmin/theme` | Canonical design tokens, base layer, chamfer, motion utilities     | none       |
-| `@vcyberizadmin/ui`    | React components built on those tokens                            | tsup + tsc |
+| `@cyonix/theme` | Canonical design tokens, base layer, chamfer, motion utilities     | none       |
+| `@cyonix/ui`    | React components built on those tokens                            | tsup + tsc |
 
 ## Source of authority
 
@@ -107,16 +107,16 @@ on the 22% orange hover wash measures 1.3:1, so that variant uses `--fg`.
 ```css
 /* src/app/globals.css */
 @import "tailwindcss";
-@import "@vcyberizadmin/theme";
+@import "@cyonix/theme";
 
 /* Tailwind only generates classes it can SEE, and it skips node_modules during
    auto-detection, so the library must be pointed at explicitly. Path is
    relative to this file. */
-@source "../../../node_modules/@vcyberizadmin/ui/dist/**/*.js";
+@source "../../../node_modules/@cyonix/ui/dist/**/*.js";
 ```
 
 ```tsx
-import { Button, Card } from "@vcyberizadmin/ui";
+import { Button, Card } from "@cyonix/ui";
 
 <Card title="Scan configuration" hint="Applies to all assets in scope">
   <Button variant="primary">Save changes</Button>
@@ -139,7 +139,7 @@ children. Content stays on the server; only the chrome is a client island:
 ```tsx
 // app/chrome.tsx
 "use client";
-import { AppShell, NavRail, TopBar } from "@vcyberizadmin/ui/layout";
+import { AppShell, NavRail, TopBar } from "@cyonix/ui/layout";
 
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const [scope, setScope] = useState("all");
@@ -218,7 +218,7 @@ harness quietly disabling the one check it is for.
 
 ```sh
 pnpm install
-pnpm build      # dist/ must exist before Storybook can resolve @vcyberizadmin/ui
+pnpm build      # dist/ must exist before Storybook can resolve @cyonix/ui
 pnpm dev        # tsup --watch + Storybook on http://localhost:6006, together
 pnpm test       # build + typecheck + verify utilities
 ```
@@ -245,12 +245,12 @@ the component.
 tsup emits the JS, `tsc` emits the `.d.ts` — and only tsup runs in watch mode. With
 tsup's default `clean: true` every watch rebuild wiped the declaration files `tsc`
 had written, so `pnpm typecheck` in `apps/storybook` started failing with
-*"Could not find a declaration file for module '@vcyberizadmin/ui'"* the moment the
+*"Could not find a declaration file for module '@cyonix/ui'"* the moment the
 dev server was running. Nothing was wrong with the types; the files were simply
 gone. `pnpm build` put them back, which made it look intermittent.
 
 Use `pnpm dev` from the **root**, not `pnpm dev` inside `apps/storybook`.
-Storybook resolves `@vcyberizadmin/ui` through its `exports` map to `dist/`, so editing
+Storybook resolves `@cyonix/ui` through its `exports` map to `dist/`, so editing
 a component with only Storybook running shows nothing — you are looking at the
 last build. The root script runs tsup in watch mode alongside it. (Theme edits
 do appear immediately: `theme.css` is consumed directly, with no build step.)
@@ -389,22 +389,29 @@ pnpm changeset
 
 Merging to `main` opens a "Version Packages" PR; merging *that* publishes.
 
-Published to **GitHub Packages** under the `@vcyberizadmin` scope. That scope is
-not cosmetic: GitHub Packages requires a package's scope to match the account
-that owns the repository, and this repo is owned by `vcyberizadmin`. Publishing
-as `@cyonix/*` would be rejected with a 403.
+**See [docs/publishing.md](docs/publishing.md)** for the full guide: one-time npm
+and CI setup, choosing a version bump, publishing by hand, verifying a release,
+and what each publish error actually means.
 
-Consumers need a registry mapping, since the scope is not on npmjs.com:
+Published publicly to **npmjs.com** under the `@cyonix` scope. Consumers need
+no registry mapping, no `.npmrc` and no token:
 
-```ini
-# .npmrc in each consuming app
-@vcyberizadmin:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```sh
+pnpm add @cyonix/ui @cyonix/theme
 ```
 
-If the packages ever need to carry the product name instead, the routes are a
-GitHub org literally named `cyonix`, or a paid private npm org — either would
-mean renaming both packages and every import.
+These were previously on GitHub Packages as `@vcyberizadmin/*`. That scope was
+not a choice: GitHub Packages requires a package's scope to match the account
+owning the repository, and this repo is owned by `vcyberizadmin`. Worse, that
+registry demands an authenticated token for every read even when the package is
+public, so each consumer needed a PAT with `read:packages` just to install.
+
+npmjs.com has neither restriction and public scoped packages are free, so the
+packages moved and took the product name with them. The cost is that GitHub
+Packages can no longer receive them, since `@cyonix` does not match the repo
+owner. Anything still installing `@vcyberizadmin/*` from `npm.pkg.github.com`
+keeps working at the versions already published there, but receives no new
+ones.
 
 ## Status
 
@@ -415,11 +422,11 @@ additions.
 
 | Export | Components |
 | ------ | ---------- |
-| `@vcyberizadmin/ui` | `Button` + `IconButton` (CX-BTN) · `Card` (CX-CRD) · `StatusPill` + `SeverityBadge` (CX-STA) · `Tag` + `ChipStack` + `Code` (CX-TAG) · `EmptyState` + `ErrorState` + `Skeleton` (CX-STE) · `Note` + `InsightPanel` (CX-INS) · `DataTable` + `Toolbar` + `FilterChip` + `SegmentedFilter` + `Pagination` + cells (CX-TBL/FLT/PAG) · `Field` + `Input` + `Textarea` + `Select` + `Checkbox` + `Switch` (CX-FLD) · `StatTile` + `TrendTile` + `StatusTile` + `TileGrid` (CX-TIL) · `Tabs` + `Segmented` (CX-TAB) · `DefinitionCard` + `DescriptionList` (CX-DEF) · `Calendar` + `DatePicker` + `DateRangePicker` + `DateRangeFilter` (CX-DTE) · `cn` |
-| `@vcyberizadmin/ui/layout` | `AppShell` (CX-SHL) · `NavRail` (CX-NAV) · `DockRail` (CX-DCK) · `TopBar` (CX-TOP) · `ConsoleBar` (CX-CBR) · `PageHeader` + `Breadcrumb` (CX-HDR) · `CommandPalette` (CX-CMD) · `SettingsShell` (CX-SET) · `Logo` · `ThemeToggle` |
-| `@vcyberizadmin/ui/overlays` | `Modal` (CX-MOD) · `Drawer` (CX-DRW) · `ConfirmDialog` + `ImpactBox` (CX-CNF) · `Menu` (CX-MNU) · `Tooltip` + `Popover` (CX-TIP) · `ToastProvider` + `useToast` (CX-TST) · `useOverlay` |
-| `@vcyberizadmin/ui/charts` | `Sparkline` · `Donut` · `FunnelFlow` · `RankedBars` · `ProportionBar` (CX-CHT) |
-| `@vcyberizadmin/ui/lib/status` | vocabulary · `severityRank()` · `bySeverity()` · `extendVocabulary()` · ramps · `TONE_INK` |
+| `@cyonix/ui` | `Button` + `IconButton` (CX-BTN) · `Card` (CX-CRD) · `StatusPill` + `SeverityBadge` (CX-STA) · `Tag` + `ChipStack` + `Code` (CX-TAG) · `EmptyState` + `ErrorState` + `Skeleton` (CX-STE) · `Note` + `InsightPanel` (CX-INS) · `DataTable` + `Toolbar` + `FilterChip` + `SegmentedFilter` + `Pagination` + cells (CX-TBL/FLT/PAG) · `Field` + `Input` + `Textarea` + `Select` + `Checkbox` + `Switch` (CX-FLD) · `StatTile` + `TrendTile` + `StatusTile` + `TileGrid` (CX-TIL) · `Tabs` + `Segmented` (CX-TAB) · `DefinitionCard` + `DescriptionList` (CX-DEF) · `Calendar` + `DatePicker` + `DateRangePicker` + `DateRangeFilter` (CX-DTE) · `cn` |
+| `@cyonix/ui/layout` | `AppShell` (CX-SHL) · `NavRail` (CX-NAV) · `DockRail` (CX-DCK) · `TopBar` (CX-TOP) · `ConsoleBar` (CX-CBR) · `PageHeader` + `Breadcrumb` (CX-HDR) · `CommandPalette` (CX-CMD) · `SettingsShell` (CX-SET) · `Logo` · `ThemeToggle` |
+| `@cyonix/ui/overlays` | `Modal` (CX-MOD) · `Drawer` (CX-DRW) · `ConfirmDialog` + `ImpactBox` (CX-CNF) · `Menu` (CX-MNU) · `Tooltip` + `Popover` (CX-TIP) · `ToastProvider` + `useToast` (CX-TST) · `useOverlay` |
+| `@cyonix/ui/charts` | `Sparkline` · `Donut` · `FunnelFlow` · `RankedBars` · `ProportionBar` (CX-CHT) |
+| `@cyonix/ui/lib/status` | vocabulary · `severityRank()` · `bySeverity()` · `extendVocabulary()` · ramps · `TONE_INK` |
 
 ### Two deliberate deviations from the standard
 
