@@ -40,10 +40,15 @@ import {
 } from "./data.js";
 
 const NAV = [
-  { label: "Overview", href: "#overview", icon: <Icon.Home />, activeIcon: <Icon.HomeFill /> },
-  { label: "Alerts", href: "#alerts", icon: <Icon.ShieldAlert />, activeIcon: <Icon.ShieldAlertFill />, count: 4, countTone: "alert" as const },
-  { label: "Cases", href: "#cases", icon: <Icon.Folder />, activeIcon: <Icon.FolderFill />, count: 2 },
-  { label: "Sources", href: "#sources", icon: <Icon.Blocks /> },
+  // Only Overview carries a filled variant: the reference's RAIL config gives
+  // `solid: 'i-house-solid'` for that one item and null for the rest, so the
+  // other three stay stroked when current and are marked by the edge tab
+  // alone. `activeIcon` falls back to `icon`, so omitting it is correct here
+  // rather than passing the same glyph twice.
+  { label: "Overview", href: "#overview", icon: <Icon.House />, activeIcon: <Icon.HouseSolid /> },
+  { label: "Alerts", href: "#alerts", icon: <Icon.ShieldAlert />, count: 4, countTone: "alert" as const },
+  { label: "Cases", href: "#cases", icon: <Icon.FolderOpen />, count: 2 },
+  { label: "Sources", href: "#sources", icon: <Icon.Workflow /> },
 ];
 
 const KPI_ICON = {
@@ -290,8 +295,8 @@ function Cases() {
         />
         <Segmented
           items={[
-            { value: "cards", label: <span className="[&_svg]:size-4"><Icon.Grid /></span> },
-            { value: "table", label: <span className="[&_svg]:size-4"><Icon.Rows /></span> },
+            { value: "cards", label: <span className="[&_svg]:size-4"><Icon.Grid2x2 /></span> },
+            { value: "table", label: <span className="[&_svg]:size-4"><Icon.Rows3 /></span> },
           ]}
           value={view}
           onChange={setView}
