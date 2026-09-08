@@ -88,7 +88,7 @@ export function Foundations() {
             <Logo size="lg" /><Spec>full lockup · 498 × 97</Spec>
           </Demo>
           <Demo className="flex min-h-[190px] flex-col items-center justify-center gap-5">
-            <Logo mini size="lg" /><Spec>star · collapsed rail</Spec>
+            <Logo mini size="lg" /><Spec>short mark · collapsed rail</Spec>
           </Demo>
           <Demo className="flex min-h-[190px] flex-col items-center justify-center gap-5">
             <Logo size="lg" module="SOC" /><Spec>module badge</Spec>

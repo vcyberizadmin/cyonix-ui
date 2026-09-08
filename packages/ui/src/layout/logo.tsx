@@ -29,10 +29,16 @@ export interface LogoProps {
    */
   module?: string;
   /**
-   * The star alone, for a collapsed rail. The brand ships no separate short
-   * mark, and the four-point star is the only self-contained element in the
-   * artwork — it is the piece that reads at 32px. Replace this if a real short
-   * mark is issued.
+   * The short mark — a CX monogram with the spark between the letters — for a
+   * collapsed rail. This IS the official short mark, lifted from the reference
+   * console's `short-dark.svg`, and it replaces the bare four-point star this
+   * prop used to render before a real mark existed.
+   *
+   * Its letterforms take `currentColor` like the lockup's, which the reference
+   * itself cannot manage: it embeds the artwork as `<img src>`, so CSS cannot
+   * reach the fill. That is why the reference's own `--logo` token is dead
+   * code, and why its mark loses its orange elements against the orange
+   * light-mode rail. Ours does not.
    */
   mini?: boolean;
   size?: "sm" | "md" | "lg";
@@ -94,6 +100,19 @@ const WORDMARK_PATHS = [
   "M443.367 41.7884L474.465 90.3626H463.068L438.06 51.2767L412.598 90.3626H401.141L432.789 41.7881L443.367 41.7884Z",
 ];
 
+/** The CX monogram letterforms. These take currentColor. */
+const MARK_PATHS = [
+  "M39.7448 51.7998C44.0361 51.5324 49.5398 51.6288 53.8978 51.6362L75.867 51.7003C72.8924 54.2069 67.2813 59.0883 64.6046 61.4074C61.8682 61.6517 60.8462 61.4116 58.0315 61.4347C50.1007 61.5004 41.8559 60.8043 34.0229 62.0878C31.0529 62.6702 28.4415 63.957 26.7457 66.5976C23.1125 72.2557 23.5653 84.1463 28.3503 88.9535C32.631 93.2539 41.4858 92.9847 47.2299 93.0195L55.2504 93.0432C60.8504 93.0691 65.4636 92.9638 71.0619 93.1002C68.6051 95.2828 63.6046 100.294 61.1091 102.262C56.036 102.449 60.1696 102.32 55.0081 102.314C47.9538 102.305 37.6907 102.813 31.249 101.229C27.5471 100.354 24.1319 98.544 21.3306 95.9709C16.2676 91.2889 14.9129 84.8419 14.5326 78.2375C13.9401 67.9495 17.4067 57.6775 27.7352 53.7597C31.9908 52.1455 35.2463 51.9661 39.7448 51.7998Z",
+  "M101.549 90.8291L90.3262 102.387H76.9453L94.8584 83.9395L101.549 90.8291Z",
+  "M139.537 102.387H126.156L108.24 83.9375L108.239 83.9395L101.549 77.0508L101.55 77.0479L76.9453 51.7109H90.3262L139.537 102.387Z",
+];
+
+/** The spark, and the angled stroke in the X. Gradient, not currentColor. */
+const MARK_ACCENT_PATHS = [
+  "M76.4063 61.3845L77.6542 67.4731C78.3611 70.922 81.0563 73.6173 84.5053 74.3242L90.5939 75.572L84.5053 76.8199C81.0563 77.5268 78.3611 80.222 77.6542 83.671L76.4063 89.7596L75.1584 83.671C74.4516 80.222 71.7563 77.5268 68.3074 76.8199L62.2188 75.572L68.3074 74.3242C71.7563 73.6173 74.4516 70.922 75.1584 67.4731L76.4063 61.3845Z",
+  "M121.619 70.1576L114.93 63.2693L126.155 51.7109H139.533L121.619 70.1576Z",
+];
+
 /** The angled strokes in the Y and the X. Gradient, not currentColor. */
 const ACCENT_PATHS = [
   "M344.8 57.5273L338.109 50.6377L349.337 39.0771H362.718L344.8 57.5273Z",
@@ -118,12 +137,17 @@ export function Logo({
       {mini ? (
         <svg
           aria-hidden="true"
-          viewBox="269.8 0 35.3 35.3"
+          viewBox="0 0 154 154"
           fill="none"
           className={cn("shrink-0", STAR[size])}
         >
           <SparkGradient />
-          <path d={STAR_PATH} fill={`url(#${SPARK_ID})`} />
+          {MARK_PATHS.map((d) => (
+            <path key={d.slice(0, 24)} d={d} fill="currentColor" />
+          ))}
+          {MARK_ACCENT_PATHS.map((d) => (
+            <path key={d.slice(0, 24)} d={d} fill={`url(#${SPARK_ID})`} />
+          ))}
         </svg>
       ) : (
         wordmark && (
