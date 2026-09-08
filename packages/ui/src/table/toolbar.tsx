@@ -185,7 +185,7 @@ export function Toolbar({
               <select
                 value={savedViews.currentId ?? ""}
                 onChange={(event) => savedViews.onSelect(event.target.value)}
-                className="border-rule bg-surface text-fg-2 focus:border-focus cursor-pointer rounded-sm border px-1.5 py-0.5 text-[12px] focus:outline-none"
+                className="bg-surface text-fg-2 shadow-[inset_0_0_0_2px_transparent] focus:shadow-[inset_0_0_0_2px_var(--accent)] duration-instant ease-brand cursor-pointer rounded-md px-1.5 py-0.5 text-[12px] transition-[box-shadow] focus:outline-none"
               >
                 <option value="">All records</option>
                 {savedViews.views.map((view) => (

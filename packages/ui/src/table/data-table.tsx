@@ -297,11 +297,11 @@ export function DataTable<T>({
                     className={cn(
                       // One hairline per row. No zebra striping: it fights
                       // severity colour, which is the thing you need to see.
-                      "border-rule relative border-b last:border-b-0",
+                      "border-rule relative border-t first:border-t-0",
                       clickable && "cursor-pointer",
                       selected
                         ? "bg-accent/8 before:bg-accent before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:content-['']"
-                        : hoverable && "hover:bg-wash-hover",
+                        : hoverable && "hover:bg-surface-2",
                       "duration-instant ease-brand transition-colors",
                     )}
                   >
@@ -315,7 +315,7 @@ export function DataTable<T>({
                             : undefined
                         }
                         className={cn(
-                          "text-fg-2 px-4 py-[11px] text-[13px]",
+                          "text-fg-2 px-4 py-3 text-[13.5px]",
                           // A compact or actions column is sized by its content,
                           // so there is no share of the table to truncate against
                           // — and `truncate`'s overflow:hidden clips a control as
