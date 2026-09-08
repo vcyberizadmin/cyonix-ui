@@ -7,8 +7,7 @@
 
 /* The host-app contract, fulfilled the way a Next app fulfils it with next/font. */
 :root {
-  --font-space-grotesk: "Space Grotesk";
-  --font-inter: "Inter";
+  --font-plus-jakarta-sans: "Plus Jakarta Sans";
   --font-jetbrains-mono: "JetBrains Mono";
 }
 

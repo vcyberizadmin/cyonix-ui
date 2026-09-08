@@ -59,23 +59,34 @@ fonts.
 
 | Token | Font | Expects the variable |
 | ----- | ---- | -------------------- |
-| `--display` | Space Grotesk | `--font-space-grotesk` |
-| `--ui` | Inter | `--font-inter` |
+| `--display` | Plus Jakarta Sans | `--font-plus-jakarta-sans` |
+| `--ui` | Plus Jakarta Sans | `--font-plus-jakarta-sans` |
 | `--mono` | JetBrains Mono | `--font-jetbrains-mono` |
+
+`--display` and `--ui` are the same family. Headings and body separate by
+weight and size, not by typeface. The two roles stay distinct so a future split
+costs nothing, but today an app only needs to supply two variables.
 
 In Next.js:
 
 ```tsx
 // app/layout.tsx
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const display = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk" });
-const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono" });
+const sans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-plus-jakarta-sans",
+});
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  variable: "--font-jetbrains-mono",
+});
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${display.variable} ${mono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>{children}</body>
     </html>
   );
@@ -193,7 +204,7 @@ bug here, not in the app.
 | ------- | ----- |
 | Components render completely unstyled | The `@source` path is wrong, or missing, or Tailwind v4 is not installed. Count the hops again. |
 | Styling works in dev, breaks in a production build | `@source` resolved by luck through a dev-server root. Make it correct relative to the CSS file. |
-| Wrong typeface everywhere, no error | The app does not define `--font-inter`, `--font-space-grotesk` and `--font-jetbrains-mono`. |
+| Wrong typeface everywhere, no error | The app does not define `--font-plus-jakarta-sans` and `--font-jetbrains-mono`. |
 | Modals and menus stay dark on a light page | `.light` is on a wrapper element instead of `<html>`. Overlays portal to `document.body`. |
 | `Event handlers cannot be passed to Client Component props` | Layout chrome constructed in a Server Component. Wrap it in `"use client"`. |
 | `ERR_PNPM_PEER_DEP_ISSUES` mentioning tailwindcss | Tailwind v4 is missing or on v3. Install `tailwindcss@^4`. |

@@ -25,7 +25,7 @@
    HOST APP CONTRACT
    -----------------
    Font tokens reference variables the consuming app defines via next/font:
-   --font-space-grotesk, --font-inter, --font-jetbrains-mono. An app that does
+   --font-plus-jakarta-sans, --font-jetbrains-mono. An app that does
    not define them falls back to system-ui.
    =========================================================================== */
 
@@ -42,21 +42,36 @@
      "Orange 350 (Primary)" in Figma reads --orange-350 here.
      ========================================================================= */
 
-  /* --- Neutral. The spine of both themes: Onyx Black is the dark ground,
-         Cloud the light one, and every surface steps along this one ramp. --- */
-  --neutral-0: #ffffff; /* White */
-  --neutral-50: #f3f7fc; /* Cloud Light */
-  --neutral-100: #e5ecf6; /* Cloud */
-  --neutral-200: #c9d0e2; /* Silver Dust */
-  --neutral-300: #adb4c6; /* Silver */
-  --neutral-400: #9096a8; /* Slate Silver */
-  --neutral-500: #72778a; /* Cool Grey */
-  --neutral-600: #555a69; /* Steel */
-  --neutral-700: #3d4150; /* Slate */
-  --neutral-800: #282b38; /* Graphite */
-  --neutral-850: #1e202b; /* Onyx Dark */
-  --neutral-900: #13141a; /* Onyx Surface */
-  --neutral-950: #060608; /* Onyx Black */
+  /* --- Neutral. The spine of both themes, and hue-NEUTRAL by design.
+         The previous ramp carried a blue cast (Cloud #e5ecf6, Silver Dust
+         #c9d0e2); the reference is pure grey, and the tint was the single most
+         visible divergence between the two systems in light mode.
+         Every step here is a value the reference actually uses, so a surface
+         role can land on the reference's colour exactly rather than near it.
+         The intermediate steps (450, 650, 850) are interpolated to keep the
+         ramp even, and are not reference values. --- */
+  --neutral-0: #ffffff; /* light shell, and dark Text-Primary */
+  --neutral-50: #f3f3f5; /* light surface */
+  --neutral-100: #e9eaed; /* light surface-2 */
+  --neutral-150: #e7e8eb; /* light line */
+  --neutral-200: #dfe1e5; /* light surface-3 */
+  --neutral-250: #d2d5da; /* light thread */
+  --neutral-300: #d0d6dc; /* dark Text-Secondary */
+  --neutral-350: #b0b7bf; /* dark Text-Tertiary */
+  --neutral-400: #a6acb4; /* light Text-Tertiary */
+  --neutral-450: #969da5; /* interpolated */
+  --neutral-500: #8a9198; /* the neutral grey; also severity Low */
+  --neutral-550: #7a818a; /* light Text-Secondary */
+  --neutral-600: #6c7176; /* dark rail dim */
+  --neutral-650: #55595e; /* interpolated */
+  --neutral-700: #3e4348; /* dark thread */
+  --neutral-750: #3b4046; /* dark surface-3 */
+  --neutral-800: #31353a; /* dark surface-2 */
+  --neutral-850: #2b2e33; /* interpolated */
+  --neutral-900: #25282c; /* dark surface */
+  --neutral-925: #212427; /* dark line */
+  --neutral-950: #101213; /* dark shell */
+  --neutral-975: #0f1116; /* light Text-Primary */
 
   /* --- Orange. The brand. 350 is Primary. --- */
   --orange-50: #fff9f5;
@@ -156,30 +171,50 @@
      custom property can be checked against each other by eye.
      ========================================================================= */
 
-  /* --- Surface / Background --- */
-  --bg: var(--neutral-950); /* App Background */
+  /* --- Surface / Background. Four steps, not three: the reference separates
+         the page shell from three ascending element surfaces, and components
+         use all three. --- */
+  --bg: var(--neutral-950); /* App Background (shell) */
   --surface: var(--neutral-900); /* Cards & Elevated Surfaces */
-  --surface-2: var(--neutral-850); /* Elements */
-  --surface-disabled: var(--neutral-800); /* Disabled Background */
+  --surface-2: var(--neutral-800); /* Elements */
+  --surface-3: var(--neutral-750); /* Elements, one step up */
+  --surface-disabled: var(--neutral-850); /* Disabled Background */
   --surface-inverse: var(--neutral-0); /* Inverse Background */
   --surface-brand: var(--orange-400); /* Brand Background */
 
   /* --- Borders --- */
-  --rule: var(--neutral-800); /* border-subtle. Also Divider. */
+  --rule: var(--neutral-925); /* border-subtle. Also Divider. */
   --rule-default: var(--neutral-700); /* border-default */
   --rule-strong: var(--neutral-600); /* border-strong */
   --rule-brand: var(--orange-350); /* border-brand */
+  --thread: var(--neutral-700); /* connector lines in timelines and trees */
+  --track: #151719; /* the groove a progress bar or segmented control sits in */
 
-  /* --- Text --- */
-  --fg: var(--neutral-100); /* Text-Primary */
-  --fg-2: var(--neutral-200); /* Text-Secondary */
-  --fg-muted: var(--neutral-300); /* Text-Tertiary */
-  --fg-quaternary: var(--neutral-400); /* Text-Quaternary */
+  /* --- Text. Dark Text-Primary is pure white in the reference, not a step
+         down the ramp. --- */
+  --fg: var(--neutral-0); /* Text-Primary */
+  --fg-2: var(--neutral-300); /* Text-Secondary */
+  --fg-muted: var(--neutral-350); /* Text-Tertiary */
+  --fg-quaternary: var(--neutral-450); /* Text-Quaternary */
   --fg-disabled: var(--neutral-600); /* Text-Disabled */
-  --fg-inverse: var(--neutral-900); /* Text-Inverse */
-  --fg-link: var(--blue-400); /* Text-Link */
+  --fg-inverse: var(--neutral-950); /* Text-Inverse */
+  --fg-link: var(--blue-350); /* Text-Link. Blue 400 measured 3.93:1 against the
+                                 reference's lighter surface; 350 gives 6.56:1
+                                 on --bg and 5.17:1 on --surface. */
   --fg-on-dark: var(--neutral-950); /* Text-Static Onyx Black */
   --fg-on-light: var(--neutral-0); /* Text-Static White */
+
+  /* --- Rail. The navigation rail is its own themed surface, not a borrowed
+         --bg. In dark it is a raised grey slab whose active ink is the brand;
+         in light it inverts to a solid brand column (see the light block).
+         Without these five tokens the rail cannot carry the reference's
+         treatment, which is why NavRail previously read `bg-bg`. --- */
+  --rail: var(--neutral-850); /* #2b2e33, the reference's #26282C step */
+  --rail-fg: var(--neutral-0);
+  --rail-fg-dim: var(--neutral-600);
+  --rail-active: rgb(255 255 255 / 0.07);
+  --rail-ink: var(--orange-350); /* brand ink on the dark slab */
+  --logo: var(--orange-350);
 
   /* --- Action / Primary. The accent, and its states. --- */
   --accent: var(--orange-400); /* action-primary-default */
@@ -190,8 +225,11 @@
      step of the brand orange carries white at 4.5:1 — so this takes
      Text-Static Onyx Black, which does. Do not swap it for white. */
   --accent-fg: var(--neutral-950);
-  --accent-ink: var(--orange-400); /* Text-Brand, exactly as specified —
-                                      5.88:1 on --bg, 5.34:1 on --surface. */
+  --accent-ink: var(--orange-350); /* Text-Brand. Was Orange 400, which cleared
+                                      AA against the old near-black surface but
+                                      measures 4.30:1 against the reference's
+                                      lighter #25282c. Orange 350 restores it:
+                                      6.30:1 on --bg, 4.96:1 on --surface. */
 
   /* --- Action / Secondary and Tertiary --- */
   --action-secondary: var(--neutral-900);
@@ -246,18 +284,36 @@
   --ai-border: var(--amethyst-350);
   --ai-ink: var(--amethyst-200); /* ai-text */
 
-  /* --- Severity. Not in the token set: an ordered scale the console needs,
-         mapped onto the official ramps so it introduces no new hues. --- */
-  --sev-crit: var(--red-400);
-  --sev-high: var(--red-300);
-  --sev-med: var(--amber-350);
-  --sev-low: var(--blue-350);
-  --sev-info: var(--neutral-400);
+  /* --- Severity. An ordered scale, now carrying the REFERENCE's hues rather
+         than this file's own mapping. The two disagreed on every level below
+         critical, and the divergence was semantic, not cosmetic:
+
+           level    | was            | now (reference)
+           ---------|----------------|-----------------
+           crit     | red-400        | #f0384a  rose
+           high     | red-300 (red)  | #f5a524  amber
+           med      | amber-350      | #1b6ef3  azure
+           low      | blue-350       | #8a9198  grey
+           info     | neutral-400    | #7ed321  mint
+
+         Reading down the old scale, `high` was a second red and `low` was a
+         blue that outranked amber by eye. The reference's scale reads
+         red → amber → blue → grey → green, which is the order an operator
+         expects, and the bottom slot is a healthy green rather than a neutral.
+
+         These are the reference's literal values, not ramp steps: mapping them
+         onto the official ramps is what produced the divergence in the first
+         place. The ramp comment above still holds for every other role. --- */
+  --sev-crit: #f0384a;
+  --sev-high: #f5a524;
+  --sev-med: #1b6ef3;
+  --sev-low: var(--neutral-500); /* #8a9198, already on the ramp */
+  --sev-info: #7ed321;
   --sev-crit-ink: var(--red-200);
-  --sev-high-ink: var(--red-200);
-  --sev-med-ink: var(--amber-200);
-  --sev-low-ink: var(--blue-200);
-  --sev-info-ink: var(--neutral-300);
+  --sev-high-ink: var(--amber-200);
+  --sev-med-ink: var(--blue-200);
+  --sev-low-ink: var(--neutral-300);
+  --sev-info-ink: var(--green-200);
 
   /* --- Data Visualization --- */
   --cat-1: var(--blue-300); /* data-primary */
@@ -293,12 +349,19 @@
   --r-5: 10px;
   --r-6: 12px;
   --r-7: 16px;
+  --r-8: 22px;
+  --r-9: 28px;
   --r-full: 999px;
-  /* Named aliases, so component code reads intent rather than a step number. */
-  --r-sm: var(--r-2);
-  --r-md: var(--r-4);
-  --r-lg: var(--r-6);
-  --r-xl: var(--r-7);
+  /* Named aliases, so component code reads intent rather than a step number.
+     Retuned to the reference's geometry, which is markedly rounder than the
+     old scale: a card was 12px and is now 22px, a button was 8px and is now
+     14px. The step scale above is unchanged, so anything addressing --r-4
+     directly keeps its old value; only the intent aliases move. */
+  --r-sm: 7px; /* tag */
+  --r-md: 11px; /* small button, small icon button */
+  --r-lg: 14px; /* button, field, icon button */
+  --r-xl: var(--r-8); /* card */
+  --r-2xl: var(--r-9); /* the rail panel, and the mobile nav bar */
 
   /* --- Stroke. Global Tokens. --- */
   --stroke-0: 1px;
@@ -312,10 +375,17 @@
   --e-2: 0 4px 12px rgb(0 0 0 / 0.45);
   --e-3: 0 12px 32px rgb(0 0 0 / 0.5);
   --e-4: 0 24px 64px rgb(0 0 0 / 0.55);
+  /* The reference's own two elevations, which are wider and softer than the
+     e-* scale and are what its cards, popovers and rail panel use. Kept
+     alongside rather than replacing e-*, which overlays still reference. */
+  --shadow-2: 0 20px 50px -14px rgb(0 0 0 / 0.72);
+  --shadow-3:
+    0 30px 76px -18px rgb(0 0 0 / 0.86), 0 3px 12px -3px rgb(0 0 0 / 0.55);
 
   /* --- Typography. The HOST APP CONTRACT, restated in one place.
          These three are the only bridge between the families a consuming app
-         loads (--font-space-grotesk and friends, via next/font) and the
+         loads (--font-plus-jakarta-sans and --font-jetbrains-mono, via
+         next/font) and the
          --font-* utilities Layer 3 generates. Deleting them breaks every
          heading and every line of body text in the library, and it breaks
          SILENTLY: a custom property whose value contains an unresolvable
@@ -323,9 +393,18 @@
          inherits and nothing errors. That is exactly what happened when this
          file's ramp layer was rewritten — see verify-tokens, which now fails
          the build rather than letting it happen again. --- */
-  --display: var(--font-space-grotesk), system-ui, sans-serif;
-  --ui: var(--font-inter), system-ui, sans-serif;
-  --mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+  --display: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+  --ui: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+  --mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* --- Weight. The reference is a heavy design: body copy sits at 600,
+         labels and buttons at 700-800, and almost nothing is lighter than
+         500. The old system ran 400-600, which read markedly lighter at the
+         same sizes. Named so component code states intent. --- */
+  --weight-body: 500;
+  --weight-medium: 600;
+  --weight-strong: 700;
+  --weight-heavy: 800;
 
   /* --- Motion. One curve. All motion respects prefers-reduced-motion. --- */
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -345,27 +424,50 @@
    (or a Storybook decorator) puts the class on a wrapper instead of <html>. */
 .light,
 [data-theme="light"] {
-  /* The Light Mode column of the same token set. Note the ground: Cloud, not
-     white — white is reserved for cards, so a card lifts off the page instead
-     of dissolving into it. */
-  --bg: var(--neutral-100); /* App Background */
-  --surface: var(--neutral-0); /* Cards & Elevated Surfaces */
-  --surface-2: var(--neutral-50); /* Elements */
+  /* The Light Mode column of the same token set.
+     THE GROUND IS NOW WHITE, and cards are grey. This inverts what this file
+     used to do, and it is deliberate: the reference's light shell is #FFFFFF
+     with #F3F3F5 surfaces, so a card reads as a recess in the page rather than
+     a slab lifted off it. Flipping only one of the two would leave cards
+     invisible, so both move together. */
+  --bg: var(--neutral-0); /* App Background (shell) */
+  --surface: var(--neutral-50); /* Cards & Elevated Surfaces */
+  --surface-2: var(--neutral-100); /* Elements */
+  --surface-3: var(--neutral-200); /* Elements, one step up */
   --surface-disabled: var(--neutral-100);
   --surface-inverse: var(--neutral-950);
   --surface-brand: var(--orange-350);
 
-  --rule: var(--neutral-200);
-  --rule-default: var(--neutral-300);
+  --rule: var(--neutral-150);
+  --rule-default: var(--neutral-200);
   --rule-strong: var(--neutral-400);
   --rule-brand: var(--orange-350);
+  --thread: var(--neutral-250);
+  --track: #edeef1;
 
-  --fg: var(--neutral-850); /* Text-Primary */
-  --fg-2: var(--neutral-700);
-  --fg-muted: var(--neutral-600);
-  --fg-quaternary: var(--neutral-500);
+  /* Softer and shorter-throw than dark, per the reference: a heavy shadow on
+     a white page reads as dirt rather than elevation. */
+  --shadow-2: 0 18px 44px -14px rgb(20 24 32 / 0.3);
+  --shadow-3:
+    0 28px 68px -18px rgb(20 24 32 / 0.42), 0 3px 10px -3px rgb(20 24 32 / 0.16);
+
+  --fg: var(--neutral-975); /* Text-Primary */
+  --fg-2: var(--neutral-550);
+  --fg-muted: var(--neutral-400);
+  --fg-quaternary: var(--neutral-450);
   --fg-disabled: var(--neutral-400);
   --fg-inverse: var(--neutral-0);
+
+  /* The rail inverts in light: a solid brand column with white icons, which is
+     the reference's most recognisable single feature. Active state is a white
+     wash rather than an accent tint, because the ground is already the
+     accent. */
+  --rail: var(--orange-350);
+  --rail-fg: var(--neutral-0);
+  --rail-fg-dim: rgb(255 255 255 / 0.66);
+  --rail-active: rgb(255 255 255 / 0.2);
+  --rail-ink: var(--neutral-0);
+  --logo: var(--neutral-0);
   --fg-link: var(--blue-500); /* Text-Link is Blue 350 in the set; that measures
                                  2.6:1 on Cloud, so the link takes the next step
                                  down that clears AA. */
@@ -431,16 +533,21 @@
   --ai-border: var(--amethyst-350);
   --ai-ink: var(--amethyst-550);
 
-  --sev-crit: var(--red-400);
-  --sev-high: var(--red-300);
-  --sev-med: var(--amber-350);
-  --sev-low: var(--blue-350);
-  --sev-info: var(--neutral-500);
+  /* The severity MARKS are the reference's literal hues and do not flip
+     between modes; the reference defines them once, outside .dark. The INKS
+     do flip, because a label has to clear AA against a light ground and these
+     marks do not: #f5a524 amber measures 1.9:1 on white. */
+  --sev-crit: #f0384a;
+  --sev-high: #f5a524;
+  --sev-med: #1b6ef3;
+  --sev-low: var(--neutral-500);
+  --sev-info: #7ed321;
   --sev-crit-ink: var(--red-550);
-  --sev-high-ink: var(--red-500);
-  --sev-med-ink: var(--amber-550);
-  --sev-low-ink: var(--blue-550);
-  --sev-info-ink: var(--neutral-600);
+  --sev-high-ink: var(--amber-550);
+  --sev-med-ink: var(--blue-550);
+  --sev-low-ink: var(--neutral-650); /* 600 measured 4.45:1 on --surface, just
+                                        under; 650 gives 6.37:1. */
+  --sev-info-ink: var(--green-550);
 
   --cat-1: var(--blue-350);
   --cat-2: var(--green-350);
@@ -488,6 +595,20 @@
   --color-wash-3: var(--wash-3);
   --color-wash-hover: var(--wash-hover);
   --color-wash-accent: var(--wash-accent);
+
+  /* Surfaces the reference adds, and the rail's own surface family. Without
+     these the utilities bg-surface-3, bg-rail, text-rail-fg and friends do
+     not exist, and NavRail cannot be styled without arbitrary values. */
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-thread: var(--thread);
+  --color-track: var(--track);
+  --color-rail: var(--rail);
+  --color-rail-fg: var(--rail-fg);
+  --color-rail-fg-dim: var(--rail-fg-dim);
+  --color-rail-active: var(--rail-active);
+  --color-rail-ink: var(--rail-ink);
+  --color-logo: var(--logo);
 
   /* MARKS — bars, dots, fills, chart series. Brand values, unchanged. */
   --color-ok: var(--ok);
@@ -604,6 +725,16 @@
   --radius-md: var(--r-md);
   --radius-lg: var(--r-lg);
   --radius-xl: var(--r-xl);
+  --radius-2xl: var(--r-2xl);
+
+  /* The reference's weight scale, as font-body / font-strong / font-heavy. */
+  --font-weight-body: var(--weight-body);
+  --font-weight-medium: var(--weight-medium);
+  --font-weight-strong: var(--weight-strong);
+  --font-weight-heavy: var(--weight-heavy);
+
+  --shadow-2: var(--shadow-2);
+  --shadow-3: var(--shadow-3);
 
   --shadow-e1: var(--e-1);
   --shadow-e2: var(--e-2);

@@ -31,8 +31,7 @@ const css = readFileSync(cssPath, "utf8");
  * that is correct.
  */
 const HOST_SUPPLIED = new Set([
-  "--font-space-grotesk",
-  "--font-inter",
+  "--font-plus-jakarta-sans",
   "--font-jetbrains-mono",
 ]);
 

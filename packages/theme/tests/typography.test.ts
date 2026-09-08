@@ -24,8 +24,12 @@ import { HOST_SUPPLIED, MODES, THEME_INLINE, resolveToken } from "./modes.js";
 
 /** Role token → the host font it must reach → its concrete fallback family. */
 const FONT_ROLES = [
-  { role: "--display", host: "--font-space-grotesk", generic: "sans-serif" },
-  { role: "--ui", host: "--font-inter", generic: "sans-serif" },
+  // Display and UI are the SAME family now. The reference runs one sans for
+  // everything (Plus Jakarta Sans, weights 400-800) and separates headings
+  // from body by weight and size rather than by typeface. The two roles are
+  // kept distinct so a future split costs nothing.
+  { role: "--display", host: "--font-plus-jakarta-sans", generic: "sans-serif" },
+  { role: "--ui", host: "--font-plus-jakarta-sans", generic: "sans-serif" },
   { role: "--mono", host: "--font-jetbrains-mono", generic: "monospace" },
 ] as const;
 

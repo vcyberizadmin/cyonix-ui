@@ -45,8 +45,7 @@ for (const b of blocks.filter((b) => isThemeInline(b.selector))) {
  * tripping over an absence that is by design.
  */
 export const HOST_SUPPLIED = new Map<string, string>([
-  ["--font-space-grotesk", "HostDisplayFont"],
-  ["--font-inter", "HostUiFont"],
+  ["--font-plus-jakarta-sans", "HostSansFont"],
   ["--font-jetbrains-mono", "HostMonoFont"],
 ]);
 
