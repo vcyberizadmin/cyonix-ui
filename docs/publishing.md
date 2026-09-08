@@ -58,12 +58,22 @@ browser flow.
 
 Releases run from GitHub Actions, which needs its own credential:
 
-1. npmjs.com > your avatar > **Access Tokens** > **Generate New Token**.
-2. Choose **Automation**. This matters: npm enforces 2FA on publish, and an
-   automation token is the only kind exempt from the one-time-password prompt.
-   A classic publish token fails in CI with `EOTP`.
+1. npmjs.com > your avatar > **Access Tokens** > **Generate New Token** >
+   **Granular Access Token**.
+2. Set these:
+   - **Packages and scopes**: read and write on the `@cyonix` scope.
+   - **Bypass 2FA**: enabled. This is the part that matters. The org requires
+     two-factor authentication to publish, and CI cannot answer an OTP prompt.
+     Without it every publish fails with `E403 ... Two-factor authentication or
+     granular access token with bypass 2fa enabled is required`.
+   - **Expiration**: set a real date and calendar a reminder. A silently expired
+     token turns every release red.
 3. GitHub repo > **Settings > Secrets and variables > Actions** > new repository
    secret named `NPM_TOKEN`.
+
+The older **Classic > Automation** token type also bypasses 2FA and still works,
+but npm is steering new tokens toward granular ones because they can be scoped
+to a single org rather than to everything the account can reach.
 
 `.github/workflows/release.yml` reads it as both `NPM_TOKEN` and
 `NODE_AUTH_TOKEN`, and `actions/setup-node` writes the `.npmrc` for it.
@@ -167,7 +177,8 @@ only check that exercises the same path a consumer takes, including whether the
 | `404 Not Found - PUT .../@cyonix%2fui` | The `cyonix` org does not exist, or you are not a member of it. npm reports a permission problem as a 404 to avoid confirming that a private name exists. | `npm org ls cyonix`. If it errors, get added to the org. |
 | `403 Forbidden ... you do not have permission to publish` | Someone else owns the name, or your account lacks write access in the org. | `npm view <name>` to see who holds it. |
 | `E409 Conflict` / `cannot publish over previously published version` | That exact version is already on the registry. npm versions are immutable. | Bump the version. Never try to overwrite. |
-| `EOTP` / `This operation requires a one-time password` | Publishing with 2FA from a non-interactive context using a classic token. | Use an **automation** token in CI. Locally, enter the OTP when prompted. |
+| `EOTP` / `This operation requires a one-time password` | Publishing with 2FA from a non-interactive context. | Pass `--otp=<code>` from your authenticator, or use a token that bypasses 2FA. |
+| `E403 ... Two-factor authentication or granular access token with bypass 2fa enabled is required` | The org enforces 2FA on publish and the credential in use cannot satisfy it. A browser `npm login` session cannot: it is not a 2FA-bypassing token. | Either publish interactively with `pnpm release --otp=<code>`, or configure a granular token with **Bypass 2FA** as described above. |
 | `ENEEDAUTH` | Not logged in. | `npm login`. |
 | Consumer gets `workspace:*` unresolvable | Published with `npm publish` instead of `pnpm publish`. | Republish with a bumped version using `pnpm publish`. |
 
