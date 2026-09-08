@@ -205,16 +205,36 @@ export function NavRail({
   };
 
   return (
+    // The outer column only RESERVES space; the rail itself is the panel
+    // inside it. On desktop the panel is absolutely positioned and floats
+    // inset from the page edges, so widening it on hover overlaps the content
+    // rather than reflowing it — which is the whole point of a peek. On mobile
+    // this same element becomes the bottom bar.
     <aside
       className={cn(
-        // Rail and ground share Onyx so the rail reads as part of the page,
-        // not a floating panel. One hairline separates it — no shadow.
-        "border-rule bg-bg sticky top-0 flex h-dvh shrink-0 flex-col",
-        "transition-[width] duration-standard ease-brand border-r",
-        mini ? "w-rail-mini" : "w-rail",
+        "fixed inset-x-0 bottom-0 z-50 p-4",
+        "xl:static xl:z-auto xl:shrink-0 xl:p-3",
+        "xl:w-(--container-rail-gutter) xl:relative",
         className,
       )}
     >
+      <div
+        // group/rail is what the labels, the logo crossfade and the module
+        // badge all hang off: one hover target, several coordinated reveals.
+        className={cn(
+          "group/rail bg-rail flex items-center justify-between gap-2 overflow-visible px-3",
+          "h-(--container-rail-bar) rounded-[30px] shadow-[0_12px_34px_-8px_rgb(0_0_0_/_0.45)]",
+          // Desktop: a floating column, 12px in from three edges.
+          "xl:absolute xl:inset-y-3 xl:left-3 xl:h-auto xl:flex-col xl:items-stretch xl:rounded-[28px] xl:px-3.5 xl:py-7 xl:shadow-none",
+          "xl:transition-[width,box-shadow] xl:duration-standard xl:ease-brand",
+          // The peek. Focus-within matters as much as hover: a keyboard user
+          // tabbing into the rail must see the labels too.
+          mini
+            ? "xl:w-(--container-rail-mini) xl:hover:w-(--container-rail) xl:focus-within:w-(--container-rail)"
+            : "xl:w-(--container-rail)",
+          "xl:hover:shadow-[0_26px_64px_-18px_rgb(0_0_0_/_0.55)] xl:focus-within:shadow-[0_26px_64px_-18px_rgb(0_0_0_/_0.55)]",
+        )}
+      >
       {/* Brand block. The collapse control lives here, beside the lockup —
           Tenant's placement. Expanded it sits at the right edge of the brand
           row; minimised it drops to its own centred row under the mark. */}
@@ -259,7 +279,7 @@ export function NavRail({
             <div
               key={groupKey}
               className={cn(
-                "group/rail py-2",
+                "group/navgroup py-2",
                 // Groups separate by hairline, never by extra space alone.
                 groupIndex > 0 && "border-rule border-t",
               )}
@@ -274,12 +294,12 @@ export function NavRail({
                     })
                   }
                   aria-expanded={!groupCollapsed}
-                  className="text-fg-muted duration-instant ease-brand group-hover/rail:text-fg flex w-full cursor-pointer items-center justify-between px-4 pt-2 pb-2.5 text-[10.5px] leading-none font-semibold tracking-[0.14em] uppercase transition-colors"
+                  className="text-fg-muted duration-instant ease-brand group-hover/navgroup:text-fg flex w-full cursor-pointer items-center justify-between px-4 pt-2 pb-2.5 text-[10.5px] leading-none font-semibold tracking-[0.14em] uppercase transition-colors"
                 >
                   {group.label}
                   <span
                     aria-hidden="true"
-                    className="text-fg-2 duration-instant ease-brand font-mono text-[15px] leading-none opacity-0 transition-opacity group-hover/rail:opacity-100"
+                    className="text-fg-2 duration-instant ease-brand font-mono text-[15px] leading-none opacity-0 transition-opacity group-hover/navgroup:opacity-100"
                   >
                     {groupCollapsed ? "+" : "−"}
                   </span>
@@ -302,86 +322,97 @@ export function NavRail({
 
                   return (
                     <div key={item.href}>
-                      <div
-                        className={cn(
-                          "relative flex items-center",
-                          active
-                            ? [
-                                "text-accent-ink",
-                                "before:bg-accent before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:content-['']",
-                                mini
-                                  ? "bg-accent/14"
-                                  : "bg-linear-to-r from-accent/14 to-transparent",
-                              ]
-                            : // Hover is feedback, not state: no bar, no orange.
-                              "text-fg-2 hover:bg-wash-hover hover:text-fg",
-                        )}
-                      >
+                      <div className="relative flex items-center">
                         <Link
                           href={item.href}
                           {...(item.href === activeHref
                             ? { "aria-current": "page" }
                             : {})}
-                          title={mini ? item.label : undefined}
+                          title={item.label}
                           className={cn(
-                            "duration-instant ease-brand flex min-w-0 flex-1 items-center py-[9px] text-[13px] leading-tight font-medium transition-colors",
-                            mini
-                              ? "justify-center px-0"
-                              : hasChildren
-                                ? "gap-3 pr-1 pl-4"
-                                : "gap-3 px-4",
+                            "duration-instant ease-brand relative flex h-12 min-w-0 flex-1 items-center rounded-2xl transition-colors",
+                            active
+                              // Collapsed, the active item carries a tinted
+                              // squircle. Expanded it does NOT: the edge tab
+                              // alone marks it, and keeping both reads as two
+                              // competing indicators. The reference drops the
+                              // fill at xl for exactly this reason.
+                              ? "text-rail-fg bg-rail-active xl:bg-transparent"
+                              : "text-rail-fg-dim hover:text-rail-fg hover:bg-rail-active",
                           )}
                         >
-                          {item.icon && (
+                          {/* The ink. A pill under the glyph on the mobile bar;
+                              on desktop a tab on the panel's OUTER left edge,
+                              poking out past it and rounded on the right only,
+                              so it reads as the page marking the rail rather
+                              than the rail decorating itself. */}
+                          <span
+                            aria-hidden="true"
+                            className={cn(
+                              "bg-rail-ink pointer-events-none absolute transition-opacity duration-standard ease-brand",
+                              "-bottom-[7px] left-1/2 h-[4px] w-5 -translate-x-1/2 rounded-full",
+                              "xl:top-1/2 xl:bottom-auto xl:left-[-14px] xl:h-[34px] xl:w-[9px] xl:translate-x-0 xl:-translate-y-1/2 xl:rounded-l-none xl:rounded-r-[9px]",
+                              active ? "opacity-100" : "opacity-0",
+                            )}
+                          />
+
+                          <span className="relative grid size-12 shrink-0 place-items-center">
+                            {item.icon && (
+                              <span className="[&_svg]:size-[22px]">
+                                {item.icon}
+                              </span>
+                            )}
+
+                            {/* The count OVERLAPS the glyph, which is what lets
+                                it survive collapse. This rail used to hide
+                                counts when minimised and fall back to a bare
+                                dot, losing the number exactly when the rail was
+                                narrowest. The ring is the rail's own colour, so
+                                the bubble punches a hole rather than sitting in
+                                a box. */}
+                            {(item.liveBadge ??
+                              (typeof item.count === "number" &&
+                                item.count > 0)) && (
+                              <span
+                                className={cn(
+                                  "ring-rail absolute top-1 right-1 grid h-[17px] min-w-[17px] place-items-center rounded-full px-1 text-[10px] leading-none font-extrabold ring-2",
+                                  item.countTone === "alert"
+                                    ? "bg-sev-crit text-white"
+                                    : "bg-surface-3 text-fg",
+                                )}
+                              >
+                                {item.liveBadge ?? item.count}
+                              </span>
+                            )}
+                          </span>
+
+                          {/* Width-animated, not faded: the label slides out
+                              from behind the glyph as the panel opens. Revealed
+                              by the PANEL's hover, never its own, so pointing
+                              at one item shows every label. */}
+                          <span
+                            className={cn(
+                              "ease-brand overflow-hidden text-[14.5px] leading-none font-bold tracking-[-.01em] whitespace-nowrap transition-[max-width,opacity] duration-standard",
+                              mini
+                                ? "max-w-0 opacity-0 xl:group-hover/rail:max-w-[150px] xl:group-hover/rail:opacity-100 xl:group-focus-within/rail:max-w-[150px] xl:group-focus-within/rail:opacity-100"
+                                : "max-w-0 opacity-0 xl:max-w-[150px] xl:opacity-100",
+                            )}
+                          >
+                            {item.label}
+                          </span>
+
+                          {item.tag && (
                             <span
                               className={cn(
-                                "shrink-0",
+                                "bg-surface-3 text-fg ml-2 shrink-0 overflow-hidden rounded-sm px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.08em] uppercase transition-opacity duration-standard",
                                 mini
-                                  ? "[&_svg]:size-[18px]"
-                                  : "[&_svg]:size-[12.5px]",
+                                  ? "opacity-0 xl:group-hover/rail:opacity-100 xl:group-focus-within/rail:opacity-100"
+                                  : "opacity-0 xl:opacity-100",
                               )}
                             >
-                              {item.icon}
+                              {item.tag}
                             </span>
                           )}
-
-                          {!mini && (
-                            <>
-                              <span className="truncate">{item.label}</span>
-                              {item.tag && (
-                                <span className="bg-wash-2 text-fg-2 shrink-0 rounded-sm px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.08em] uppercase">
-                                  {item.tag}
-                                </span>
-                              )}
-                              <span className="ml-auto flex shrink-0 items-center gap-1.5 pl-2">
-                                {item.liveBadge ??
-                                  (typeof item.count === "number" ? (
-                                    <span
-                                      className={cn(
-                                        "font-mono text-[10px] tabular-nums",
-                                        item.countTone === "alert"
-                                          ? "text-warning-ink font-bold"
-                                          : "text-fg-muted",
-                                      )}
-                                    >
-                                      {item.count}
-                                    </span>
-                                  ) : null)}
-                              </span>
-                            </>
-                          )}
-
-                          {/* Mini hides counts, which would make urgent work
-                              invisible when collapsed — the standard lists that
-                              as a real defect. A dot keeps the signal. */}
-                          {mini &&
-                            item.countTone === "alert" &&
-                            typeof item.count === "number" && (
-                              <span
-                                aria-hidden="true"
-                                className="bg-warning absolute top-1.5 right-3 size-1.5 rounded-full"
-                              />
-                            )}
                         </Link>
 
                         {/* A sibling button, not a nested one: expanding must
@@ -472,10 +503,11 @@ export function NavRail({
         </button>
       )}
       {footer && !mini && (
-        <div className="border-rule text-fg-muted shrink-0 border-t px-4 py-3 text-[11px]">
+        <div className="text-rail-fg-dim hidden shrink-0 px-4 py-3 text-[11px] xl:block">
           {footer}
         </div>
       )}
+      </div>
     </aside>
   );
 }

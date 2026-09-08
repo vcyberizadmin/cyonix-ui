@@ -753,8 +753,14 @@
 
   /* Rail geometry (CX-NAV/CX-SHL). Minimising recovers 232px, which is what
      makes a wide table usable on a 1366px laptop. Static, not themed. */
-  --container-rail: 300px;
-  --container-rail-mini: 68px;
+  /* The reference's rail geometry. It is a floating panel, so the outer
+     column reserves --container-rail-gutter while the panel itself is
+     --container-rail-mini at rest and --container-rail once peeked. */
+  --container-rail: 232px;
+  --container-rail-mini: 76px;
+  --container-rail-gutter: 100px;
+  /* The mobile bar's height, and the inset the desktop panel floats at. */
+  --container-rail-bar: 68px;
 
   /* Dock rail geometry (CX-DCK). Unlike CX-NAV, this rail FLOATS: the panel is
      absolutely positioned and expands OVER the content on hover rather than

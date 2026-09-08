@@ -54,14 +54,27 @@ describe("NavRail", () => {
     expect(screen.getByRole("link", { name: /Cases/ })).toHaveAttribute("href", "/cases");
   });
 
-  it("renders a count of zero rather than hiding it", () => {
-    render(
+  // The rail used to render `count: 0` rather than hide it, so that an empty
+  // queue still stated it was empty. The reference does the opposite —
+  // `el.classList.toggle('hidden', !n)` — and it is right: the count is now a
+  // bubble overlapping the glyph, and a bubble reading "0" is noise on every
+  // idle item. An empty queue is communicated by the ABSENCE of a bubble.
+  it("hides a count of zero, and shows a real one", () => {
+    const { rerender } = render(
       <NavRail
         activeHref="/x"
         groups={[{ label: "G", items: [{ label: "Queue", href: "/q", count: 0 }] }]}
       />,
     );
-    expect(screen.getByRole("link", { name: /Queue/ })).toHaveTextContent("0");
+    expect(screen.getByRole("link", { name: /Queue/ })).not.toHaveTextContent("0");
+
+    rerender(
+      <NavRail
+        activeHref="/x"
+        groups={[{ label: "G", items: [{ label: "Queue", href: "/q", count: 7 }] }]}
+      />,
+    );
+    expect(screen.getByRole("link", { name: /Queue/ })).toHaveTextContent("7");
   });
 });
 
