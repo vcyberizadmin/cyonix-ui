@@ -82,6 +82,7 @@
   --orange-300: #fe8035;
   --orange-350: #fe6409; /* Primary */
   --orange-400: #eb5d09;
+  --orange-425: #e25501; /* the reference's brand.deep — the primary hover */
   --orange-450: #d85508;
   --orange-500: #b44706;
   --orange-550: #913905;
@@ -217,14 +218,21 @@
   --logo: var(--orange-350);
 
   /* --- Action / Primary. The accent, and its states. --- */
-  --accent: var(--orange-400); /* action-primary-default */
-  --accent-hover: var(--orange-350); /* action-primary-hover */
+  --accent: var(--orange-350); /* action-primary-default. The reference uses
+                                  #FE6409 in BOTH modes; it does not step the
+                                  accent per theme the way this file used to. */
+  --accent-hover: var(--orange-425); /* the reference's #E25501 */
   --accent-pressed: var(--orange-450); /* action-primary-pressed */
   --accent-disabled: var(--neutral-800); /* action-primary-disabled */
-  /* Ink that sits ON the accent fill. The token set does not name one, and no
-     step of the brand orange carries white at 4.5:1 — so this takes
-     Text-Static Onyx Black, which does. Do not swap it for white. */
-  --accent-fg: var(--neutral-950);
+  /* Ink that sits ON the accent fill.
+     This was Text-Static Onyx Black, with a comment saying not to swap it for
+     white, because no step of the brand orange carries white at 4.5:1. The
+     reference does exactly that anyway: `.btn-primary { background:#FE6409;
+     color:#fff }`, which measures 2.98:1.
+     Matching the reference was chosen over the AA floor. The pair is recorded
+     in ACCEPTED_BELOW_AA in contrast.test.ts, so the cost stays measured and
+     reverting is one token. */
+  --accent-fg: var(--neutral-0);
   --accent-ink: var(--orange-350); /* Text-Brand. Was Orange 400, which cleared
                                       AA against the old near-black surface but
                                       measures 4.30:1 against the reference's
@@ -472,11 +480,11 @@
                                  2.6:1 on Cloud, so the link takes the next step
                                  down that clears AA. */
 
-  --accent: var(--orange-350); /* action-primary-default */
-  --accent-hover: var(--orange-400);
+  --accent: var(--orange-350); /* same in both modes, per the reference */
+  --accent-hover: var(--orange-425);
   --accent-pressed: var(--orange-450);
   --accent-disabled: var(--neutral-200);
-  --accent-fg: var(--neutral-950);
+  --accent-fg: var(--neutral-0); /* white, per the reference. See dark. */
   --accent-ink: var(--orange-600); /* Text-Brand is Orange 350; 2.6:1 on white.
                                       Orange 600 is the first step that clears
                                       AA and stays unmistakably brand. */

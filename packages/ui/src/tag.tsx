@@ -21,7 +21,7 @@ import { cn } from "./lib/cn.js";
 export type CategoricalIndex = 1 | 2 | 3 | 4 | 5 | 6;
 
 const tag = cva(
-  "inline-flex h-[22px] items-center gap-1.5 rounded-sm border px-[.55rem] text-[10.5px] font-extrabold tracking-[.03em] uppercase whitespace-nowrap",
+  "inline-flex h-[22px] items-center gap-[.3rem] rounded-sm px-[.55rem] text-[10.5px] font-extrabold tracking-[.03em] uppercase whitespace-nowrap",
   {
     variants: {
       // A tag is a label, not a control — unless it filters, and then it must
@@ -34,11 +34,12 @@ const tag = cva(
         true: "font-mono tracking-tight",
       },
       interactive: {
-        false: "border-rule bg-wash-2 text-fg-2",
+        false: "bg-wash-2 text-fg-2",
         // A resting-state difference, not just a hover one: a hover-only
         // affordance is invisible until the cursor is already on it, which does
-        // not satisfy "must look clickable". Stronger hairline + primary ink.
-        true: "border-fg-muted/45 bg-wash-2 text-fg hover:border-accent/60 hover:bg-wash-3 duration-instant ease-brand cursor-pointer transition-colors",
+        // not satisfy "must look clickable". With the reference's borderless
+        // tag the resting cue is primary ink rather than a stronger hairline.
+        true: "bg-wash-2 text-fg hover:bg-wash-3 duration-instant ease-brand cursor-pointer transition-colors",
       },
     },
     defaultVariants: { interactive: false, mono: false },

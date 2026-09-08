@@ -84,6 +84,14 @@ const TEXT_ON_FILL: ReadonlyArray<readonly [ink: string, fill: string]> = [
  * still fails the build. Deleting an entry is how you re-enable the AA floor.
  */
 const ACCEPTED_BELOW_AA = new Map<string, number>([
+  // --accent-fg is white on the brand orange, which is what the reference's
+  // .btn-primary does: `background:#FE6409; color:#fff`. This file previously
+  // used near-black here, at 6.3:1, with a comment saying not to swap it for
+  // white. The swap is deliberate and it is the most consequential entry in
+  // this map, because it is the primary button — the most-clicked control in
+  // the product — carrying a 14px label at 2.98:1.
+  ["dark --accent-fg on --accent", 2.98],
+  ["light --accent-fg on --accent", 2.98],
   ["light --fg-2 on --bg", 3.94],
   ["light --fg-2 on --surface", 3.55],
   ["light --fg-2 on --surface-2", 3.27],
@@ -124,6 +132,20 @@ describe.each(MODES)("%s mode — text contrast", (mode, props) => {
   }
 
   for (const [ink, fill] of TEXT_ON_FILL) {
+    const key = `${mode} ${ink} on ${fill}`;
+    const accepted = ACCEPTED_BELOW_AA.get(key);
+
+    if (accepted !== undefined) {
+      it(`${ink} on ${fill} stays at its accepted sub-AA ratio`, () => {
+        const ratio = round2(contrastRatio(colour(ink, props), colour(fill, props)));
+        expect(
+          ratio,
+          `${key} was accepted at ${accepted}:1 and now measures ${ratio}:1. It got worse.`,
+        ).toBeGreaterThanOrEqual(accepted);
+      });
+      continue;
+    }
+
     it(`${ink} on ${fill} clears AA`, () => {
       const ratio = contrastRatio(colour(ink, props), colour(fill, props));
       expect(round2(ratio)).toBeGreaterThanOrEqual(AA_TEXT);
