@@ -20,7 +20,11 @@ import { cn } from "../lib/cn.js";
 export interface StepAreaProps {
   /** Points oldest → newest. Under two points nothing is drawn. */
   series: readonly number[];
-  /** X labels. Renders as many as fit; the rest are drawn but unnamed. */
+  /**
+   * X labels, spread evenly across the plot. They do NOT have to be 1:1 with
+   * `series` — an axis of five times against thirty-six readings is the normal
+   * case — and they are thinned if there are enough to collide.
+   */
   labels?: readonly string[];
   /** Accessible name. Required — a chart nobody can read is decoration. */
   label: string;
@@ -60,6 +64,11 @@ export function StepArea({
   const range = max - min || 1;
   const lo = min - range * 0.15;
   const hi = max + range * 0.15;
+
+  /* Spread n labels across the plot: first at the left edge, last at the
+     right, the rest evenly between. A single label sits in the middle. */
+  const labelX = (i: number, n: number) =>
+    n <= 1 ? padLeft + plotW / 2 : padLeft + (i / (n - 1)) * plotW;
 
   const slot = plotW / series.length;
   const x = (i: number) => padLeft + i * slot;
@@ -166,7 +175,11 @@ export function StepArea({
             i % labelEvery === 0 || i === labels.length - 1 ? (
               <text
                 key={`${text}-${i}`}
-                x={cx(i)}
+                // Positioned by the label's OWN fraction of the axis, not by
+                // cx(i). cx indexes the SERIES, so five labels against
+                // thirty-six readings all landed in the first five slots —
+                // silently, since nothing checks the two lengths agree.
+                x={labelX(i, labels.length)}
                 y={height - 4}
                 textAnchor={i === 0 ? "start" : i === labels.length - 1 ? "end" : "middle"}
                 className="fill-fg-muted text-[10.5px] font-semibold"

@@ -13,7 +13,7 @@ export {
   type Slice,
   type Ramp,
 } from "./primitives.js";
-export { sharePercents, rampFill, rampInk, compact } from "./util.js";
+export { sharePercents, rampFill, rampInk, rampStroke, compact } from "./util.js";
 export { Gauge, type GaugeProps } from "./primitives.js";
 export {
   AxisBars,

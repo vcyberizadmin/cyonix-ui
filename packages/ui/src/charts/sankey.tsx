@@ -194,7 +194,11 @@ export function Sankey({
         preserveAspectRatio="none"
         role="img"
         aria-label={label}
-        className="block h-full w-full"
+        className="block w-full"
+        // Not h-full: with no height on the parent that falls back to the
+        // viewBox's aspect ratio, so a 600x300 box rendered 1400px wide came
+        // out 700px tall. The height is the prop; only the width stretches.
+        style={{ height }}
       >
         {bands.map((band) => (
           <path

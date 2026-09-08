@@ -1,0 +1,28 @@
+@import "tailwindcss";
+@import "@cyonix/theme";
+
+/* Points at the workspace path rather than through node_modules/@cyonix/ui,
+   which is a pnpm symlink Tailwind does not follow during source detection. */
+@source "../../../packages/ui/dist/**/*.js";
+
+/* The host-app contract, fulfilled the way a Next app fulfils it with next/font. */
+:root {
+  --font-plus-jakarta-sans: "Plus Jakarta Sans";
+  --font-jetbrains-mono: "JetBrains Mono";
+}
+
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--ui);
+  -webkit-font-smoothing: antialiased;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

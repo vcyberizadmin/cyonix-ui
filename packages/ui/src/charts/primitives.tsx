@@ -38,7 +38,7 @@
 import type { ElementType, ReactNode } from "react";
 import { cn } from "../lib/cn.js";
 import { describeSeries, sparkPath, type SparkOptions } from "../lib/spark.js";
-import { compact, rampFill, rampInk, sharePercents, type Ramp } from "./util.js";
+import { compact, rampFill, rampStroke, sharePercents, type Ramp } from "./util.js";
 
 export type { Ramp };
 
@@ -436,6 +436,21 @@ export interface DonutProps {
   thickness?: number;
   /** Centre caption under the total, e.g. "findings". */
   totalLabel?: string;
+  /**
+   * The ring's geometry.
+   *
+   * `circle` is the default. `squircle` is a rounded square, which the SOC
+   * console uses for its severity arch: at the same diameter it encloses more
+   * area, so the centre figure can be larger, and it reads as a distinct
+   * object beside a page of circular donuts rather than one more of them.
+   *
+   * Both shapes share the segment maths exactly, because the stroked path is
+   * normalised to a length of 100 — a share is a percentage either way. That
+   * matters more than it sounds: a rounded square's perimeter has no closed
+   * form, so without the normalisation the two shapes could not share a code
+   * path at all.
+   */
+  shape?: "circle" | "squircle";
   legend?: boolean;
   linkComponent?: ElementType;
   className?: string;
@@ -451,6 +466,7 @@ export function Donut({
   size = 140,
   thickness = 14,
   totalLabel,
+  shape = "circle",
   legend = true,
   linkComponent,
   className,
@@ -458,16 +474,30 @@ export function Donut({
   const percents = sharePercents(slices.map((slice) => slice.value));
   const total = slices.reduce((sum, slice) => sum + Math.max(0, slice.value), 0);
   const radius = (size - thickness) / 2;
-  const circumference = 2 * Math.PI * radius;
+
+  /* pathLength rescales the real perimeter to 100 units, so a dasharray value
+     IS a percentage, whatever the shape. */
+  const TRACK = 100;
 
   let offset = 0;
   const arcs = slices.map((slice, index) => {
     const fraction = total > 0 ? Math.max(0, slice.value) / total : 0;
-    const length = fraction * circumference;
+    const length = fraction * TRACK;
     const arc = { index, label: slice.label, length, offset };
     offset += length;
     return arc;
   });
+
+  /* Inset by half the stroke so the ring sits inside the box, with a corner
+     radius of 34% of the side. Below about 20% that reads as a rounded square;
+     above about 45% as a circle with flat spots. */
+  const inset = thickness / 2;
+  const side = size - thickness;
+  const ringProps =
+    shape === "squircle"
+      ? ({ x: inset, y: inset, width: side, height: side, rx: side * 0.34 } as const)
+      : ({ cx: size / 2, cy: size / 2, r: radius } as const);
+  const Ring = shape === "squircle" ? "rect" : "circle";
 
   return (
     <div
@@ -487,10 +517,8 @@ export function Donut({
           // Start at twelve o'clock, clockwise.
           className="-rotate-90"
         >
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
+          <Ring
+            {...ringProps}
             fill="none"
             strokeWidth={thickness}
             // The track, at the standard's 8% grid opacity.
@@ -499,18 +527,18 @@ export function Donut({
           {total > 0 &&
             arcs.map((arc) =>
               arc.length > 0 ? (
-                <circle
+                <Ring
                   key={arc.label}
-                  cx={size / 2}
-                  cy={size / 2}
-                  r={radius}
+                  {...ringProps}
                   fill="none"
                   strokeWidth={thickness}
-                  strokeDasharray={`${arc.length} ${circumference - arc.length}`}
+                  pathLength={TRACK}
+                  strokeDasharray={`${arc.length} ${TRACK - arc.length}`}
                   strokeDashoffset={-arc.offset}
                   className={cn(
                     "[stroke:currentColor]",
-                    rampInk(ramp, arc.index, arc.label),
+                    // rampStroke, not rampInk: a ring's stroke is a MARK.
+                    rampStroke(ramp, arc.index, arc.label),
                   )}
                 />
               ) : null,
@@ -624,7 +652,7 @@ export function Gauge({
                     // the text colour and let the stroke follow currentColor.
                     className={cn(
                       "[stroke:currentColor]",
-                      rampInk(ramp, index, slice.label),
+                      rampStroke(ramp, index, slice.label),
                     )}
                   />
                 ) : null,
