@@ -1,10 +1,10 @@
-import { Button, Card, Code, StatusPill, Tag } from "@vcyberizadmin/ui";
+import { Button, Card, Code, StatusPill, Tag } from "@cyonix/ui";
 import {
   Popover,
   ToastProvider,
   Tooltip,
   useToast,
-} from "@vcyberizadmin/ui/overlays";
+} from "@cyonix/ui/overlays";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 /** Step 5 and 6 remainder: CX-TST and CX-TIP. */

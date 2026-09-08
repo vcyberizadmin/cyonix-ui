@@ -28,7 +28,7 @@ import { extendTailwindMerge } from "tailwind-merge";
  * doing it here rather than reordering classes at each call site — genuine size
  * conflicts still merge: `cn("text-h2", "text-h3")` correctly yields `text-h3`.
  *
- * Any new `--text-*` or `--shadow-*` token added to @vcyberizadmin/theme must be
+ * Any new `--text-*` or `--shadow-*` token added to @cyonix/theme must be
  * added below, or it inherits the same silent bug. scripts/verify-merge.mjs
  * asserts these stay wired up.
  */

@@ -1,19 +1,24 @@
-# Publishes @vcyberizadmin/theme and @vcyberizadmin/ui on merge to main.
+# Publishes @cyonix/theme and @cyonix/ui to npmjs.com on merge to main.
 #
-# WHY THE SCOPE IS @vcyberizadmin AND NOT @cyonix
-# -----------------------------------------------
+# WHY NPMJS.COM AND NOT GITHUB PACKAGES
+# -------------------------------------
 # GitHub Packages requires a package's npm scope to match the account that owns
-# the repository. This repo is owned by `vcyberizadmin`, so `@cyonix/*` is
-# rejected with a 403 no matter how the token is configured. The packages are
-# named for the registry, not for the product.
+# the repository, which forced the scope to be `@vcyberizadmin`. It also demands
+# an authenticated token for every read, even of a public package, so every
+# consumer needed a PAT with `read:packages` just to install.
 #
-# To carry the product name instead, either create a GitHub org literally named
-# `cyonix` and transfer the repo, or publish to a paid private npm org. Both
-# mean renaming the two packages and every import in every consumer.
+# npmjs.com has neither restriction. Public scoped packages are free, the scope
+# is unrelated to the repo owner, and installs need no token or .npmrc at all:
 #
-# Consumers need a matching registry mapping in their own .npmrc:
-#   @vcyberizadmin:registry=https://npm.pkg.github.com
-#   //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+#   pnpm add @cyonix/ui @cyonix/theme
+#
+# The trade is that GitHub Packages can no longer receive these packages, since
+# `@cyonix` does not match the `vcyberizadmin` owner. This is a move, not a
+# second target.
+#
+# Requires repository secret NPM_TOKEN: an npm *automation* token (npmjs.com >
+# Access Tokens > Generate > Automation). A classic publish token will fail here
+# because npm enforces 2FA on publish and only automation tokens are exempt.
 
 name: Release
 
@@ -26,7 +31,6 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 permissions:
   contents: write
   pull-requests: write
-  packages: write
 
 jobs:
   release:
@@ -42,7 +46,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          registry-url: https://npm.pkg.github.com
+          registry-url: https://registry.npmjs.org
 
       - run: pnpm install --frozen-lockfile
 
@@ -58,4 +62,5 @@ jobs:
           title: "chore: version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

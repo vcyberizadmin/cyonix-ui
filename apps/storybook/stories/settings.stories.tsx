@@ -1,5 +1,5 @@
-import { Card, Field, FieldGrid, Input, Note, Select, Switch } from "@vcyberizadmin/ui";
-import { SettingsShell, type SettingsSection } from "@vcyberizadmin/ui/layout";
+import { Card, Field, FieldGrid, Input, Note, Select, Switch } from "@cyonix/ui";
+import { SettingsShell, type SettingsSection } from "@cyonix/ui/layout";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 

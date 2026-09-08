@@ -4,7 +4,7 @@ import {
   StatusTile,
   TileGrid,
   TrendTile,
-} from "@vcyberizadmin/ui";
+} from "@cyonix/ui";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState, type AnchorHTMLAttributes } from "react";
 

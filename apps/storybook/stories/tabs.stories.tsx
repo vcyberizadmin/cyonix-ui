@@ -1,4 +1,4 @@
-import { Card, Segmented, Tabs, type TabItem } from "@vcyberizadmin/ui";
+import { Card, Segmented, Tabs, type TabItem } from "@cyonix/ui";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 

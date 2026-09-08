@@ -78,19 +78,28 @@ cannot answer a prompt. Delete the local copies once installed.
 
 ## Package publishing on GitLab
 
-GitHub's release workflow publishes `@vcyberizadmin/theme` and `@vcyberizadmin/ui`
-to GitHub Packages, which a GitLab identity can never authenticate against. So
-the GitLab pipeline carries a second job, `publish-to-gitlab-registry`: on every
-mirror of `github` it compares each package.json version against the GitLab
-project's own npm registry and publishes anything missing. Non-release commits
-skip in seconds; a release commit (the merged "chore: version packages" PR)
-triggers a real publish. The job authenticates with `CI_JOB_TOKEN`, so it needs
-no configured secret.
+GitHub's release workflow publishes `@cyonix/theme` and `@cyonix/ui` publicly
+to npmjs.com, so a GitLab identity needs nothing special to install them:
 
-GitLab-side consumers install with a `.npmrc` pointing at the project registry:
+```sh
+pnpm add @cyonix/ui @cyonix/theme
+```
+
+That was not always true. The packages used to go to GitHub Packages, which a
+GitLab identity can never authenticate against, and the GitLab pipeline grew a
+second job, `publish-to-gitlab-registry`, to work around it: on every mirror of
+`github` it compares each package.json version against the GitLab project's own
+npm registry and publishes anything missing. Non-release commits skip in
+seconds; a release commit triggers a real publish. It authenticates with
+`CI_JOB_TOKEN`, so it needs no configured secret.
+
+That job is now redundant for most purposes and can be deleted along with the
+block below. It is kept for GitLab CI that would rather resolve packages inside
+its own trust boundary than reach out to npmjs.com. Consumers that want it point
+an `.npmrc` at the project registry:
 
 ```ini
-@vcyberizadmin:registry=https://gitlab.com/api/v4/projects/<PROJECT_ID>/packages/npm/
+@cyonix:registry=https://gitlab.com/api/v4/projects/<PROJECT_ID>/packages/npm/
 //gitlab.com/api/v4/projects/<PROJECT_ID>/packages/npm/:_authToken=<TOKEN>
 ```
 

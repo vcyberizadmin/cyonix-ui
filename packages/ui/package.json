@@ -1,5 +1,5 @@
 {
-  "name": "@vcyberizadmin/ui",
+  "name": "@cyonix/ui",
   "version": "1.0.1",
   "description": "Shared React component library for the Cyonix apps",
   "license": "UNLICENSED",
@@ -35,7 +35,7 @@
     "dist"
   ],
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   },
   "scripts": {
     "build": "tsup && tsc -p tsconfig.build.json && node scripts/preserve-directives.mjs",
@@ -64,7 +64,7 @@
     "@testing-library/user-event": "^14.6.6",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.1",
-    "@vcyberizadmin/theme": "workspace:*",
+    "@cyonix/theme": "workspace:*",
     "@vitejs/plugin-react": "^5.2.0",
     "jsdom": "^30.0.1",
     "react": "^19.2.0",

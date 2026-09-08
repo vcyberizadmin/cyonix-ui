@@ -10,7 +10,7 @@ import {
   Skeleton,
   StatusPill,
   Tag,
-} from "@vcyberizadmin/ui";
+} from "@cyonix/ui";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 

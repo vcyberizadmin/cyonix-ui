@@ -2,7 +2,7 @@ import {
   ConsoleBar,
   Logo,
   type ConsoleBarProps,
-} from "@vcyberizadmin/ui/layout";
+} from "@cyonix/ui/layout";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import {

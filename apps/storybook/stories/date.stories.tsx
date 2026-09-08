@@ -16,7 +16,7 @@ import {
   todayRange,
   type DateRange,
   type ISODate,
-} from "@vcyberizadmin/ui";
+} from "@cyonix/ui";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 

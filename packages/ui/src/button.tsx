@@ -11,7 +11,7 @@ import { cn } from "./lib/cn.js";
  *  · The corner is a plain 14px radius. The chamfered bottom-right corner the
  *    brand calls its "most recognisable cue" was DROPPED on an explicit call to
  *    match the SOC console, whose button is a rounded rectangle. `.cx-chamfer`
- *    still ships in @vcyberizadmin/theme for anything that wants it back; this
+ *    still ships in @cyonix/theme for anything that wants it back; this
  *    component no longer applies it.
  *  · Labels are Space Grotesk at 14px, weight 800 — the console's weight. The
  *    brand specified 600; that too was overridden for the match. The 14px still

@@ -1,5 +1,5 @@
 {
-  "name": "@vcyberizadmin/guidelines",
+  "name": "@cyonix/guidelines",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -10,8 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vcyberizadmin/theme": "workspace:*",
-    "@vcyberizadmin/ui": "workspace:*",
+    "@cyonix/theme": "workspace:*",
+    "@cyonix/ui": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

@@ -14,9 +14,9 @@ import {
   Toolbar,
   TwoLineCell,
   type Column,
-} from "@vcyberizadmin/ui";
-import { Menu } from "@vcyberizadmin/ui/overlays";
-import { SEVERITIES, type Severity } from "@vcyberizadmin/ui/lib/status";
+} from "@cyonix/ui";
+import { Menu } from "@cyonix/ui/overlays";
+import { SEVERITIES, type Severity } from "@cyonix/ui/lib/status";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useMemo, useState } from "react";
 

@@ -38,9 +38,13 @@ mirror-to-github:
     # not, which needs a human to look at it rather than a clobber.
     - git push git@github.com:vcyberizadmin/cyonix-ui.git HEAD:refs/heads/gitlab
 
-# Publishes @vcyberizadmin/theme and @vcyberizadmin/ui to this project's npm
-# package registry, so GitLab-side consumers can install them with a GitLab
-# token instead of a GitHub account (GitHub Packages cannot accept one).
+# Publishes @cyonix/theme and @cyonix/ui to this project's npm package registry.
+#
+# This job predates the move to npmjs.com and is now redundant for most
+# consumers: the packages are public on npmjs.com and install with no token and
+# no .npmrc. It is kept because it costs seconds when there is nothing to do,
+# and it gives GitLab-side CI a registry inside its own trust boundary. Delete
+# it, and the .npmrc block in docs/platform-sync.md, if that is not wanted.
 #
 # Runs on every mirror of `github` but only actually publishes when the version
 # in package.json is not in the registry yet, i.e. when a release commit lands.
@@ -54,7 +58,7 @@ publish-to-gitlab-registry:
     # Scope registry + job-token auth. Written by the shell so the variables
     # expand here rather than relying on npm's .npmrc interpolation.
     - REGISTRY_PATH="gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/npm/"
-    - printf '@vcyberizadmin:registry=https://%s\n//%s:_authToken=%s\n' "$REGISTRY_PATH" "$REGISTRY_PATH" "$CI_JOB_TOKEN" > .npmrc
+    - printf '@cyonix:registry=https://%s\n//%s:_authToken=%s\n' "$REGISTRY_PATH" "$REGISTRY_PATH" "$CI_JOB_TOKEN" > .npmrc
     # Decide what needs publishing before paying for install + build.
     - NEED=""
     - |

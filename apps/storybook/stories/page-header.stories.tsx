@@ -1,10 +1,10 @@
-import { Button, Card, Tag } from "@vcyberizadmin/ui";
+import { Button, Card, Tag } from "@cyonix/ui";
 import {
   Breadcrumb,
   CommandPalette,
   PageHeader,
   type Command,
-} from "@vcyberizadmin/ui/layout";
+} from "@cyonix/ui/layout";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 

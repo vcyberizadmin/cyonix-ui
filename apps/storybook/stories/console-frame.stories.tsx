@@ -1,11 +1,11 @@
-import { Card, StatTile, TileGrid } from "@vcyberizadmin/ui";
+import { Card, StatTile, TileGrid } from "@cyonix/ui";
 import {
   AppShell,
   ConsoleBar,
   DockRail,
   DockReveal,
   Logo,
-} from "@vcyberizadmin/ui/layout";
+} from "@cyonix/ui/layout";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import {

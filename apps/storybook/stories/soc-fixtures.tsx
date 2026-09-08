@@ -7,11 +7,11 @@
  * set would drift the moment any of them was edited. The frame story in
  * particular is only honest if it is built from exactly what the other two use.
  */
-import type { DockItem } from "@vcyberizadmin/ui/layout";
+import type { DockItem } from "@cyonix/ui/layout";
 import type {
   ConsoleNotification,
   ConsoleScope,
-} from "@vcyberizadmin/ui/layout";
+} from "@cyonix/ui/layout";
 import {
   useEffect,
   useMemo,

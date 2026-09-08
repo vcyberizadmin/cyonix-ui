@@ -1,5 +1,5 @@
-import { Button, Card, IconButton } from "@vcyberizadmin/ui";
-import { Logo, ThemeToggle } from "@vcyberizadmin/ui/layout";
+import { Button, Card, IconButton } from "@cyonix/ui";
+import { Logo, ThemeToggle } from "@cyonix/ui/layout";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 /**
