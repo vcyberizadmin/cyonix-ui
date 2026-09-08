@@ -21,6 +21,8 @@ import { Skeleton } from "../src/skeleton.js";
 import { EmptyState, ErrorState } from "../src/states.js";
 import { SeverityBadge, StatusPill } from "../src/status.js";
 import { RecordCard } from "../src/record-card.js";
+import { IconTile } from "../src/icon-tile.js";
+import { Sankey } from "../src/charts/sankey.js";
 import { QueueRow, RowFacts } from "../src/queue-row.js";
 import { Segmented, Tabs } from "../src/tabs.js";
 import { ChipStack, Tag } from "../src/tag.js";
@@ -114,6 +116,25 @@ export const FIXTURES: Record<string, () => ReactElement> = {
   ChipStack: () => <ChipStack items={[{ label: "prod" }, { label: "eu-west" }]} />,
   StatusPill: () => <StatusPill status="active" />,
   SeverityBadge: () => <SeverityBadge severity="Critical" />,
+  IconTile: () => (
+    <IconTile tone="info" label="Alerts">
+      <svg viewBox="0 0 24 24" />
+    </IconTile>
+  ),
+  Sankey: () => (
+    <Sankey
+      label="Alert flow"
+      nodes={[
+        { id: "edr", column: 0, label: "EDR", tone: "warning" },
+        { id: "auto", column: 1, label: "Closed by agent", tone: "ok" },
+        { id: "benign", column: 2, label: "Benign", tone: "neutral" },
+      ]}
+      links={[
+        { from: "edr", to: "auto", value: 480 },
+        { from: "auto", to: "benign", value: 375 },
+      ]}
+    />
+  ),
   RecordCard: () => (
     <RecordCard
       severity="Critical"

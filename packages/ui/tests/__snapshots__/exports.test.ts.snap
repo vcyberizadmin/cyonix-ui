@@ -9,6 +9,7 @@ exports[`named exports are stable > ./charts 1`] = `
   "Heatmap",
   "ProportionBar",
   "RankedBars",
+  "Sankey",
   "Sparkline",
   "StepArea",
 ]
@@ -104,6 +105,7 @@ exports[`named exports are stable > root entrypoint 1`] = `
   "FieldGrid",
   "FilterChip",
   "IconButton",
+  "IconTile",
   "Input",
   "InsightPanel",
   "Note",

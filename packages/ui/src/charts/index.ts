@@ -23,3 +23,10 @@ export {
   type HeatmapProps,
 } from "./plots.js";
 export { StepArea, type StepAreaProps } from "./step-area.js";
+export {
+  Sankey,
+  type SankeyProps,
+  type SankeyNode,
+  type SankeyLink,
+  type SankeyTone,
+} from "./sankey.js";

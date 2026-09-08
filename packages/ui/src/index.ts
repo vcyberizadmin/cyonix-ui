@@ -159,3 +159,4 @@ export {
   RowFacts,
   type RowFactsProps,
 } from "./queue-row.js";
+export { IconTile, type IconTileProps } from "./icon-tile.js";
