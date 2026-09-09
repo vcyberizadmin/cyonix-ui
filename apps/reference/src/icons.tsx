@@ -242,3 +242,16 @@ export const ChevronDown = () => (
     <path d="m6 9 6 6 6-6" />
   </Ico>
 );
+
+export const MessageCircle = () => (
+  <Ico>
+    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z" />
+  </Ico>
+);
+
+export const FileText = () => (
+  <Ico>
+    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" />
+    <path d="M14 2v5h6M8 13h8M8 17h8M8 9h2" />
+  </Ico>
+);

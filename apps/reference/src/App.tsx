@@ -21,6 +21,7 @@ import {
   DescriptionList,
   EmptyState,
   FilterChip,
+  IconButton,
   IconTile,
   MeterRow,
   QueueRow,
@@ -1039,18 +1040,34 @@ function CaseDetail({ onBack }: { onBack: () => void }) {
               </span>
             </p>
           </div>
+
+          <div className="flex shrink-0 items-center gap-2">
+            <IconButton label="Add note" size="sm">
+              <Icon.MessageCircle />
+            </IconButton>
+            <IconButton label="Report" variant="tonal" size="sm">
+              <Icon.FileText />
+            </IconButton>
+            <IconButton label="Resolve" variant="tonal" size="sm">
+              <Icon.Check />
+            </IconButton>
+          </div>
         </div>
 
-        {/* Six tabs, centred and equal-width, as the console has them. */}
-        <Segmented
-          items={CASE_TABS.map((t) => ({ value: t, label: t }))}
-          value={tab}
-          onChange={setTab}
-          label="Case section"
-          stretch
-          className="mx-auto mt-4 max-w-[780px]"
-        />
       </Card>
+
+      {/* Outside the card, deliberately. The reference closes the header before
+          the tabs, so they stand on the page between the header and the body
+          they switch — a control, not part of the thing above it. Nested in the
+          card they read as belonging to the header instead of to the content. */}
+      <Segmented
+        items={CASE_TABS.map((t) => ({ value: t, label: t }))}
+        value={tab}
+        onChange={setTab}
+        label="Case section"
+        stretch
+        className="mx-auto mt-4 max-w-[780px]"
+      />
 
       <div className="mt-4">
         {tab === "Investigation" ? (
