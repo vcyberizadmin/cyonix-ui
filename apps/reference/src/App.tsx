@@ -116,7 +116,7 @@ function AiInvestigation() {
 
   return (
     <Card padding="none" className="p-5">
-      <h2 className="text-h3 font-extrabold tracking-tight">AI investigation</h2>
+      <h2 className="text-panel font-bold tracking-tight">AI investigation</h2>
       <p className="text-fg-2 mt-1.5 text-[12.5px] font-medium">
         Every alert is triaged, investigated and routed by an agent before an
         analyst sees it.
@@ -187,7 +187,7 @@ function AiInvestigation() {
 function FalsePositives() {
   return (
     <Card padding="none" className="flex min-h-[260px] flex-col p-5">
-      <h2 className="text-h3 font-extrabold tracking-tight">
+      <h2 className="text-subpanel font-bold tracking-tight">
         False positives by source
       </h2>
       <div className="mt-4 space-y-3.5">
@@ -216,7 +216,7 @@ function AssignedToAnalysts() {
 
   return (
     <Card padding="none" className="flex min-h-[260px] flex-col p-5">
-      <h2 className="text-h3 font-extrabold tracking-tight">
+      <h2 className="text-subpanel font-bold tracking-tight">
         Assigned to analysts
       </h2>
       <div className="mt-4 space-y-3.5">
@@ -247,7 +247,7 @@ function WaitingOnYou() {
 
   return (
     <Card padding="none" className="p-5">
-      <h2 className="text-h3 font-extrabold tracking-tight">Waiting on you</h2>
+      <h2 className="text-subpanel font-bold tracking-tight">Waiting on you</h2>
       <div className="mt-4 space-y-2">
         {waiting.length > 0 ? (
           waiting.map((a) => (
@@ -295,7 +295,7 @@ function Overview() {
         <Card padding="none" className="flex min-h-[320px] flex-col p-5 xl:col-span-2">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-h3 font-extrabold tracking-tight">
+              <h2 className="text-panel font-bold tracking-tight">
                 Alert volume
               </h2>
               <p className="text-fg-2 mt-1 flex items-center gap-2 text-[12.5px] font-semibold">
@@ -338,7 +338,7 @@ function Overview() {
 
         <Card padding="none" className="flex min-h-[320px] flex-col p-5">
           <div className="flex items-start justify-between gap-2">
-            <h2 className="text-h3 font-extrabold tracking-tight">
+            <h2 className="text-panel font-bold tracking-tight">
               Open by severity
             </h2>
             <span className="text-fg-2 [&_svg]:size-[19px]">
@@ -360,7 +360,7 @@ function Overview() {
       <Card padding="none" className="p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-h3 font-extrabold tracking-tight">Alert flow</h2>
+            <h2 className="text-panel font-bold tracking-tight">Alert flow</h2>
             <p className="text-fg-2 mt-1 text-[12.5px] font-semibold">
               Source → agent decision → outcome. Hover a band to trace one path.
             </p>
