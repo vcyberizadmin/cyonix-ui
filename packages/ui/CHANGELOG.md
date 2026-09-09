@@ -1,5 +1,135 @@
 # @cyonix/ui
 
+## 3.0.0
+
+### Major Changes
+
+- 98a09d0: Bring `Sankey` up to the reference's full design
+
+  The first pass got the topology right and skipped almost everything else. This
+  copies the rest.
+
+  **Node labels are drawn in place**, beside each node, at the reference's
+  `11.5px/800` over a `10.5px/700` count — not collected into a caption below the
+  chart. They read against the ribbons they name, which is the whole point of
+  labelling a node rather than a series. They are HTML positioned in percentages
+  rather than SVG text, because the plot uses `preserveAspectRatio="none"` and
+  would stretch any glyph drawn inside it.
+
+  **Hovering a ribbon now dims the others** to 7% and lifts the hovered one to
+  72%, with a brand-filled readout naming both ends and the count. This is not
+  decoration: a Sankey answers "where did THIS one go", and that is unreadable
+  while a dozen others compete for the same pixels. The previous behaviour — a
+  brightness nudge with no dimming — did not answer the question.
+
+  **Ribbons paint thickest-first**, so a hairline lands on top of the slab it
+  crosses and stays hoverable rather than being buried by it.
+
+  **Tones are the reference's own.** `SankeyTone` now names the ranked marks
+  (`crit`, `high`, `med`, `low`, `ok`) plus `violet` and `neutral`, replacing a
+  palette that mapped to the wrong tokens: `ok` resolved to a teal `#00b37a` where
+  the reference is mint `#7ed321`, and `info` to `#4d9cf0` where the reference is
+  azure `#1b6ef3`. Colouring a flow by what each end MEANS is what lets a source
+  that mostly auto-closes share a language with the outcome it reaches.
+
+  **`--violet` is new** in the theme: `#a855f7`, the reference's fifth accent. Its
+  palette is brand / azure / mint / violet / rose, and the other four are already
+  the severity marks — this is the one that was missing. Deliberately not a step
+  on the Amethyst ramp, which runs bluer and stays reserved for agent output.
+
+  `Sankey` is now a client component, since the hover state is what makes it
+  readable. Every band and node still carries a `<title>`, so the numbers survive
+  without a pointer.
+
+### Minor Changes
+
+- a93ed04: `Logo` gains an `xl` size, and `DockRail` centres its expanded lockup
+
+  The rail's mark was rendering at 20px against the reference's 36px, and its
+  expanded lockup at 16px against 32px — roughly half, in both cases. The cause
+  was that `Logo`'s scale simply had no step that large: `lg` topped out at a 32px
+  mark and a 24px lockup, both below what a 76px rail column needs. A mark set two
+  steps down in that column does not read as an identity, it reads as an icon
+  someone forgot to size.
+
+  `xl` is the rail size: a 36px mark, a 32px lockup.
+
+  It was also off-centre, which followed from the same cause. `DockRail` pins the
+  mini mark at `left-1.5`, which centres a 36px mark in the 48px brand box exactly
+  and leaves a 20px one 8px short. And the expanded lockup was pinned left too,
+  where the reference centres it — so it now anchors from the middle while the
+  mark holds its left position through the crossfade.
+
+- f11b89d: Add `MeterRow`, and an `xs` size for `IconTile`
+
+  Building the console's AI investigation, False positives by source and Assigned
+  to analysts panels turned up the same shape three times: a name on the left, a
+  figure on the right, a bar underneath. Nothing in the library fitted it, so all
+  three would have been hand-rolled.
+
+  `RankedBars` owns its own caption (a computed share) and its own colour (a ramp
+  position). These rows need "34% of 486" and "1,240 · 2.1s avg", neither of which
+  is derivable from the fraction, and a colour that carries meaning — a source
+  past a tuning threshold, an unassigned queue. `ProportionBar` splits one total
+  into segments, which is a different question from one value against a maximum.
+
+  So `MeterRow` takes the caption as a node and the tone explicitly: it decides
+  layout, the caller decides meaning. `fraction` is clamped, because a meter
+  overshooting its track is a data bug rendering as a layout bug, and the layout
+  should not be the thing that breaks.
+
+  `IconTile` gains `xs` (24px), the size a meter row's leading marker wants where
+  36px would dominate the row it labels.
+
+### Patch Changes
+
+- 11a40a1: Match the motion curve and durations to the reference
+
+  Everything about the navigation measured correct — panel 76px at x=12, items
+  48px on a 56px pitch, glyphs 22px centred at x=50, the ink tab 9×34, radii 28
+  and 16 — and it still did not feel the same, because motion was the one layer
+  never compared.
+
+  **One curve, and it was the wrong one.** The reference moves everything on
+  `cubic-bezier(.2,.8,.2,1)`: the rail's width, the segmented ink, a progress fill,
+  the view transition. This file used `cubic-bezier(.2,.7,.2,1)`, which is
+  indistinguishable in a still frame and reads as a flatter, more mechanical ease
+  once it moves.
+
+  **Both durations were fast.** The reference runs quick state flips — a button, a
+  chip, a field's focus ring — at `.18s` where this ran `.12s`, and size and
+  position changes at `.32s` where this ran `.24s`. The rail's peek was the clearest
+  tell at a third quicker than the original, which reads as eager rather than
+  considered.
+
+  `--duration-instant` 120ms → 180ms, `--duration-standard` 240ms → 320ms. These
+  are theme-wide, so every transition in the library slows to match; that is the
+  intent, since the reference tunes from one vocabulary rather than per component.
+
+  The rail's ink keeps its own `.22s`, between a colour flip and the panel's
+  width, as the reference has it.
+
+- 418cadd: `Sankey` lays out in measured pixels, so its node bars are the width they claim
+
+  The chart used a fixed 600-unit coordinate space scaled to the container with
+  `preserveAspectRatio="none"`. That is right for a ribbon, an organic shape that
+  may stretch, and wrong for anything whose WIDTH carries meaning: a 12-unit node
+  bar in a 1707px container rendered **34px** wide, nearly three times its stated
+  size.
+
+  This is the same defect that stretched `StepArea`'s axis text, and I fixed that
+  one by moving the text out of the scaled space without asking what else in there
+  had a horizontal dimension. The node bars did.
+
+  It now measures its container with a `ResizeObserver` and lays out in real
+  pixels, so one user unit is one pixel and neither axis is distorted — which is
+  what the reference does, and the only way a bar can be 12px at every width.
+  Verified at 1707px and 1212px: node width 12px in both.
+
+  Node labels stay HTML. With the space measured they would no longer distort, but
+  HTML keeps them on the document's type stack, lets them inherit the theme's font
+  tokens, and allows CSS truncation of a long node name.
+
 ## 2.0.0
 
 ### Major Changes
