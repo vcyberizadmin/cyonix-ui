@@ -34,6 +34,7 @@ import {
   Tag,
   Timeline,
   Toolbar,
+  type Tone,
 } from "@cyonix/ui";
 import { AppShell, ConsoleBar, DockRail, Logo } from "@cyonix/ui/layout";
 import { Donut, Sankey, StepArea } from "@cyonix/ui/charts";
@@ -660,10 +661,22 @@ function Cases({ onOpen }: { onOpen: Open }) {
             flag={c.needs ? <Tag className="bg-accent/12 text-accent-ink">Action required</Tag> : undefined}
             footer={
               <>
-                <span>{c.owner}</span>
-                <span>{c.alerts} alert{c.alerts === 1 ? "" : "s"}</span>
-                <span>{c.at}</span>
-                <span className="text-fg-2 ml-auto text-[12px]">{c.slaLabel}</span>
+                <Owner name={c.owner} />
+                <span className="flex items-center gap-1.5">
+                  <span className="[&_svg]:size-3.5">
+                    <Icon.ShieldAlert />
+                  </span>
+                  {c.alerts} alert{c.alerts === 1 ? "" : "s"}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="[&_svg]:size-3.5">
+                    <Icon.Clock />
+                  </span>
+                  {c.at}
+                </span>
+                {/* The bar, not just the figure: "3h 17m left" alone carries no
+                    urgency until you know what it is left of. */}
+                <Sla {...c} className="min-w-[150px] flex-1" />
               </>
             }
           />
@@ -677,6 +690,87 @@ function Cases({ onOpen }: { onOpen: Open }) {
 /* -------------------------------------------------- Alert detail ------- */
 
 const AGENT_BY_KEY = Object.fromEntries(AGENTS.map((a) => [a.key, a]));
+
+/**
+ * The SLA readout, with its colour derived rather than chosen.
+ *
+ * This was hard-coded to green, which is wrong for most of a clock's life: the
+ * reference thresholds on ELAPSED time — past 75% it is critical, past 50% it
+ * is the accent, and only below that is it ok. At 62% the case-detail header
+ * should have been orange. A fixed tone here says "fine" right up to a breach,
+ * which is the one thing an SLA bar must not do.
+ */
+function slaTone(elapsedPct: number, status: string): Tone {
+  if (status === "Closed") return "ok";
+  if (elapsedPct >= 75) return "crit";
+  if (elapsedPct >= 50) return "accent";
+  return "ok";
+}
+
+function Sla({
+  sla,
+  slaLabel,
+  slaTarget,
+  status,
+  className,
+}: {
+  sla: number;
+  slaLabel: string;
+  slaTarget: string;
+  status: string;
+  className?: string;
+}) {
+  return (
+    <MeterRow
+      orientation="inline"
+      label="Time to SLA breach"
+      title={slaTarget}
+      tone={slaTone(sla, status)}
+      fraction={sla / 100}
+      value={slaLabel}
+      className={className}
+    />
+  );
+}
+
+/**
+ * A person as a face plus a name.
+ *
+ * The reference has this three times (case header, case row, alert row) and it
+ * is the last shape on these screens with no library component behind it —
+ * there is no Avatar in @cyonix/ui at all. It is written here first, against
+ * the real screens, and belongs in the library once the API has stopped moving;
+ * a `w-[22px]` in this file is a bug report, and so is this whole function.
+ *
+ * Initials, not an image: the reference falls back to them whenever FACE has no
+ * portrait for a name, and it has none for any of the analysts in this data.
+ */
+function Owner({ name, size = 22 }: { name: string; size?: number }) {
+  const initials = name
+    .split(/[\s.]+/)
+    .filter(Boolean)
+    .map((part) => part[0]!)
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  return (
+    <span className="flex min-w-0 items-center gap-2">
+      <span
+        aria-hidden="true"
+        className="bg-wash-2 text-fg-2 grid shrink-0 place-items-center rounded-full font-extrabold"
+        style={{
+          width: size,
+          height: size,
+          fontSize: Math.round(size * 0.42),
+        }}
+      >
+        {initials}
+      </span>
+      <span className="text-fg truncate">{name}</span>
+    </span>
+  );
+}
 
 function AlertDetail({ onBack }: { onBack: () => void }) {
   const a = ALERT_DETAIL;
@@ -1019,30 +1113,43 @@ function CaseDetail({ onBack }: { onBack: () => void }) {
                     {id}
                   </span>
                   <span className="text-[12px] font-semibold">{name}</span>
+                  {/* These leave the console. Without the marker the chip reads
+                      as a filter, which is what every other chip here is. */}
+                  <span className="text-fg-muted [&_svg]:size-3">
+                    <Icon.ExternalLink />
+                  </span>
                 </a>
               ))}
             </p>
 
-            <p className="text-fg-2 mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12.5px] font-semibold">
-              <span>{c.owner}</span>
-              <span className="hidden xl:inline">
+            {/* A <div>, not a <p>: the SLA meter renders divs, and a div inside
+                a p is invalid HTML — the browser closes the paragraph early and
+                the strip falls apart. This is a facts row, not prose. */}
+            <div className="text-fg-2 mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12.5px] font-semibold">
+              <Owner name={c.owner} />
+              <span className="hidden items-center gap-1.5 xl:flex">
+                <span className="[&_svg]:size-3.5">
+                  {AGENT_ICON[c.openedBy]}
+                </span>
                 opened by {AGENT_BY_KEY[c.openedBy]!.name}
               </span>
-              <span>{c.at}</span>
-              <span className="hidden xl:inline">updated {c.updated}</span>
-              <span className="min-w-[160px] flex-1">
-                <MeterRow
-                  label=""
-                  tone="ok"
-                  fraction={c.sla / 100}
-                  value={c.slaLabel}
-                />
+              <span className="flex items-center gap-1.5">
+                <span className="[&_svg]:size-3.5">
+                  <Icon.Clock />
+                </span>
+                {c.at}
               </span>
-            </p>
+              <span className="hidden xl:inline">updated {c.updated}</span>
+              {/* The inline orientation, which is why it exists: bar and figure
+                  on one line inside a strip that has already said what it is. */}
+              <Sla {...c} className="min-w-[160px] flex-1" />
+            </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            <IconButton label="Add note" size="sm">
+            {/* Primary, per the reference: of the three, adding a note is the
+                one a human is here to do. */}
+            <IconButton label="Add note" variant="primary" size="sm">
               <Icon.MessageCircle />
             </IconButton>
             <IconButton label="Report" variant="tonal" size="sm">

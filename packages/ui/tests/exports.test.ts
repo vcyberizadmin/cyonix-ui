@@ -125,10 +125,23 @@ describe("fixture coverage", () => {
     expect(exported.size).toBeGreaterThan(50);
   });
 
+  /**
+   * A fixture may be keyed `Component:variant` to cover a second shape of the
+   * same export — `MeterRow:inline` being the first.
+   *
+   * Worth the convention because of what the smoke suite does with fixtures: it
+   * asserts that nothing logs a React error, and React's invalid-nesting warning
+   * is per-markup, not per-component. `MeterRow` stacked emits divs and inline
+   * emits only spans, and only the inline form is legal inside a text row. One
+   * fixture per export could never have covered both.
+   */
+  const baseName = (key: string) => key.split(":")[0]!;
+
   it("every exported component has a render fixture", () => {
+    const covered = new Set(Object.keys(FIXTURES).map(baseName));
     const uncovered = [...exported]
       .filter((name) => !NOT_A_COMPONENT.has(name))
-      .filter((name) => !(name in FIXTURES))
+      .filter((name) => !covered.has(name))
       .sort();
 
     expect(
@@ -140,7 +153,10 @@ describe("fixture coverage", () => {
   it("every fixture names a real export", () => {
     // Guards the other direction: a fixture for a component that was renamed or
     // withdrawn would keep passing while testing nothing a consumer can reach.
-    const orphans = Object.keys(FIXTURES).filter((name) => !exported.has(name)).sort();
+    // Variant keys are checked on their base, so a rename orphans them too.
+    const orphans = Object.keys(FIXTURES)
+      .filter((key) => !exported.has(baseName(key)))
+      .sort();
     expect(orphans).toEqual([]);
   });
 });

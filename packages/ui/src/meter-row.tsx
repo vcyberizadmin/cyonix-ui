@@ -19,6 +19,21 @@
  * `fraction` is clamped, because a meter that overshoots its track is a data
  * bug rendering as a layout bug, and the layout should not be what breaks.
  *
+ * Two orientations, because the console genuinely has two shapes and only one
+ * was here:
+ *
+ *  · `stacked` (default) is the widget row — a name, a figure, a bar beneath.
+ *  · `inline` is the SLA readout, and it is not a stacked row squashed. The bar
+ *    and its text share one line, the bar is 6px rather than 8px, and there is
+ *    no visible label at all: it appears inside a facts strip that has already
+ *    said what it is ("You · opened by … · 18 Aug 12:44 · [====] 2h 43m left").
+ *    Forcing the stacked form here meant passing `label=""`, which reserved a
+ *    line for nothing and left a full-width bar with its figure adrift.
+ *
+ * `label` is required in both, but in `inline` it becomes the accessible name
+ * instead of visible text — the bar still has to say what it measures to anyone
+ * who cannot see the strip around it.
+ *
  * Server-safe: no state, no directive.
  */
 import type { ReactNode } from "react";
@@ -41,6 +56,13 @@ export interface MeterRowProps {
   tone?: MeterTone;
   /** A leading marker, typically an `IconTile size="xs"`. */
   icon?: ReactNode;
+  /**
+   * `stacked` puts the label and figure above the bar; `inline` runs the bar and
+   * its figure along one line and hides the label. See the note above.
+   */
+  orientation?: "stacked" | "inline";
+  /** Native tooltip — the console hangs the SLA target off the inline form. */
+  title?: string;
   className?: string;
 }
 
@@ -50,12 +72,62 @@ export function MeterRow({
   fraction,
   tone = "accent",
   icon,
+  orientation = "stacked",
+  title,
   className,
 }: MeterRowProps) {
   const pct = Math.max(0, Math.min(1, fraction)) * 100;
 
+  /**
+   * The bar itself, identical in both orientations apart from its height.
+   *
+   * `role="progressbar"` belongs on the track, not the wrapper: the value is
+   * what the track expresses, and a wrapper carrying the role would also
+   * swallow the figure beside it into the announcement. `aria-label` falls back
+   * to the visible label in the stacked form, where the text is already there,
+   * and carries it in the inline form, where it is the only name the bar has.
+   */
+  const bar = (
+    <span
+      role="progressbar"
+      aria-valuenow={Math.round(pct)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={orientation === "inline" && typeof label === "string" ? label : undefined}
+      className={cn(
+        "bg-track block w-full overflow-hidden rounded-full",
+        orientation === "inline" ? "h-1.5 flex-1" : "h-2",
+      )}
+    >
+      <span
+        className={cn(
+          "ease-brand block h-full rounded-full transition-[width] duration-emphasis",
+          TONE_BG[tone],
+        )}
+        style={{ width: `${pct}%` }}
+      />
+    </span>
+  );
+
+  if (orientation === "inline") {
+    return (
+      <span
+        title={title}
+        className={cn("flex min-w-0 items-center gap-2.5", className)}
+      >
+        {icon}
+        {bar}
+        {value !== undefined && (
+          <span className="text-fg-2 shrink-0 text-[12px] font-medium tabular-nums whitespace-nowrap">
+            {value}
+          </span>
+        )}
+      </span>
+    );
+  }
+
   return (
-    <div className={cn("min-w-0", className)}>
+    <div title={title} className={cn("min-w-0", className)}>
       <div className="mb-1.5 flex items-center gap-2">
         {icon}
         {/* items-center with an icon, items-baseline without: a 24px tile
@@ -70,12 +142,7 @@ export function MeterRow({
           </span>
         )}
       </div>
-      <span className="bg-track block h-2 w-full overflow-hidden rounded-full">
-        <span
-          className={cn("ease-brand block h-full rounded-full transition-[width] duration-emphasis", TONE_BG[tone])}
-          style={{ width: `${pct}%` }}
-        />
-      </span>
+      {bar}
     </div>
   );
 }

@@ -139,6 +139,16 @@ export const FIXTURES: Record<string, () => ReactElement> = {
   MeterRow: () => (
     <MeterRow label="Zeek" value="58% of 350" fraction={0.58} tone="crit" />
   ),
+  "MeterRow:inline": () => (
+    <MeterRow
+      orientation="inline"
+      label="Time to SLA breach"
+      title="Containment in 8h"
+      value="2h 43m left"
+      fraction={0.62}
+      tone="ok"
+    />
+  ),
   IconTile: () => (
     <IconTile tone="med" label="Alerts">
       <svg viewBox="0 0 24 24" />

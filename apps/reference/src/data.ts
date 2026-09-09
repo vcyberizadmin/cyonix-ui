@@ -75,8 +75,8 @@ export const ALERTS = [
 ];
 
 export const CASES = [
-  { id: "CS-118", tenant: "Northwind Bank", title: "Suspected credential theft — finance segment", severity: "Critical" as const, status: "Investigating", owner: "You", alerts: 2, at: "18 Aug 2026, 12:44", sla: 62, slaLabel: "2h 43m left", needs: "Approve containment of FIN-WS-2214" },
-  { id: "CS-117", tenant: "Meridian Health", title: "Ransomware staging on HR file share", severity: "High" as const, status: "Contained", owner: "A. Voss", alerts: 1, at: "18 Aug 2026, 10:33", sla: 48, slaLabel: "3h 17m left", needs: "Confirm restore from 03:00 snapshot" },
+  { id: "CS-118", tenant: "Northwind Bank", title: "Suspected credential theft — finance segment", severity: "Critical" as const, status: "Investigating", owner: "You", alerts: 2, at: "18 Aug 2026, 12:44", sla: 62, slaLabel: "2h 43m left", slaTarget: "Containment in 8h", needs: "Approve containment of FIN-WS-2214" },
+  { id: "CS-117", tenant: "Meridian Health", title: "Ransomware staging on HR file share", severity: "High" as const, status: "Contained", owner: "A. Voss", alerts: 1, at: "18 Aug 2026, 10:33", sla: 48, slaLabel: "3h 17m left", slaTarget: "Resolution in 24h", needs: "Confirm restore from 03:00 snapshot" },
 ];
 
 /* --- AI investigation ------------------------------------------------- */
@@ -184,6 +184,9 @@ export const CASE_DETAIL = {
   updated: "18 Aug 2026, 13:31",
   sla: 62,
   slaLabel: "2h 43m left",
+  /* What the clock is actually counting down to. The reference hangs this off
+     the bar as a tooltip, so "2h 43m left" has something to be left OF. */
+  slaTarget: "Containment in 8h",
   needs: "Approve containment of FIN-WS-2214",
   mitre: [
     ["T1003.001", "LSASS Memory"],
