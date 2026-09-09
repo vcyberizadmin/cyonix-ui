@@ -36,6 +36,7 @@
  * Server-safe: no state, no hooks. Segments drill through as links.
  */
 import type { ElementType, ReactNode } from "react";
+import { TONE_TEXT, type Tone } from "../lib/status.js";
 import { cn } from "../lib/cn.js";
 import { describeSeries, sparkPath, type SparkOptions } from "../lib/spark.js";
 import { compact, rampFill, rampStroke, sharePercents, type Ramp } from "./util.js";
@@ -499,6 +500,38 @@ export interface DonutProps {
    * narrow panel wants when the ring already fills the width.
    */
   legendPlacement?: "side" | "below";
+  /**
+   * Measure against this instead of the sum of the slices.
+   *
+   * Without it a Donut is a SPLIT: the slices are the whole, and each arc is
+   * its share. With it the ring becomes a LEVEL — one value against a ceiling,
+   * with the remainder left as bare track. "85% resolved without a human" is
+   * that reading, and expressing it as a two-slice split drew a second arc for
+   * the 15% that is better shown as absence.
+   *
+   * A single arc against a track also earns a round cap, which is why that
+   * follows from this rather than being its own prop: on a multi-slice ring
+   * round caps overlap their neighbours.
+   */
+  max?: number;
+  /**
+   * Overrides the figure in the well, which is otherwise the total. A levelled
+   * ring usually wants to show the VALUE, not the ceiling it is measured
+   * against — "85%", not "100".
+   */
+  centerValue?: ReactNode;
+  /**
+   * The ring's colour, stated rather than taken from a ramp position.
+   *
+   * A ramp answers "which series is this" by index, which is right for a split
+   * and meaningless for a level: one arc has one meaning, and it should say
+   * so. Without this a levelled ring took slot 0 of whichever ramp was passed,
+   * so "85% resolved without a human" rendered in the severity ramp's CRITICAL
+   * red — close to the opposite of what it reports.
+   *
+   * Ignored unless `max` is set.
+   */
+  tone?: Tone;
   linkComponent?: ElementType;
   className?: string;
 }
@@ -516,11 +549,16 @@ export function Donut({
   shape = "circle",
   legend = true,
   legendPlacement = "side",
+  max,
+  centerValue,
+  tone,
   linkComponent,
   className,
 }: DonutProps) {
   const percents = sharePercents(slices.map((slice) => slice.value));
-  const total = slices.reduce((sum, slice) => sum + Math.max(0, slice.value), 0);
+  const summed = slices.reduce((sum, slice) => sum + Math.max(0, slice.value), 0);
+  const levelled = max !== undefined && max > 0;
+  const total = levelled ? max : summed;
   const radius = (size - thickness) / 2;
 
   /* pathLength rescales the real perimeter to 100 units, so a dasharray value
@@ -587,10 +625,16 @@ export function Donut({
                   pathLength={TRACK}
                   strokeDasharray={`${arc.length} ${TRACK - arc.length}`}
                   strokeDashoffset={-arc.offset}
+                  strokeLinecap={levelled ? "round" : "butt"}
                   className={cn(
                     "[stroke:currentColor]",
-                    // rampStroke, not rampInk: a ring's stroke is a MARK.
-                    rampStroke(ramp, arc.index, arc.label),
+                    // An explicit tone wins for a levelled ring: one arc has
+                    // one meaning, and a ramp position cannot express it.
+                    // Otherwise rampStroke, not rampInk — a ring's stroke is
+                    // a MARK.
+                    levelled && tone
+                      ? TONE_TEXT[tone]
+                      : rampStroke(ramp, arc.index, arc.label),
                   )}
                 />
               ) : null,
@@ -604,7 +648,7 @@ export function Donut({
             // caption rather than as the number the panel is about.
             style={{ fontSize: Math.round(size * 0.173) }}
           >
-            {compact(total)}
+            {centerValue ?? compact(total)}
           </span>
           {totalLabel && (
             <span className="text-fg-2 mt-1.5 text-[13px] font-semibold">

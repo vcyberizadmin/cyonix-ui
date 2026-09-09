@@ -104,10 +104,10 @@ function Kpis() {
 /* ------------------------------------------------ AI investigation ---- */
 
 const AGENT_ICON = {
-  triage: <Icon.ShieldAlert />,
-  enrich: <Icon.Radar />,
-  hunt: <Icon.Workflow />,
-  report: <Icon.Clock />,
+  triage: <Icon.Zap />,
+  invest: <Icon.ScanSearch />,
+  assign: <Icon.UserCheck />,
+  contain: <Icon.Ban />,
 } as const;
 
 function AiInvestigation() {
@@ -126,17 +126,18 @@ function AiInvestigation() {
         <div className="flex flex-col items-center gap-4 sm:flex-row">
           <div className="flex shrink-0 flex-col items-center gap-2.5">
             <Donut
-              slices={[
-                { label: "Closed by agent", value: AUTONOMY.auto },
-                { label: "Handed to analysts", value: AUTONOMY.human },
-              ]}
-              ramp="categorical"
+              slices={[{ label: "Resolved without a human", value: pct }]}
+              max={100}
+              tone="ok"
+              centerValue={`${pct}%`}
               size={104}
               thickness={12}
               legend={false}
-              totalLabel="handled"
             />
             <Tag className="bg-sev-info/15 text-sev-info">
+              <span className="[&_svg]:size-3">
+                <Icon.Bot />
+              </span>
               {pct}% resolved without a human
             </Tag>
           </div>
@@ -169,7 +170,7 @@ function AiInvestigation() {
               tone={a.tone}
               fraction={a.runs / busiest}
               icon={
-                <IconTile tone={a.tone === "ok" ? "ok" : a.tone === "med" ? "info" : a.tone === "violet" ? "ai" : "warning"} size="xs">
+                <IconTile tone={a.tone} size="xs">
                   {AGENT_ICON[a.key as keyof typeof AGENT_ICON]}
                 </IconTile>
               }

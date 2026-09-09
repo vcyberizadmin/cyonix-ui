@@ -337,3 +337,69 @@ export const SEQUENTIAL = [
   "bg-seq-7",
   "bg-seq-8",
 ] as const;
+
+/**
+ * The one tone vocabulary for a mark whose colour states MEANING rather than
+ * rank-by-position.
+ *
+ * A ramp answers "which series is this" by index. These answer "what does this
+ * one thing signify", which is a different question and the one a Sankey node,
+ * a meter bar, a KPI tile and a levelled ring all actually ask. Written once
+ * here because three components had grown three near-identical unions that
+ * disagreed at the edges — `ok` meaning teal in one and mint in another.
+ *
+ * The ranked names map onto the severity marks, so a flow, a bar and a ring
+ * that all mean "critical" are the same red. `violet` and `accent` carry no
+ * rank; `neutral` is the absence of one.
+ */
+export type Tone =
+  | "accent"
+  | "crit"
+  | "high"
+  | "med"
+  | "low"
+  | "ok"
+  | "violet"
+  | "neutral";
+
+/** Background class per tone. */
+export const TONE_BG: Record<Tone, string> = {
+  accent: "bg-accent",
+  crit: "bg-sev-crit",
+  high: "bg-sev-high",
+  med: "bg-sev-med",
+  low: "bg-sev-low",
+  ok: "bg-sev-info",
+  violet: "bg-violet",
+  neutral: "bg-fg-muted",
+};
+
+/**
+ * Text class per tone, for an SVG mark painted with `currentColor`.
+ *
+ * Literal, not derived from TONE_BG at runtime: Tailwind emits nothing for a
+ * class name it cannot see in the source. Same reason `rampStroke` reads
+ * literals rather than rewriting `rampFill`'s output.
+ */
+export const TONE_TEXT: Record<Tone, string> = {
+  accent: "text-accent",
+  crit: "text-sev-crit",
+  high: "text-sev-high",
+  med: "text-sev-med",
+  low: "text-sev-low",
+  ok: "text-sev-info",
+  violet: "text-violet",
+  neutral: "text-fg-muted",
+};
+
+/** Raw custom-property value per tone, for an SVG `fill` attribute. */
+export const TONE_VAR: Record<Tone, string> = {
+  accent: "var(--accent)",
+  crit: "var(--sev-crit)",
+  high: "var(--sev-high)",
+  med: "var(--sev-med)",
+  low: "var(--sev-low)",
+  ok: "var(--sev-info)",
+  violet: "var(--violet)",
+  neutral: "var(--fg-muted)",
+};
