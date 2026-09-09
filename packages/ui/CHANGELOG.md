@@ -1,5 +1,119 @@
 # @cyonix/ui
 
+## 4.1.0
+
+### Minor Changes
+
+- 5bb9337: Add `Annotation`, and build the alert and case detail screens
+
+  Those two screens could not be opened at all: the parity app's rows and cards
+  carried `onOpen={() => {}}` stubs and the app knew only four routes. They are the
+  richest screens in the console and had never been exercised.
+
+  **`Annotation`** is what the case narrative needs: a term in prose that explains
+  itself. A summary names hosts, users and domains inline, and an analyst needs to
+  know what `FIN-WS-2214` is without leaving the sentence — a footnote or a link
+  both break the reading to answer. So the term carries its own panel: bold, a
+  dotted brand underline, `cursor: help`.
+
+  The underline is dotted rather than solid because solid reads as a link and
+  invites a click that goes nowhere. And it sets `tabIndex` with
+  `aria-describedby`, because a term whose meaning is only reachable with a
+  pointer is unreachable to a keyboard — and these are the load-bearing nouns of
+  the narrative, not decoration. The panel is CSS-only, so the component stays
+  server-safe.
+
+  Building the screens also confirmed something about routing that is worth
+  recording: a detail screen is NOT a rail destination. You reach it by opening a
+  record, and the rail keeps the list you came from marked current. I had it wired
+  as a fifth route at first, which lit nothing in the rail and lost the reader's
+  place.
+
+- 41c2469: `MeterRow` gains an inline orientation, and the tone vocabulary is exported from the root.
+
+  The console has two meter shapes and only one was here. `stacked` is the widget
+  row — a name, a figure, a bar beneath. `inline` is the SLA readout: the bar and
+  its figure on one line, 6px rather than 8px, and no visible label, because it
+  sits inside a facts strip that has already said what it is. Building that with
+  the stacked form meant passing `label=""`, which reserved a line for nothing and
+  left a full-width bar with its figure adrift.
+
+  `label` stays required in both. Inline turns it into the bar's accessible name
+  rather than dropping it, so the meter can still be identified by anyone who
+  cannot see the strip around it. Inline also emits only phrasing content, which
+  is what makes it legal inside a text row at all — the stacked form's divs are
+  invalid there, and the browser closes the enclosing paragraph early.
+
+  Both orientations now expose the fill as a `progressbar` with
+  `aria-valuenow/min/max`. Previously the value was visible and nowhere in the
+  accessibility tree. `title` is a new passthrough, for the target a countdown is
+  counting down to.
+
+  `Tone` and the `TONE_BG` / `TONE_TEXT` / `TONE_VAR` / `TONE_TINT` maps are now
+  exported from the package root. They were reachable only at
+  `@cyonix/ui/lib/status`, while every component that takes a tone lives at the
+  root — so an app deriving a tone had to reach past the entrypoint it was already
+  importing from to name what it was deriving. Deriving one is ordinary app work:
+  an SLA bar thresholding on elapsed time, a queue row on depth.
+
+- 043a5f7: `SegmentedFilter` stops overriding `Segmented`, which had made it a different control
+
+  It passed three overrides — the lighter `tint` variant, `size="sm"` and
+  `overflow="wrap"` — on the reasoning that a filter sitting beside other controls
+  should read quieter than a tab row. The console disagrees emphatically: its
+  filter segmented is the _same_ control as its tab segmented.
+
+  Between them those three produced something else entirely:
+
+  |             | Console                       | Was                                      |
+  | ----------- | ----------------------------- | ---------------------------------------- |
+  | Track       | `--track`, 4px padding        | none: transparent, no radius, no padding |
+  | Sliding ink | solid `#FE6409`               | no ink element at all                    |
+  | Active      | white on the fill, weight 800 | accent text on a 15% wash, weight 700    |
+  | Size        | 32px / 12.5px                 | 28px / 12px                              |
+
+  `wrap` is the culprit for the first two: it drops the groove entirely and lays
+  the segments out as separate pills, so there was nothing for an ink to slide
+  along. The control had no animation because it had nothing to animate.
+
+  It now overrides nothing. A screen that genuinely wants the quieter form can
+  pass `variant`, `size` or `overflow` to `Segmented` directly.
+
+- 2382678: Add `Timeline` and `CodeBlock`, and a toned ring on `Card`
+
+  Groundwork for the alert and case detail screens, which the parity app has
+  never covered — four of the console's seven screens were untouched, including
+  the two richest.
+
+  **`Timeline`** is the shape those screens repeat: an agent's steps, the events
+  behind an alert, the actions on a case. A marker in a threaded column, a title
+  with its timestamp, a line of detail.
+
+  The emphasis falls on the LAST entry, not the first, which inverts the usual
+  reading and is worth stating: these run oldest to newest, so the bottom entry is
+  the current state — what the agent concluded, where the intrusion reached.
+  Everything above is history and takes the neutral marker. The thread stops at
+  the last marker rather than running past it, so the column reads as finished
+  rather than truncated.
+
+  **`CodeBlock`** is the block sibling of `Code`, which is an inline chip. The
+  difference that matters is the gutter: a detection rule gets discussed line by
+  line, so the numbers are content. They are real text so they survive a copy —
+  but `onCopy` receives the code WITHOUT them, because pasting a rule with "01 "
+  welded to every line is worse than useless, and that is exactly what select-all
+  gives you. New `--code`, `--code-fg` and `--code-gutter` put it a step darker
+  than any surface in either theme, so a block reads as machine output rather than
+  another panel. It stays dark in light mode for the same reason.
+
+  **`Card` gains `ring`**, generalising what `RecordCard`'s `needsAction` did
+  privately. A ring marks a card without claiming a place in whatever ranking the
+  cards carry, which a tint would — it would compete with a severity bar for the
+  same job. The console uses it at 22% for a case waiting on a human and 30% for
+  the panel holding an agent's verdict.
+
+  `Card`'s own heading also moves from `text-h3` (22px) to `--text-panel` (17px),
+  the same fix already applied to the parity app's headings.
+
 ## 4.0.0
 
 ### Major Changes
