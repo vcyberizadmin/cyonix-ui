@@ -362,8 +362,8 @@ export function App() {
         <DockRail
           items={NAV}
           activeHref={href}
-          brand={<Logo size="sm" />}
-          brandMini={<Logo mini size="sm" />}
+          brand={<Logo size="xl" />}
+          brandMini={<Logo mini size="xl" />}
           footer="SOC"
           linkComponent={({ href: to, ...rest }: { href: string }) => (
             <a

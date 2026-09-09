@@ -207,7 +207,10 @@ export function DockRail({
             </span>
             <span
               aria-hidden="true"
-              className="duration-instant ease-brand pointer-events-none absolute top-1/2 left-1.5 -translate-y-1/2 opacity-0 transition-none xl:group-hover/dock:opacity-100 xl:group-hover/dock:delay-150 xl:group-hover/dock:transition-opacity xl:group-focus-within/dock:opacity-100 xl:group-focus-within/dock:delay-150 xl:group-focus-within/dock:transition-opacity"
+              // Centred, where the mini mark is pinned left. Both are anchored
+              // so the mark holds its position through the crossfade while the
+              // lockup arrives across the widening panel.
+              className="duration-instant ease-brand pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 transition-none xl:group-hover/dock:opacity-100 xl:group-hover/dock:delay-150 xl:group-hover/dock:transition-opacity xl:group-focus-within/dock:opacity-100 xl:group-focus-within/dock:delay-150 xl:group-focus-within/dock:transition-opacity"
             >
               {brand ?? brandMini}
             </span>
