@@ -403,3 +403,24 @@ export const TONE_VAR: Record<Tone, string> = {
   violet: "var(--violet)",
   neutral: "var(--fg-muted)",
 };
+
+/**
+ * Tinted class pair per tone: a 15% wash of the tone, with the tone itself as
+ * the ink.
+ *
+ * The console's universal tag treatment — a verdict, a severity, a status and
+ * an outcome all read this way, and it is the reason they scan as one family
+ * rather than four. Literal pairs rather than a computed
+ * `bg-${tone}/15 text-${tone}`: Tailwind emits nothing for a class name it
+ * cannot see in the source, so the computed form silently renders untinted.
+ */
+export const TONE_TINT: Record<Tone, string> = {
+  accent: "bg-accent/15 text-accent-ink",
+  crit: "bg-sev-crit/15 text-sev-crit",
+  high: "bg-sev-high/15 text-sev-high",
+  med: "bg-sev-med/15 text-sev-med",
+  low: "bg-sev-low/15 text-sev-low",
+  ok: "bg-sev-info/15 text-sev-info",
+  violet: "bg-violet/15 text-violet",
+  neutral: "bg-surface-3 text-fg-2",
+};

@@ -14,7 +14,7 @@
  */
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ReactNode } from "react";
-import { CATEGORICAL } from "./lib/status.js";
+import { CATEGORICAL, TONE_TINT } from "./lib/status.js";
 import { cn } from "./lib/cn.js";
 
 /** 1-based index into the categorical ramp. */
@@ -33,16 +33,36 @@ const tag = cva(
         false: "",
         true: "font-mono tracking-tight",
       },
+      /**
+       * Tints the tag with a tone: a 15% wash and the tone as the ink.
+       *
+       * This is the console's universal tag treatment — verdicts, severities,
+       * statuses and outcomes all take it, which is what makes them scan as
+       * one family. Without it a consumer reaches for
+       * `bg-${tone}/15 text-${tone}`, which Tailwind cannot see and therefore
+       * never generates, so the tag renders untinted with no error.
+       */
+      tone: {
+        none: "bg-wash-2 text-fg-2",
+        accent: TONE_TINT.accent,
+        crit: TONE_TINT.crit,
+        high: TONE_TINT.high,
+        med: TONE_TINT.med,
+        low: TONE_TINT.low,
+        ok: TONE_TINT.ok,
+        violet: TONE_TINT.violet,
+        neutral: TONE_TINT.neutral,
+      },
       interactive: {
-        false: "bg-wash-2 text-fg-2",
+        false: "",
         // A resting-state difference, not just a hover one: a hover-only
         // affordance is invisible until the cursor is already on it, which does
         // not satisfy "must look clickable". With the reference's borderless
         // tag the resting cue is primary ink rather than a stronger hairline.
-        true: "bg-wash-2 text-fg hover:bg-wash-3 duration-instant ease-brand cursor-pointer transition-colors",
+        true: "hover:brightness-125 duration-instant ease-brand cursor-pointer transition-[filter]",
       },
     },
-    defaultVariants: { interactive: false, mono: false },
+    defaultVariants: { interactive: false, mono: false, tone: "none" },
   },
 );
 
@@ -57,7 +77,7 @@ export interface TagProps extends VariantProps<typeof tag> {
   className?: string;
 }
 
-export function Tag({ children, dot, onClick, title, mono, className }: TagProps) {
+export function Tag({ children, dot, onClick, title, mono, tone, className }: TagProps) {
   const interactive = onClick !== undefined;
   const content = (
     <>
@@ -77,7 +97,7 @@ export function Tag({ children, dot, onClick, title, mono, className }: TagProps
         type="button"
         onClick={onClick}
         title={title}
-        className={cn(tag({ interactive: true, mono }), className)}
+        className={cn(tag({ interactive: true, mono, tone }), className)}
       >
         {content}
       </button>
@@ -85,7 +105,7 @@ export function Tag({ children, dot, onClick, title, mono, className }: TagProps
   }
 
   return (
-    <span title={title} className={cn(tag({ interactive: false, mono }), className)}>
+    <span title={title} className={cn(tag({ interactive: false, mono, tone }), className)}>
       {content}
     </span>
   );

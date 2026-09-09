@@ -257,7 +257,7 @@ function WaitingOnYou() {
               severity={a.severity}
               title={a.title}
               onOpen={() => {}}
-              tags={<StatusPill status={a.status} />}
+              tags={<StatusTag status={a.status} />}
               facts={
                 <RowFacts
                   items={[
@@ -394,11 +394,40 @@ function Overview() {
   );
 }
 
+/* Verdict tones exactly as the reference's VERDICT_STYLE assigns them. */
 const VERDICT_TONE = {
-  "True positive": "danger",
-  "Needs human": "warning",
+  "True positive": "crit",
+  "False positive": "low",
+  "Needs human": "high",
   "Likely benign": "ok",
 } as const;
+
+/* And its STATUS map: new is rose, investigating azure, contained violet,
+   closed mint, and a false positive drops out of the ladder entirely. */
+const STATUS_TONE = {
+  New: "crit",
+  Investigating: "med",
+  Contained: "violet",
+  Closed: "ok",
+  "False positive": "neutral",
+} as const;
+
+/* Every verdict tag carries the bot glyph: the tag's claim is "an agent
+   decided this", and the icon is what says so. */
+const VerdictTag = ({ verdict }: { verdict: string }) => (
+  <Tag tone={VERDICT_TONE[verdict as keyof typeof VERDICT_TONE] ?? "neutral"}>
+    <span className="[&_svg]:size-3">
+      <Icon.Bot />
+    </span>
+    {verdict}
+  </Tag>
+);
+
+const StatusTag = ({ status }: { status: string }) => (
+  <Tag tone={STATUS_TONE[status as keyof typeof STATUS_TONE] ?? "neutral"}>
+    {status}
+  </Tag>
+);
 
 function Alerts() {
   const [severity, setSeverity] = useState("all");
@@ -444,10 +473,8 @@ function Alerts() {
               onOpen={() => {}}
               tags={
                 <>
-                  <Tag className={`bg-${VERDICT_TONE[a.verdict as keyof typeof VERDICT_TONE]}/12 text-${VERDICT_TONE[a.verdict as keyof typeof VERDICT_TONE]}-ink`}>
-                    {a.verdict}
-                  </Tag>
-                  <StatusPill status={a.status} />
+                  <VerdictTag verdict={a.verdict} />
+                  <StatusTag status={a.status} />
                 </>
               }
               facts={
@@ -523,7 +550,7 @@ function Cases() {
                   {c.id}
                 </span>
                 <SeverityBadge severity={c.severity} />
-                <StatusPill status={c.status} />
+                <StatusTag status={c.status} />
               </>
             }
             flag={c.needs ? <Tag className="bg-accent/12 text-accent-ink">Action required</Tag> : undefined}
