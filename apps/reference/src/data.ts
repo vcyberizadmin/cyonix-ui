@@ -109,3 +109,107 @@ export const QUEUE: [string, number][] = [
   ["N. Lindqvist", 6],
   ["You", 4],
 ];
+
+/* --- Alert detail ------------------------------------------------------
+   The reference's AL-2291 in full: an alert carries not just its own facts but
+   the agent's whole investigation, which is what the detail screen is for. */
+export const ALERT_DETAIL = {
+  id: "AL-2291",
+  severity: "Critical" as const,
+  status: "New",
+  title: "Credential dumping via LSASS memory access",
+  rule: "WIN-CRED-014",
+  sensor: "CrowdStrike Falcon",
+  time: "12:41",
+  ago: "6m ago",
+  assignee: null as string | null,
+  case: "CS-118",
+  tactic: "Credential Access",
+  tech: "T1003.001",
+  fpRate: 6,
+  summary:
+    "A non-standard process opened a handle to lsass.exe with PROCESS_VM_READ. The parent chain traces back to an Office macro, and the same host began beaconing ninety seconds later.",
+  ai: {
+    verdict: "True positive",
+    confidence: 94,
+    took: "38s",
+    agent: "invest" as const,
+    assignedBy: "assign" as const,
+    assignedTo: "You",
+    why: "Tier 1 finance asset with credential access — routed to the on-shift lead.",
+    reasoning:
+      "Macro-spawned rundll32 opened LSASS with read access, then the same host contacted a four-day-old domain 90 seconds later. Rule WIN-CRED-014 has a 6% false-positive history and the parent chain has no signed provenance. Every indicator points one way.",
+    recommendation: "Escalate to case",
+    recTarget: "CS-118",
+    steps: [
+      { t: "+0.8s", k: "Scored and de-duplicated", d: "Matched no open suppression; severity kept at Critical" },
+      { t: "+6s", k: "Pulled identity context", d: "a.voss — Finance, standard + local admin, sign-in baseline normal" },
+      { t: "+11s", k: "Pulled asset context", d: "FIN-WS-2214 — Tier 1, production, patched 2 days ago" },
+      { t: "+19s", k: "Queried threat intel", d: "185.42.11.7 and cdn-update-svc.net both flagged malicious" },
+      { t: "+27s", k: "Correlated same-entity alerts", d: "Found AL-2288 on the same host inside the window" },
+      { t: "+38s", k: "Reached verdict", d: "True positive, 94% confidence — recommending escalation" },
+    ],
+  },
+  events: [
+    { t: "12:38", k: "Macro executed", d: "Invoice_Q3.docm ran an AutoOpen macro on FIN-WS-2214." },
+    { t: "12:40", k: "rundll32 spawned", d: "Unsigned rundll32.exe launched from the Office process tree." },
+    { t: "12:41", k: "LSASS opened for read", d: "PROCESS_VM_READ handle acquired against lsass.exe." },
+    { t: "12:42", k: "Outbound beacon", d: "TLS to cdn-update-svc.net, 185.42.11.7 — registered four days ago." },
+  ],
+  logic: [
+    'process.name == "lsass.exe"',
+    "and access.mask has PROCESS_VM_READ",
+    'and caller.signed == false',
+    "and caller.parent in (winword.exe, excel.exe, powerpnt.exe)",
+    "and not caller.path in $lsass_read_allowlist",
+  ],
+  intel: [
+    ["185.42.11.7", "malicious", "Registered 4 days ago · 3 vendors"],
+    ["cdn-update-svc.net", "malicious", "Newly registered domain"],
+    ["a41f…9c2e", "suspicious", "Macro document — 2 vendors"],
+  ] as [string, string, string][],
+  correlated: ["AL-2288"],
+};
+
+/* --- Case detail ------------------------------------------------------- */
+export const CASE_DETAIL = {
+  id: "CS-118",
+  tenant: "Northwind Bank",
+  severity: "Critical" as const,
+  status: "Investigating",
+  title: "Suspected credential theft — finance segment",
+  owner: "You",
+  openedBy: "assign" as const,
+  at: "18 Aug 2026, 12:44",
+  updated: "18 Aug 2026, 13:31",
+  sla: 62,
+  slaLabel: "2h 43m left",
+  needs: "Approve containment of FIN-WS-2214",
+  mitre: [
+    ["T1003.001", "LSASS Memory"],
+    ["T1566.001", "Spearphishing Attachment"],
+    ["T1071.001", "Web Protocols"],
+  ] as [string, string][],
+  exec: "A macro-borne loader on FIN-WS-2214 read LSASS memory and began beaconing to cdn-update-svc.net within two minutes. The account a.voss holds local admin on a Tier 1 finance asset, so credential theft here reaches the payment approval chain directly.",
+  conclusion: "Confirmed credential access on FIN-WS-2214. Containment is drafted and waiting on approval; a.voss should be reset regardless of the containment decision.",
+  verdict: { ai: "True positive", provisional: true },
+  /* The nouns in the narrative above that carry an explanation. */
+  entities: [
+    { term: "FIN-WS-2214", kind: "Asset", tone: "med" as const, note: "Tier 1 finance workstation, production, patched 2 days ago.", intel: null },
+    { term: "cdn-update-svc.net", kind: "Domain", tone: "crit" as const, note: "Registered four days ago; no legitimate ownership record.", intel: "malicious" },
+    { term: "a.voss", kind: "Identity", tone: "high" as const, note: "Financial Controller — standard account plus local admin.", intel: null },
+  ],
+  findings: [
+    { k: "Macro delivered the loader", d: "Invoice_Q3.docm arrived from a look-alike supplier domain and ran on open." },
+    { k: "LSASS read succeeded", d: "An unsigned rundll32 took a PROCESS_VM_READ handle; no EDR block fired." },
+    { k: "Beacon established", d: "TLS to 185.42.11.7 every 90s with jitter, consistent with a commodity loader." },
+    { k: "No lateral movement yet", d: "No SMB or WinRM from the host in the window; the blast radius is still one asset." },
+  ],
+  actions: [
+    { t: "12:44", k: "Case opened", d: "Dispatcher Agent escalated AL-2291 and linked AL-2288." },
+    { t: "12:51", k: "Host isolated (pending)", d: "Containment drafted for FIN-WS-2214, waiting on approval." },
+    { t: "13:02", k: "Credentials flagged", d: "a.voss queued for a forced reset once containment lands." },
+    { t: "13:31", k: "Awaiting your approval", d: "No further automated action until containment is approved." },
+  ],
+  linked: ["AL-2291", "AL-2288"],
+};

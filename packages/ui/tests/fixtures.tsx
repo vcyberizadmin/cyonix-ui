@@ -24,6 +24,7 @@ import { RecordCard } from "../src/record-card.js";
 import { IconTile } from "../src/icon-tile.js";
 import { MeterRow } from "../src/meter-row.js";
 import { Timeline } from "../src/timeline.js";
+import { Annotation } from "../src/annotation.js";
 import { CodeBlock } from "../src/code-block.js";
 import { Sankey } from "../src/charts/sankey.js";
 import { QueueRow, RowFacts } from "../src/queue-row.js";
@@ -119,6 +120,11 @@ export const FIXTURES: Record<string, () => ReactElement> = {
   ChipStack: () => <ChipStack items={[{ label: "prod" }, { label: "eu-west" }]} />,
   StatusPill: () => <StatusPill status="active" />,
   SeverityBadge: () => <SeverityBadge severity="Critical" />,
+  Annotation: () => (
+    <Annotation kind="Asset" tone="med" value="FIN-WS-2214" note="Tier 1 finance workstation.">
+      FIN-WS-2214
+    </Annotation>
+  ),
   Timeline: () => (
     <Timeline
       items={[

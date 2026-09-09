@@ -14,7 +14,11 @@
  */
 import { useState } from "react";
 import {
+  Annotation,
+  Button,
   Card,
+  CodeBlock,
+  DescriptionList,
   EmptyState,
   FilterChip,
   IconTile,
@@ -27,6 +31,7 @@ import {
   SeverityBadge,
   StatusPill,
   Tag,
+  Timeline,
   Toolbar,
 } from "@cyonix/ui";
 import { AppShell, ConsoleBar, DockRail, Logo } from "@cyonix/ui/layout";
@@ -34,7 +39,9 @@ import { Donut, Sankey, StepArea } from "@cyonix/ui/charts";
 import * as Icon from "./icons.js";
 import {
   AGENTS,
+  ALERT_DETAIL,
   ALERTS,
+  CASE_DETAIL,
   AUTONOMY,
   CASES,
   FP_BY_SOURCE,
@@ -244,7 +251,7 @@ function AssignedToAnalysts() {
 
 /* -------------------------------------------------- Waiting on you ---- */
 
-function WaitingOnYou() {
+function WaitingOnYou({ onOpen }: { onOpen: Open }) {
   const waiting = ALERTS.filter(
     (a) => a.status === "New" || a.status === "Investigating",
   ).slice(0, 4);
@@ -259,7 +266,7 @@ function WaitingOnYou() {
               key={a.id}
               severity={a.severity}
               title={a.title}
-              onOpen={() => {}}
+              onOpen={() => onOpen("alert")}
               tags={<StatusTag status={a.status} />}
               facts={
                 <RowFacts
@@ -288,7 +295,7 @@ function WaitingOnYou() {
   );
 }
 
-function Overview() {
+function Overview({ onOpen }: { onOpen: Open }) {
   const [window, setWindow] = useState("24h");
 
   return (
@@ -392,7 +399,7 @@ function Overview() {
         <AssignedToAnalysts />
       </div>
 
-      <WaitingOnYou />
+      <WaitingOnYou onOpen={onOpen} />
     </div>
   );
 }
@@ -432,7 +439,7 @@ const StatusTag = ({ status }: { status: string }) => (
   </Tag>
 );
 
-function Alerts() {
+function Alerts({ onOpen }: { onOpen: Open }) {
   const [severity, setSeverity] = useState("all");
   const [mine, setMine] = useState("all");
   const [query, setQuery] = useState("");
@@ -525,7 +532,7 @@ function Alerts() {
               key={a.id}
               severity={a.severity}
               title={a.title}
-              onOpen={() => {}}
+              onOpen={() => onOpen("alert")}
               tags={
                 <>
                   <VerdictTag verdict={a.verdict} />
@@ -561,7 +568,7 @@ function Alerts() {
   );
 }
 
-function Cases() {
+function Cases({ onOpen }: { onOpen: Open }) {
   const [status, setStatus] = useState("open");
   const [view, setView] = useState("cards");
   const [query, setQuery] = useState("");
@@ -638,7 +645,7 @@ function Cases() {
             severity={c.severity}
             title={c.title}
             needsAction={!!c.needs}
-            onOpen={() => {}}
+            onOpen={() => onOpen("case")}
             meta={
               <>
                 <Tag dot={1}>{c.tenant}</Tag>
@@ -666,17 +673,540 @@ function Cases() {
   );
 }
 
+/* -------------------------------------------------- Alert detail ------- */
+
+const AGENT_BY_KEY = Object.fromEntries(AGENTS.map((a) => [a.key, a]));
+
+function AlertDetail({ onBack }: { onBack: () => void }) {
+  const a = ALERT_DETAIL;
+  const agent = AGENT_BY_KEY[a.ai.agent]!;
+  const router = AGENT_BY_KEY[a.ai.assignedBy]!;
+  const verdictTone = VERDICT_TONE[a.ai.verdict as keyof typeof VERDICT_TONE];
+
+  return (
+    <div>
+      <Button variant="ghost" size="sm" onClick={onBack} className="-ml-2 mb-4">
+        <span className="[&_svg]:size-4">
+          <Icon.ArrowLeft />
+        </span>
+        All alerts
+      </Button>
+
+      <Card padding="none" className="p-5 sm:p-6">
+        <div className="flex flex-wrap items-start gap-4">
+          <IconTile tone="crit" size="md" className="size-12 rounded-[14px] [&_svg]:size-6">
+            <Icon.ShieldAlert />
+          </IconTile>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <SeverityBadge severity={a.severity} />
+              <StatusTag status={a.status} />
+              <span className="text-fg-2 font-mono text-[11.5px] font-semibold">
+                {a.id}
+              </span>
+            </div>
+            <h1 className="mt-2 text-[22px] leading-tight font-extrabold tracking-tight sm:text-[26px]">
+              {a.title}
+            </h1>
+            <p className="text-fg-2 mt-1.5 text-[13px] font-semibold">
+              {a.rule} · {a.sensor} · fired {a.time} ({a.ago})
+              {a.assignee ? ` · assigned to ${a.assignee}` : " · unassigned"}
+            </p>
+          </div>
+        </div>
+
+        {/* The analyst approves or overrides what the agent decided. This row
+            is the whole point of the screen, so it sits above the evidence. */}
+        <div className="border-rule mt-5 flex flex-wrap items-center gap-2.5 border-t pt-5">
+          <p className="text-fg-muted mr-1 text-[11px] font-extrabold tracking-[0.04em] uppercase">
+            Agent recommends
+          </p>
+          <Button size="sm">
+            <span className="[&_svg]:size-4">
+              <Icon.Check />
+            </span>
+            Approve — {a.ai.recommendation.toLowerCase()} {a.ai.recTarget}
+          </Button>
+          <Button variant="tonal" size="sm">
+            <span className="[&_svg]:size-4">
+              <Icon.CircleX />
+            </span>
+            Override
+          </Button>
+          <Button variant="tonal" size="sm">
+            <span className="[&_svg]:size-4">
+              <Icon.Sliders />
+            </span>
+            Send to tuning
+          </Button>
+        </div>
+      </Card>
+
+      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <div className="space-y-4 xl:col-span-2">
+          {/* Ringed in the verdict's own tone: the panel IS the verdict. */}
+          <Card padding="none" ring={verdictTone} className="p-5">
+            <div className="flex flex-wrap items-start gap-3">
+              <IconTile tone={agent.tone} size="sm" className="size-10 rounded-xl [&_svg]:size-5">
+                {AGENT_ICON[a.ai.agent as keyof typeof AGENT_ICON]}
+              </IconTile>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-subpanel font-bold tracking-tight">
+                  AI investigation
+                </h2>
+                <p className="text-fg-2 mt-1 text-[12.5px] font-semibold">
+                  {agent.name} · {a.ai.steps.length} steps in {a.ai.took}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2.5">
+                <VerdictTag verdict={a.ai.verdict} />
+                <span className="text-[13px] font-extrabold tabular-nums">
+                  {a.ai.confidence}%
+                </span>
+              </div>
+            </div>
+
+            <p className="text-fg-2 mt-4 text-[14px] leading-relaxed font-medium">
+              {a.ai.reasoning}
+            </p>
+
+            <MeterRow
+              className="mt-4"
+              label="Confidence"
+              tone={verdictTone}
+              fraction={a.ai.confidence / 100}
+              value={
+                a.ai.confidence >= 75
+                  ? "above auto-route threshold"
+                  : "below 75% — held for a human"
+              }
+            />
+
+            <details className="border-rule group mt-4 border-t pt-4">
+              <summary className="flex cursor-pointer list-none items-center gap-2 text-[13px] font-extrabold">
+                <span className="ease-brand transition-transform duration-instant group-open:rotate-90 [&_svg]:size-4">
+                  <Icon.ChevronRight />
+                </span>
+                Show the {a.ai.steps.length} steps it ran
+              </summary>
+              <Timeline
+                className="mt-4"
+                size="sm"
+                tone={agent.tone}
+                items={a.ai.steps.map((st, i) => ({
+                  title: st.k,
+                  time: st.t,
+                  description: st.d,
+                  icon:
+                    i === a.ai.steps.length - 1 ? <Icon.Check /> : <Icon.Bot />,
+                }))}
+              />
+            </details>
+          </Card>
+
+          <Card padding="none" className="p-5">
+            <h2 className="text-subpanel font-bold tracking-tight">
+              What happened
+            </h2>
+            <p className="text-fg-2 mt-2.5 text-[14px] leading-relaxed font-medium">
+              {a.summary}
+            </p>
+            <div className="border-rule mt-5 border-t pt-5">
+              <DescriptionList
+                layout="inline"
+                items={[
+                  { label: "Tactic", value: a.tactic },
+                  { label: "Technique", value: a.tech, mono: true },
+                  { label: "Sensor", value: a.sensor },
+                  { label: "Fired at", value: a.time },
+                  { label: "Rule", value: a.rule, mono: true },
+                  { label: "Case", value: a.case ?? "None", mono: true },
+                ]}
+              />
+            </div>
+          </Card>
+
+          <Card padding="none" className="p-5">
+            <h2 className="text-subpanel font-bold tracking-tight">
+              Event timeline
+            </h2>
+            <Timeline
+              className="mt-4"
+              tone="crit"
+              items={a.events.map((ev) => ({
+                title: ev.k,
+                time: ev.t,
+                description: ev.d,
+                icon: <Icon.ShieldAlert />,
+              }))}
+            />
+          </Card>
+
+          <Card padding="none" className="p-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-subpanel font-bold tracking-tight">
+                Detection logic
+              </h2>
+              <Button variant="ghost" size="sm">
+                <span className="[&_svg]:size-4">
+                  <Icon.Copy />
+                </span>
+                Copy
+              </Button>
+            </div>
+            <CodeBlock className="mt-3.5" label="Detection logic">
+              {a.logic.join("\n")}
+            </CodeBlock>
+          </Card>
+        </div>
+
+        <div className="space-y-4">
+          <Card padding="none" className="p-5">
+            <h2 className="text-subpanel font-bold tracking-tight">
+              Assignment
+            </h2>
+            <div className="mt-4 flex items-center gap-3">
+              <IconTile tone={router.tone} size="sm" className="size-10 rounded-xl [&_svg]:size-5">
+                {AGENT_ICON[a.ai.assignedBy as keyof typeof AGENT_ICON]}
+              </IconTile>
+              <span className="min-w-0">
+                <span className="block truncate text-[14px] font-extrabold">
+                  {a.ai.assignedTo}
+                </span>
+                <span className="text-fg-2 block truncate text-[12px] font-semibold">
+                  routed by {router.name}
+                </span>
+              </span>
+            </div>
+            <p className="border-rule text-fg-2 mt-4 border-t pt-4 text-[13px] leading-relaxed font-medium">
+              {a.ai.why}
+            </p>
+            <Button variant="tonal" size="sm" className="mt-4 w-full">
+              <span className="[&_svg]:size-4">
+                <Icon.UserCheck />
+              </span>
+              Reassign
+            </Button>
+          </Card>
+
+          <Card padding="none" className="p-5">
+            <h2 className="text-subpanel font-bold tracking-tight">
+              Threat intel
+            </h2>
+            <div className="mt-4 space-y-3">
+              {a.intel.map(([value, verdict, note]) => (
+                <div key={value}>
+                  <div className="flex items-center gap-2">
+                    <span className="min-w-0 flex-1 truncate font-mono text-[12px] font-semibold">
+                      {value}
+                    </span>
+                    <Tag tone={verdict === "malicious" ? "crit" : "high"}>
+                      {verdict}
+                    </Tag>
+                  </div>
+                  <p className="text-fg-2 mt-1 text-[12px] font-medium">
+                    {note}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* --------------------------------------------------- Case detail ------- */
+
+const CASE_TABS = [
+  "Investigation",
+  "Observables",
+  "Timeline",
+  "Case log",
+  "Notes",
+  "Agent audit",
+];
+
+/**
+ * Splits a narrative on its known entity terms and wraps each in an
+ * `Annotation`, so the nouns explain themselves without breaking the sentence.
+ * The reference does the same with a regex over the case's own entity list.
+ */
+function annotate(text: string, entities: typeof CASE_DETAIL.entities) {
+  if (entities.length === 0) return text;
+  const rx = new RegExp(
+    `(${entities.map((e) => e.term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`,
+    "gi",
+  );
+  return text.split(rx).map((part, i) => {
+    const hit = entities.find((e) => e.term.toLowerCase() === part.toLowerCase());
+    if (!hit) return part;
+    return (
+      <Annotation
+        key={i}
+        kind={hit.kind}
+        tone={hit.tone}
+        value={hit.term}
+        note={hit.note}
+        detail={
+          hit.intel ? (
+            <span className="flex items-center justify-between gap-2">
+              <span className="text-fg-muted text-[11px] font-extrabold tracking-[0.04em] uppercase">
+                Threat intel
+              </span>
+              <Tag tone="crit">{hit.intel}</Tag>
+            </span>
+          ) : undefined
+        }
+      >
+        {part}
+      </Annotation>
+    );
+  });
+}
+
+function CaseDetail({ onBack }: { onBack: () => void }) {
+  const c = CASE_DETAIL;
+  const [tab, setTab] = useState("Investigation");
+  const linked = ALERTS.filter((a) => c.linked.includes(a.id));
+
+  return (
+    <div>
+      <Button variant="ghost" size="sm" onClick={onBack} className="-ml-2 mb-4">
+        <span className="[&_svg]:size-4">
+          <Icon.ArrowLeft />
+        </span>
+        All cases
+      </Button>
+
+      <Card padding="none" className="p-4 xl:p-6">
+        <div className="flex flex-wrap items-start gap-3 xl:gap-4">
+          <IconTile tone="crit" size="md" className="hidden size-12 rounded-[14px] xl:grid [&_svg]:size-6">
+            <Icon.FolderOpen />
+          </IconTile>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <Tag dot={1}>{c.tenant}</Tag>
+              <SeverityBadge severity={c.severity} />
+              <StatusTag status={c.status} />
+              <span className="text-fg-2 font-mono text-[11.5px] font-semibold">
+                {c.id}
+              </span>
+              {c.needs && <Tag tone="accent">Action required</Tag>}
+            </div>
+            <h1 className="mt-2 text-[22px] leading-tight font-extrabold tracking-tight xl:text-[26px]">
+              {c.title}
+            </h1>
+
+            {/* MITRE techniques as outbound chips: the id is the machine value
+                and the name is what makes it readable, so both are shown. */}
+            <p className="mt-2.5 flex flex-wrap items-center gap-2">
+              <span className="text-fg-muted shrink-0 text-[11px] font-extrabold tracking-[0.04em] uppercase">
+                MITRE ATT&amp;CK
+              </span>
+              {c.mitre.map(([id, name]) => (
+                <a
+                  key={id}
+                  href={`https://attack.mitre.org/techniques/${id.replace(".", "/")}/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`Open ${id} — ${name} on attack.mitre.org`}
+                  className="bg-surface text-fg-2 hover:text-fg duration-instant ease-brand inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 transition-colors"
+                >
+                  <span className="text-fg font-mono text-[11px] font-semibold">
+                    {id}
+                  </span>
+                  <span className="text-[12px] font-semibold">{name}</span>
+                </a>
+              ))}
+            </p>
+
+            <p className="text-fg-2 mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[12.5px] font-semibold">
+              <span>{c.owner}</span>
+              <span className="hidden xl:inline">
+                opened by {AGENT_BY_KEY[c.openedBy]!.name}
+              </span>
+              <span>{c.at}</span>
+              <span className="hidden xl:inline">updated {c.updated}</span>
+              <span className="min-w-[160px] flex-1">
+                <MeterRow
+                  label=""
+                  tone="ok"
+                  fraction={c.sla / 100}
+                  value={c.slaLabel}
+                />
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {/* Six tabs, centred and equal-width, as the console has them. */}
+        <Segmented
+          items={CASE_TABS.map((t) => ({ value: t, label: t }))}
+          value={tab}
+          onChange={setTab}
+          label="Case section"
+          stretch
+          className="mx-auto mt-4 max-w-[780px]"
+        />
+      </Card>
+
+      <div className="mt-4">
+        {tab === "Investigation" ? (
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+            <div className="space-y-4 xl:col-span-2">
+              <Card padding="none" className="p-5 xl:p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-subpanel font-bold tracking-tight">
+                    Executive summary
+                  </h2>
+                  <Tag tone="violet">
+                    <span className="[&_svg]:size-3">
+                      <Icon.Bot />
+                    </span>
+                    drafted by agent
+                  </Tag>
+                </div>
+                <p className="text-fg-2 mt-2.5 text-[13.5px] leading-relaxed font-medium">
+                  {annotate(c.exec, c.entities)}
+                </p>
+
+                <div className="border-rule mt-5 border-t pt-4">
+                  <p className="flex items-center justify-between gap-3">
+                    <span className="text-fg-muted text-[11px] font-extrabold tracking-[0.04em] uppercase">
+                      Conclusion
+                    </span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      {c.verdict.provisional && (
+                        <span className="text-accent-ink text-[11.5px] font-bold">
+                          provisional
+                        </span>
+                      )}
+                      <VerdictTag verdict={c.verdict.ai} />
+                    </span>
+                  </p>
+                  <p className="mt-2 text-[13.5px] leading-relaxed font-semibold">
+                    {annotate(c.conclusion, c.entities)}
+                  </p>
+                </div>
+              </Card>
+
+              <Card padding="none" className="p-5">
+                <h2 className="text-subpanel font-bold tracking-tight">
+                  Findings
+                </h2>
+                <div className="mt-4 space-y-3.5">
+                  {c.findings.map((f) => (
+                    <div key={f.k}>
+                      <p className="text-[13.5px] font-extrabold">{f.k}</p>
+                      <p className="text-fg-2 mt-0.5 text-[12.5px] font-medium">
+                        {f.d}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+
+            <div className="space-y-4">
+              <Card padding="none" className="p-5">
+                <h2 className="text-subpanel font-bold tracking-tight">
+                  Actions taken
+                </h2>
+                <Timeline
+                  className="mt-4"
+                  size="sm"
+                  tone="accent"
+                  items={c.actions.map((ac) => ({
+                    title: ac.k,
+                    time: ac.t,
+                    description: ac.d,
+                    icon: <Icon.Check />,
+                  }))}
+                />
+              </Card>
+
+              <Card padding="none" className="p-5">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-subpanel font-bold tracking-tight">
+                    Linked alerts
+                  </h2>
+                  <span className="bg-surface-3 text-fg grid h-[21px] min-w-[21px] place-items-center rounded-full px-1.5 text-[11px] font-extrabold">
+                    {linked.length}
+                  </span>
+                </div>
+                <div className="mt-4 space-y-2">
+                  {linked.map((a) => (
+                    <QueueRow
+                      key={a.id}
+                      severity={a.severity}
+                      title={a.title}
+                      tags={<StatusTag status={a.status} />}
+                      facts={
+                        <RowFacts
+                          items={[
+                            <span className="font-mono text-[11.5px]">{a.id}</span>,
+                            a.rule,
+                          ]}
+                        />
+                      }
+                    />
+                  ))}
+                </div>
+              </Card>
+            </div>
+          </div>
+        ) : tab === "Timeline" ? (
+          <Card padding="none" className="p-5">
+            <h2 className="text-subpanel font-bold tracking-tight">
+              Case timeline
+            </h2>
+            <Timeline
+              className="mt-4"
+              tone="crit"
+              items={ALERT_DETAIL.events.map((ev) => ({
+                title: ev.k,
+                time: ev.t,
+                description: ev.d,
+                icon: <Icon.ShieldAlert />,
+              }))}
+            />
+          </Card>
+        ) : (
+          <Card padding="none" className="p-5">
+            <EmptyState variant="empty" title={`${tab} not rebuilt yet.`} />
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* The rail's four destinations. Detail screens are NOT here: they are reached
+   by opening a record, not by navigating, and the rail keeps the list they came
+   from marked as current — which is what the reference does. */
 const SCREENS = {
-  "#overview": { title: "Overview", render: () => <Overview /> },
-  "#alerts": { title: "Alerts", render: () => <Alerts /> },
-  "#cases": { title: "Cases", render: () => <Cases /> },
-  "#sources": { title: "Sources", render: () => <p>Not rebuilt yet.</p> },
+  "#overview": { title: "Overview", render: (open: Open) => <Overview onOpen={open} /> },
+  "#alerts": { title: "Alerts", render: (open: Open) => <Alerts onOpen={open} /> },
+  "#cases": { title: "Cases", render: (open: Open) => <Cases onOpen={open} /> },
+  "#sources": { title: "Sources", render: (open: Open) => <p>Not rebuilt yet.</p> },
 } as const;
 
+type Open = (kind: "alert" | "case") => void;
+type Route = keyof typeof SCREENS;
+
 export function App() {
-  const [href, setHref] = useState<keyof typeof SCREENS>("#overview");
+  const [href, setHref] = useState<Route>("#overview");
+  const [detail, setDetail] = useState<"alert" | "case" | null>(null);
   const [tenant, setTenant] = useState("all");
   const screen = SCREENS[href];
+
+  const open: Open = (kind) => setDetail(kind);
+  const go = (to: Route) => {
+    setDetail(null);
+    setHref(to);
+  };
 
   return (
     <AppShell
@@ -694,7 +1224,7 @@ export function App() {
               href={to}
               onClick={(e) => {
                 e.preventDefault();
-                setHref(to as keyof typeof SCREENS);
+                go(to as Route);
               }}
             />
           )}
@@ -723,7 +1253,13 @@ export function App() {
           current scope tab and the rail's ink already say where you are — but
           a screen reader still needs one per view. */}
       <h1 className="sr-only">{screen.title}</h1>
-      {screen.render()}
+      {detail === "alert" ? (
+        <AlertDetail onBack={() => setDetail(null)} />
+      ) : detail === "case" ? (
+        <CaseDetail onBack={() => setDetail(null)} />
+      ) : (
+        screen.render(open)
+      )}
     </AppShell>
   );
 }

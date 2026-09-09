@@ -85,6 +85,7 @@ exports[`named exports are stable > ./table 1`] = `
 
 exports[`named exports are stable > root entrypoint 1`] = `
 [
+  "Annotation",
   "Button",
   "Calendar",
   "Card",

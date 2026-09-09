@@ -167,3 +167,4 @@ export {
   type TimelineItem,
 } from "./timeline.js";
 export { CodeBlock, type CodeBlockProps } from "./code-block.js";
+export { Annotation, type AnnotationProps } from "./annotation.js";
