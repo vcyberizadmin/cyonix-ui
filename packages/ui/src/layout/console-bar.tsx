@@ -383,7 +383,10 @@ function ScopeSwitcher({
           type="button"
           data-scope-picker="true"
           className={cn(
-            "duration-instant ease-brand bg-surface-2 hover:text-fg flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-xl px-3 text-[13.5px] font-bold transition-colors",
+            // rounded-[12px], NOT rounded-xl: this theme redefines --radius-xl
+            // as the CARD radius (22px), so the stock class name means
+            // something else here. The chip wants the reference's 12px.
+            "duration-instant ease-brand bg-surface hover:text-fg flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-[12px] px-3 text-[13.5px] font-bold transition-colors",
             inlineVisible ? "text-fg-2" : "text-fg",
           )}
         >

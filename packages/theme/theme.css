@@ -790,6 +790,16 @@
   /* 4px base grid, stepping in 8s once past 16. */
   --spacing: 4px;
 
+  /* WARNING: these SHADOW Tailwind's own scale with different values.
+     rounded-sm is 7px here, not 2; rounded-md 11, not 6; rounded-lg 14, not 8;
+     rounded-xl 22, not 12. That is deliberate — component code should read
+     intent — but it means a stock class name does NOT mean what the Tailwind
+     docs say, and reaching for `rounded-xl` expecting 12px silently gets a
+     card corner. It has caused that bug twice. When a component wants a
+     literal, write the literal.
+     rounded-2xl is left alone at Tailwind's 16px, which the rail items, the
+     module badge and QueueRow all rely on; the 28px panel radius is
+     --radius-3xl. */
   --radius-sm: var(--r-sm);
   --radius-md: var(--r-md);
   --radius-lg: var(--r-lg);
