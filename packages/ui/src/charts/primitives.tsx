@@ -109,6 +109,19 @@ interface LegendProps {
   linkComponent?: ElementType;
   /** Single column reads better beside a donut; two under a bar. */
   columns?: 1 | 2;
+  /**
+   * `keys` is the console's treatment for a legend sitting UNDER its chart:
+   * a round dot, the label in caps, and the count hard right. It reads as a
+   * key rather than as a list, which is what a two-column block under a ring
+   * needs to avoid looking like a table with a missing header.
+   *
+   * It also drops the percentage. That is a real loss and the reason this is
+   * a variant rather than the default: beside a chart there is room for
+   * count AND share, and the legend is the accessible fallback for a ring
+   * nobody can read. Under a ring in two columns there is not, and the share
+   * is the half that can be reconstructed from the other two.
+   */
+  variant?: "list" | "keys";
 }
 
 /**
@@ -121,11 +134,14 @@ function Legend({
   ramp,
   linkComponent,
   columns = 1,
+  variant = "list",
 }: LegendProps) {
+  const keys = variant === "keys";
   return (
     <ul
       className={cn(
-        "grid min-w-0 gap-x-6 gap-y-1.5",
+        "grid min-w-0",
+        keys ? "gap-x-3 gap-y-2" : "gap-x-6 gap-y-1.5",
         columns === 2 ? "grid-cols-1 min-[420px]:grid-cols-2" : "grid-cols-1",
       )}
     >
@@ -136,7 +152,10 @@ function Legend({
             <Root
               {...(slice.href ? { href: slice.href } : {})}
               className={cn(
-                "flex min-w-0 items-center gap-2 text-[12px]",
+                "flex min-w-0 items-center gap-2",
+                keys
+                  ? "text-[11px] font-extrabold tracking-[.04em]"
+                  : "text-[12px]",
                 slice.href &&
                   "hover:text-fg duration-instant ease-brand cursor-pointer transition-colors",
               )}
@@ -144,20 +163,36 @@ function Legend({
               <span
                 aria-hidden="true"
                 className={cn(
-                  "size-2 shrink-0 rounded-[2px]",
+                  "shrink-0",
+                  // Round and 9px as a key, matching the severity dot the rest
+                  // of the console uses; a 2px-cornered 8px square beside a
+                  // list, where it reads as a swatch rather than a status.
+                  keys ? "size-[9px] rounded-full" : "size-2 rounded-[2px]",
                   rampFill(ramp, index, slice.label),
                 )}
               />
-              <span className="text-fg-2 min-w-0 flex-1 truncate">
+              <span
+                className={cn(
+                  "min-w-0 flex-1 truncate",
+                  keys ? "text-fg uppercase" : "text-fg-2",
+                )}
+              >
                 {slice.label}
               </span>
               {/* Count AND percentage. Both, always. */}
-              <span className="text-fg shrink-0 font-mono text-[11px] tabular-nums">
+              <span
+                className={cn(
+                  "text-fg shrink-0 tabular-nums",
+                  keys ? "ml-auto" : "font-mono text-[11px]",
+                )}
+              >
                 {slice.value.toLocaleString("en-US")}
               </span>
-              <span className="text-fg-muted w-9 shrink-0 text-right font-mono text-[11px] tabular-nums">
-                {percents[index]}%
-              </span>
+              {!keys && (
+                <span className="text-fg-muted w-9 shrink-0 text-right font-mono text-[11px] tabular-nums">
+                  {percents[index]}%
+                </span>
+              )}
             </Root>
           </li>
         );
@@ -452,6 +487,18 @@ export interface DonutProps {
    */
   shape?: "circle" | "squircle";
   legend?: boolean;
+  /**
+   * Where the legend sits, and therefore how it reads.
+   *
+   * `side` (default) puts it beside the ring as a list: label, count and
+   * share for every segment, which is the accessible fallback for a ring
+   * nobody can read.
+   *
+   * `below` puts it under the ring as a two-column key — round dot, label in
+   * caps, count hard right — which is what the console does, and what a
+   * narrow panel wants when the ring already fills the width.
+   */
+  legendPlacement?: "side" | "below";
   linkComponent?: ElementType;
   className?: string;
 }
@@ -468,6 +515,7 @@ export function Donut({
   totalLabel,
   shape = "circle",
   legend = true,
+  legendPlacement = "side",
   linkComponent,
   className,
 }: DonutProps) {
@@ -502,7 +550,11 @@ export function Donut({
   return (
     <div
       className={cn(
-        "flex min-w-0 flex-col items-center gap-5 min-[520px]:flex-row min-[520px]:items-center",
+        "flex min-w-0 flex-col items-center gap-5",
+        // Below the ring it stays a column at every width. Beside it, the
+        // column is only the narrow-screen fallback.
+        legendPlacement === "side" &&
+          "min-[520px]:flex-row min-[520px]:items-center",
         className,
       )}
     >
@@ -545,23 +597,36 @@ export function Donut({
             )}
         </svg>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="font-display text-fg text-[22px] leading-none font-bold tabular-nums">
+          <span
+            className="font-display text-fg leading-none font-extrabold tabular-nums"
+            // Proportional to the ring, not fixed: the console's arch is 196px
+            // with a 34px figure, and a 22px figure inside it reads as a
+            // caption rather than as the number the panel is about.
+            style={{ fontSize: Math.round(size * 0.173) }}
+          >
             {compact(total)}
           </span>
           {totalLabel && (
-            <span className="text-fg-muted mt-1 text-[10px] font-semibold tracking-wider uppercase">
+            <span className="text-fg-2 mt-1.5 text-[13px] font-semibold">
               {totalLabel}
             </span>
           )}
         </div>
       </div>
       {legend && (
-        <div className="min-w-0 flex-1">
+        <div
+          className={cn(
+            "min-w-0",
+            legendPlacement === "below" ? "w-full" : "flex-1",
+          )}
+        >
           <Legend
             slices={slices}
             percents={percents}
             ramp={ramp}
             linkComponent={linkComponent}
+            columns={legendPlacement === "below" ? 2 : 1}
+            variant={legendPlacement === "below" ? "keys" : "list"}
           />
         </div>
       )}

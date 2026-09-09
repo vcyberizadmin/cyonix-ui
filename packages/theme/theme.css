@@ -335,6 +335,14 @@
   --sev-med: #1b6ef3;
   --sev-low: var(--neutral-500); /* #8a9198, already on the ramp */
   --sev-info: #7ed321;
+
+  /* The reference's fifth accent. Its palette is brand / azure / mint /
+     violet / rose, and four of those are the severity marks above — this is
+     the one that is not. Our Amethyst ramp runs bluer (#744eeb through
+     #9e7bff), so none of its steps stands in for this, and it is used where a
+     flow or a tile needs a hue outside the ranked ladder. NOT a second
+     Amethyst: that ramp stays reserved for agent output. */
+  --violet: #a855f7;
   --sev-crit-ink: var(--red-200);
   --sev-high-ink: var(--amber-200);
   --sev-med-ink: var(--blue-200);
@@ -657,6 +665,7 @@
   --color-danger: var(--danger);
   --color-info: var(--info);
 
+  --color-violet: var(--violet);
   --color-sev-crit: var(--sev-crit);
   --color-sev-high: var(--sev-high);
   --color-sev-med: var(--sev-med);

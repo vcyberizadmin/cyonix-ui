@@ -25,16 +25,20 @@ export const SEVERITY_SLICES = [
   { label: "Low", value: 40 },
 ];
 
+/* Tones exactly as the reference assigns them: SRC_COLOR gives EDR the high
+   mark, Identity the medium one, Network its violet accent and Cloud the low
+   mark; the decision and outcome nodes take ok / high and low / medium /
+   critical. */
 export const FLOW_NODES = [
-  { id: "edr", column: 0, label: "EDR", tone: "warning" as const },
-  { id: "identity", column: 0, label: "Identity", tone: "info" as const },
-  { id: "network", column: 0, label: "Network", tone: "ai" as const },
-  { id: "cloud", column: 0, label: "Cloud", tone: "neutral" as const },
+  { id: "edr", column: 0, label: "EDR", tone: "high" as const },
+  { id: "identity", column: 0, label: "Identity", tone: "med" as const },
+  { id: "network", column: 0, label: "Network", tone: "violet" as const },
+  { id: "cloud", column: 0, label: "Cloud", tone: "low" as const },
   { id: "auto", column: 1, label: "Closed by agent", tone: "ok" as const },
-  { id: "human", column: 1, label: "To an analyst", tone: "warning" as const },
-  { id: "benign", column: 2, label: "Benign", tone: "neutral" as const },
-  { id: "tuned", column: 2, label: "Sent to tuning", tone: "info" as const },
-  { id: "case", column: 2, label: "Escalated to client", tone: "danger" as const },
+  { id: "human", column: 1, label: "To an analyst", tone: "high" as const },
+  { id: "benign", column: 2, label: "Benign", tone: "low" as const },
+  { id: "tuned", column: 2, label: "Sent to tuning", tone: "med" as const },
+  { id: "case", column: 2, label: "Escalated to client", tone: "crit" as const },
 ];
 
 export const FLOW_LINKS = [

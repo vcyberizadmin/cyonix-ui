@@ -125,7 +125,7 @@ export const FIXTURES: Record<string, () => ReactElement> = {
     <Sankey
       label="Alert flow"
       nodes={[
-        { id: "edr", column: 0, label: "EDR", tone: "warning" },
+        { id: "edr", column: 0, label: "EDR", tone: "high" },
         { id: "auto", column: 1, label: "Closed by agent", tone: "ok" },
         { id: "benign", column: 2, label: "Benign", tone: "neutral" },
       ]}

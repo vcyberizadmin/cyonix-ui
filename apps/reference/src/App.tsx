@@ -152,8 +152,8 @@ function Overview() {
             <h2 className="text-h3 font-extrabold tracking-tight">
               Open by severity
             </h2>
-            <span className="text-fg-muted [&_svg]:size-4">
-              <Icon.Info />
+            <span className="text-fg-2 [&_svg]:size-[19px]">
+              <Icon.ShieldAlert />
             </span>
           </div>
           <Donut
@@ -162,7 +162,8 @@ function Overview() {
             size={196}
             thickness={20}
             totalLabel="open"
-            className="mt-4"
+            legendPlacement="below"
+            className="mt-4 flex-1 justify-between"
           />
         </Card>
       </div>
