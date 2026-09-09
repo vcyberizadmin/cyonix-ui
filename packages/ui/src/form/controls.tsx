@@ -26,10 +26,13 @@ import { cn } from "../lib/cn.js";
 import { useFieldControl } from "./field.js";
 
 const base =
-  "bg-wash-1 border-rule text-fg placeholder:text-fg-2 focus:border-focus duration-instant ease-brand w-full rounded-lg border text-[13.5px] font-semibold transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50";
+  "bg-surface text-fg placeholder:text-fg-muted placeholder:font-medium " +
+  "shadow-[inset_0_0_0_2px_transparent] focus:shadow-[inset_0_0_0_2px_var(--accent)] " +
+  "duration-instant ease-brand w-full rounded-lg text-[13.5px] font-semibold " +
+  "transition-[box-shadow,background-color] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50";
 
 /** An invalid control shows it on the border too, not only in the message. */
-const invalid = "aria-invalid:border-danger";
+const invalid = "aria-invalid:shadow-[inset_0_0_0_2px_var(--danger)]";
 
 export type InputProps = InputHTMLAttributes<HTMLInputElement>;
 
@@ -118,7 +121,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         {...field}
         {...props}
         className={cn(
-          "border-rule bg-wash-1 accent-accent focus:border-focus duration-instant ease-brand size-4 cursor-pointer rounded-sm border transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+          "bg-surface accent-accent focus-visible:shadow-[0_0_0_2px_var(--focus)] duration-instant ease-brand size-4 cursor-pointer rounded-sm transition-shadow focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
       />
@@ -164,12 +167,12 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
       {/* Track. Driven by peer-checked, so no JS state is involved. */}
       <span
         aria-hidden="true"
-        className="bg-wash-3 border-rule peer-checked:bg-accent peer-checked:border-accent peer-focus-visible:border-focus duration-instant ease-brand pointer-events-none absolute inset-0 rounded-full border transition-colors peer-disabled:opacity-50"
+        className="bg-surface-3 peer-checked:bg-accent peer-focus-visible:shadow-[0_0_0_2px_var(--focus)] duration-instant ease-brand pointer-events-none absolute inset-0 rounded-full transition-colors peer-disabled:opacity-50"
       />
       {/* Knob. */}
       <span
         aria-hidden="true"
-        className="bg-fg duration-instant ease-brand pointer-events-none absolute top-1/2 left-1 size-[22px] -translate-y-1/2 rounded-full shadow-e1 transition-transform peer-checked:translate-x-[22px] peer-checked:bg-white peer-disabled:opacity-50"
+        className="duration-instant ease-brand pointer-events-none absolute top-1/2 left-1 size-[22px] -translate-y-1/2 rounded-full bg-white shadow-[0_2px_5px_rgb(0_0_0_/_0.3)] transition-transform peer-checked:translate-x-[22px] peer-disabled:opacity-50"
       />
     </span>
   );

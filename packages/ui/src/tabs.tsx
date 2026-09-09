@@ -372,6 +372,20 @@ export interface SegmentedProps {
    * reflow, which a filter toolbar wants when it shares a row with search.
    */
   overflow?: "scroll" | "wrap";
+  /**
+   * Stretch the track to its container, with every segment an equal share.
+   *
+   * The default track is exactly as wide as its labels, which is right beside
+   * other controls in a toolbar. It is wrong under a chart, where the console
+   * runs its range selector at full width so the segments line up with the
+   * plot above — and until this prop existed that was not expressible at all,
+   * because the width was hardcoded to `w-max`.
+   *
+   * Equal shares rather than natural widths, so "90d" and "Action required"
+   * present the same target. Ignored when `overflow` is `wrap`, which has no
+   * single row to stretch.
+   */
+  stretch?: boolean;
   className?: string;
 }
 
@@ -383,6 +397,7 @@ export function Segmented({
   variant = "fill",
   size = "md",
   overflow = "scroll",
+  stretch = false,
   className,
 }: SegmentedProps) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -445,7 +460,16 @@ export function Segmented({
           // The console's track: the group is a rounded well the segments sit
           // in, not a row of separate pills. Wrapping keeps the old gapped row,
           // where a single track would leave dead space on the short last line.
-          wrap ? "flex-wrap gap-1" : "bg-wash-1 w-max gap-0 rounded-full p-1",
+          wrap
+            ? "flex-wrap gap-1"
+            : cn(
+                "bg-track gap-0 rounded-full p-1",
+                // Grid, not flex, when stretching: equal fractions are what
+                // give every segment the same target regardless of label
+                // length. The sliding ink is positioned in percentages, so it
+                // follows either layout without knowing which it is in.
+                stretch ? "grid w-full auto-cols-fr grid-flow-col" : "w-max",
+              ),
         )}
       >
         {ink && (
@@ -481,6 +505,10 @@ export function Segmented({
               className={cn(
                 "duration-instant ease-brand relative z-10 inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full font-bold whitespace-nowrap transition-colors",
                 "disabled:cursor-not-allowed disabled:opacity-40",
+                // Content-sized, the button hugs its label and alignment is
+                // moot. Stretched, the button fills a grid cell and the label
+                // would sit against the left edge of it.
+                stretch && "justify-center",
                 size === "sm"
                   ? "h-7 px-3 text-[12px]"
                   : "h-8 px-4 text-[12.5px]",

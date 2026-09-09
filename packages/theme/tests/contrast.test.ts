@@ -65,9 +65,62 @@ const TEXT_ON_FILL: ReadonlyArray<readonly [ink: string, fill: string]> = [
   ["--fg-inverse", "--surface-inverse"],
 ];
 
+/**
+ * Pairs that do NOT clear AA, carried deliberately, with the ratio measured at
+ * the time they were accepted.
+ *
+ * These are the reference design's own literal values: --text-dim #7a818a and
+ * --text-faint #a6acb4 on its #ffffff / #f3f3f5 / #e9eaed grounds. The decision
+ * was to treat the reference as authoritative on colour, so they are recorded
+ * rather than corrected.
+ *
+ * THIS IS AN ACCESSIBILITY DEBT, NOT A PASS. --fg-muted at 2.06:1 is well
+ * under the 4.5:1 WCAG 2.2 1.4.3 asks of body text, and it is used for the
+ * small uppercase labels (.lbl in the reference) where legibility is already
+ * hardest. Anyone reading this should feel free to argue for raising these two
+ * values; the fix is one ramp step each and nothing else depends on them.
+ *
+ * The entries assert the ratio has not got WORSE, so a further regression
+ * still fails the build. Deleting an entry is how you re-enable the AA floor.
+ */
+const ACCEPTED_BELOW_AA = new Map<string, number>([
+  // --accent-fg is white on the brand orange, which is what the reference's
+  // .btn-primary does: `background:#FE6409; color:#fff`. This file previously
+  // used near-black here, at 6.3:1, with a comment saying not to swap it for
+  // white. The swap is deliberate and it is the most consequential entry in
+  // this map, because it is the primary button — the most-clicked control in
+  // the product — carrying a 14px label at 2.98:1.
+  ["dark --accent-fg on --accent", 2.98],
+  ["light --accent-fg on --accent", 2.98],
+  ["light --fg-2 on --bg", 3.94],
+  ["light --fg-2 on --surface", 3.55],
+  ["light --fg-2 on --surface-2", 3.27],
+  ["light --fg-muted on --bg", 2.29],
+  ["light --fg-muted on --surface", 2.06],
+  ["light --fg-muted on --surface-2", 1.9],
+]);
+
 describe.each(MODES)("%s mode — text contrast", (mode, props) => {
   for (const [ink, grounds] of TEXT_ON_GROUND) {
     for (const ground of grounds) {
+      const key = `${mode} ${ink} on ${ground}`;
+      const accepted = ACCEPTED_BELOW_AA.get(key);
+
+      if (accepted !== undefined) {
+        it(`${ink} on ${ground} stays at its accepted sub-AA ratio`, () => {
+          const ratio = round2(
+            contrastRatio(opaque(ink, ground, props), colour(ground, props)),
+          );
+          expect(
+            ratio,
+            `${key} was accepted at ${accepted}:1 and now measures ${ratio}:1. ` +
+              `It got worse. Either restore the previous value or, better, raise it above ${AA_TEXT}:1 ` +
+              `and delete the ACCEPTED_BELOW_AA entry.`,
+          ).toBeGreaterThanOrEqual(accepted);
+        });
+        continue;
+      }
+
       it(`${ink} on ${ground} clears AA`, () => {
         const ratio = contrastRatio(opaque(ink, ground, props), colour(ground, props));
         expect(
@@ -79,6 +132,20 @@ describe.each(MODES)("%s mode — text contrast", (mode, props) => {
   }
 
   for (const [ink, fill] of TEXT_ON_FILL) {
+    const key = `${mode} ${ink} on ${fill}`;
+    const accepted = ACCEPTED_BELOW_AA.get(key);
+
+    if (accepted !== undefined) {
+      it(`${ink} on ${fill} stays at its accepted sub-AA ratio`, () => {
+        const ratio = round2(contrastRatio(colour(ink, props), colour(fill, props)));
+        expect(
+          ratio,
+          `${key} was accepted at ${accepted}:1 and now measures ${ratio}:1. It got worse.`,
+        ).toBeGreaterThanOrEqual(accepted);
+      });
+      continue;
+    }
+
     it(`${ink} on ${fill} clears AA`, () => {
       const ratio = contrastRatio(colour(ink, props), colour(fill, props));
       expect(round2(ratio)).toBeGreaterThanOrEqual(AA_TEXT);

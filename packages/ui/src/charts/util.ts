@@ -50,8 +50,28 @@ export function rampFill(ramp: Ramp, index: number, label?: string): string {
 }
 
 /**
- * Ink class (`text-*`) for the same slot — for an SVG mark that paints with
- * `currentColor`, such as a donut arc's stroke.
+ * Stroke class (`text-*`) carrying the MARK hue, for an SVG mark painted with
+ * `currentColor` — a ring's stroke, a polyline.
+ *
+ * This is not `rampInk`. For the categorical and sequential ramps the two are
+ * the same thing, because `text-cat-1` and `bg-cat-1` read the same token. For
+ * SEVERITY they are not: the ink hues are deliberately lighter so a label
+ * clears AA, and using them on a ring put pale label colours on the arc while
+ * the legend beside it drew saturated marks — so the legend did not match the
+ * thing it labelled.
+ *
+ * Same reason as below for reading literals rather than rewriting `rampFill`'s
+ * output: a class name computed at runtime is never emitted by Tailwind.
+ */
+export function rampStroke(ramp: Ramp, index: number, label?: string): string {
+  const which = slot(ramp, index, label);
+  if (which.kind === "severity") return SEVERITY_META[which.severity].stroke;
+  if (which.kind === "sequential") return SEQUENTIAL_INK[which.step]!;
+  return CATEGORICAL_INK[which.step]!;
+}
+
+/**
+ * Ink class (`text-*`) for the same slot — for LABELS beside a mark.
  *
  * Reads from the literal INK arrays rather than rewriting `rampFill`'s output.
  * A computed class name (`rampFill(...).replace("bg-", "text-")`) exists only at

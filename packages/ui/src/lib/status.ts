@@ -217,38 +217,53 @@ export type Severity = (typeof SEVERITIES)[number];
  * Each rank carries the expected RESPONSE, not just a colour. "Critical" means
  * nothing on its own; "Immediate action · page on-call" is what an operator
  * actually needs to know.
+ *
+ * Three colour classes per severity, and they are three because they cannot be
+ * derived from each other:
+ *   bar    — `bg-sev-*`, the MARK. Fills, bars, dots.
+ *   stroke — `text-sev-*`, the SAME hue as `bar` but as a text class, for an
+ *            SVG mark that paints with `currentColor`. A ring's stroke is a
+ *            mark, so it must take the mark hue, and Tailwind will not emit a
+ *            class name computed at runtime from `bar`.
+ *   text   — `text-sev-*-ink`, the INK. A DIFFERENT, lighter hue, for labels,
+ *            because the mark hues do not clear AA at small sizes.
  */
 export const SEVERITY_META: Record<
   Severity,
-  { action: string; bar: string; text: string; surface: string }
+  { action: string; bar: string; stroke: string; text: string; surface: string }
 > = {
   Critical: {
     action: "Immediate action · page on-call",
     bar: "bg-sev-crit",
+    stroke: "text-sev-crit",
     text: "text-sev-crit-ink",
     surface: "bg-sev-crit/12 border-sev-crit/30",
   },
   High: {
     action: "Same-shift response",
     bar: "bg-sev-high",
+    stroke: "text-sev-high",
     text: "text-sev-high-ink",
     surface: "bg-sev-high/12 border-sev-high/30",
   },
   Medium: {
     action: "Queue for triage",
     bar: "bg-sev-med",
+    stroke: "text-sev-med",
     text: "text-sev-med-ink",
     surface: "bg-sev-med/12 border-sev-med/30",
   },
   Low: {
     action: "Track, no interrupt",
     bar: "bg-sev-low",
+    stroke: "text-sev-low",
     text: "text-sev-low-ink",
     surface: "bg-sev-low/12 border-sev-low/30",
   },
   Info: {
     action: "No action required",
     bar: "bg-sev-info",
+    stroke: "text-sev-info",
     text: "text-sev-info-ink",
     surface: "bg-sev-info/12 border-sev-info/30",
   },

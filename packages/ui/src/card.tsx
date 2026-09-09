@@ -21,7 +21,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "./lib/cn.js";
 
-const card = cva("rounded-xl border border-rule", {
+// The reference draws a card as fill plus radius, with NO hairline: `.card {
+// background:var(--surface); border-radius:22px }`. That is a departure from
+// this library's "hairlines, not gaps" principle, which separated cards from
+// the page with a rule. Against the reference's grounds the fill carries the
+// separation on its own — grey on white in light, a raised slab in dark.
+const card = cva("rounded-xl", {
   variants: {
     /** Nested cards step down to the ground colour. One level only. */
     nested: {

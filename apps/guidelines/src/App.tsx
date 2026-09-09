@@ -73,8 +73,7 @@ export function App() {
 
 /* theme.css names no families — supply them, as next/font does. */
 :root {
-  --font-space-grotesk: "Space Grotesk";
-  --font-inter: "Inter";
+  --font-plus-jakarta-sans: "Plus Jakarta Sans";
   --font-jetbrains-mono: "JetBrains Mono";
 }`}</Pre>
               </div>
@@ -84,7 +83,7 @@ export function App() {
           <footer className="border-rule text-fg-2 flex flex-wrap items-center gap-4 border-t pt-10 pb-16 text-[13px]">
             <p className="font-bold">cyonix.ai — design guidelines {VERSION}</p>
             <p className="text-fg-quaternary ml-auto text-[12.5px]">
-              Tokens: Cyonix Token Variables · Type: Space Grotesk, Inter, JetBrains Mono
+              Tokens: Cyonix Token Variables · Type: Plus Jakarta Sans, JetBrains Mono
             </p>
           </footer>
         </div>

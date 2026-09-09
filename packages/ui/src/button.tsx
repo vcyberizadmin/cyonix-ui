@@ -13,7 +13,7 @@ import { cn } from "./lib/cn.js";
  *    match the SOC console, whose button is a rounded rectangle. `.cx-chamfer`
  *    still ships in @cyonix/theme for anything that wants it back; this
  *    component no longer applies it.
- *  · Labels are Space Grotesk at 14px, weight 800 — the console's weight. The
+ *  · Labels are Plus Jakarta Sans at 14px, weight 800 — the console's weight. The
  *    brand specified 600; that too was overridden for the match. The 14px still
  *    sits deliberately outside the body type scale.
  *  · Hover brightens 110%, active dims to 94%.
@@ -21,16 +21,23 @@ import { cn } from "./lib/cn.js";
  *  · Exactly one `primary` per view.
  */
 const button = cva(
-  "relative isolate inline-flex items-center justify-center whitespace-nowrap " +
-    "rounded-lg font-display text-[14px] font-extrabold " +
-    "transition-[filter,background-color,color] duration-instant ease-brand " +
-    "disabled:pointer-events-none disabled:brightness-100",
+  "relative isolate inline-flex items-center justify-center gap-[.55rem] whitespace-nowrap " +
+    "rounded-lg font-display text-[14px] leading-none font-extrabold " +
+    "transition-[filter,background-color,color,transform,opacity] duration-instant ease-brand " +
+    // The reference presses the button down 1px rather than dimming it, and
+    // dims a disabled one to .38 rather than leaving it at full strength.
+    "active:not-disabled:translate-y-px " +
+    "disabled:pointer-events-none disabled:opacity-[.38] disabled:brightness-100",
   {
     variants: {
       variant: {
         /** The single action you want taken. One per view. */
         primary:
-          "bg-accent text-accent-fg hover:brightness-110 active:brightness-[0.94]",
+          // The glow is the reference's own: a wide, tight-offset orange cast
+          // under the button. It is the only shadow in the design that carries
+          // a hue rather than black.
+          "bg-accent text-accent-fg hover:bg-accent-hover " +
+          "shadow-[0_8px_22px_-12px_rgb(254_100_9_/_0.9)]",
         /**
          * Orange hairline, orange label, no fill — the reversible
          * counter-action beside a primary. The outer element paints the accent
@@ -75,14 +82,29 @@ const button = cva(
         danger:
           "bg-danger-strong text-white hover:brightness-110 active:brightness-[0.94]",
         /** Lowest weight, for dense toolbars. */
-        ghost: "text-fg hover:bg-wash-hover",
+        ghost: "text-fg-2 hover:bg-surface hover:text-fg",
+        /**
+         * Maximum weight, by inversion: near-black on light, white on dark.
+         * The reference calls this `.btn-contrast` and reaches for it where an
+         * action is more important than a tonal but should not be orange —
+         * orange is reserved for the single primary.
+         */
+        contrast:
+          "bg-surface-inverse text-fg-inverse hover:opacity-[.88]",
+        /**
+         * The reference's `.btn-tonal`: a filled neutral that follows the
+         * theme, one surface step up on hover. This is the theme-aware
+         * sibling of `solid`, which deliberately stays dark in both modes.
+         */
+        tonal: "bg-surface-2 text-fg hover:bg-surface-3",
       },
       size: {
         /* The console's ladder: 44 / 36 / 28, with its own radius per step —
            the corner tightens as the control shrinks rather than staying fixed.
            With the chamfer gone there is no 11px corner budget to protect, so
            horizontal padding scales with height again. */
-        sm: "h-9 rounded-[11px] px-[.9rem] text-[13px]",
+        xs: "h-7 gap-[.35rem] rounded-[9px] px-[.7rem] text-[12px]",
+        sm: "h-9 gap-[.4rem] rounded-[11px] px-[.9rem] text-[13px]",
         md: "h-11 px-5",
         lg: "h-12 px-6",
       },

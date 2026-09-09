@@ -88,10 +88,10 @@ export function Foundations() {
             <Logo size="lg" /><Spec>full lockup · 498 × 97</Spec>
           </Demo>
           <Demo className="flex min-h-[190px] flex-col items-center justify-center gap-5">
-            <Logo mini size="lg" /><Spec>star · collapsed rail</Spec>
+            <Logo mini size="lg" /><Spec>short mark · collapsed rail</Spec>
           </Demo>
           <Demo className="flex min-h-[190px] flex-col items-center justify-center gap-5">
-            <Logo size="lg" module="SOC" /><Spec>module badge</Spec>
+            <Logo size="lg" /><Spec>lockup · rail brand</Spec>
           </Demo>
           <Demo className="flex min-h-[190px] flex-col items-center justify-center gap-5">
             <span className="grid size-[76px] place-items-center rounded-[26px]"
@@ -160,7 +160,7 @@ export function Foundations() {
       </Section>
 
       <Section id="type" title="Typography"
-        lede="Space Grotesk for display, Inter for interface, JetBrains Mono for data. The theme names no families — the host app supplies them, the way next/font does.">
+        lede="Plus Jakarta Sans for both display and interface, JetBrains Mono for data. Display and interface separate by weight and size, not by typeface. The theme names no families — the host app supplies them, the way next/font does.">
         <div className="bg-surface border-rule divide-rule divide-y rounded-xl border">
           {[
             ["Display / 40 / 700", "font-display text-[40px] font-bold tracking-tight", "Cyonix Console"],

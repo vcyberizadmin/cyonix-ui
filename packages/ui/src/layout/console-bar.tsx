@@ -29,8 +29,12 @@ import { Popover } from "../overlays/tooltip.js";
  *    its right and is switched far more often than anything else in the bar.
  *  · The ink under the current scope is the ONE orange thing in the bar. Scope
  *    is location, and location is what orange means.
- *  · A count that needs attention takes the danger tone, never orange — the
- *    same rule CX-DCK's badges follow.
+ *  · The notification count takes --badge, which is orange in dark and near
+ *    black in light. That looks like it breaks "one accent, earned", and it
+ *    does not: --bell inverts with it, so the bell and its count spend
+ *    exactly one accent between them in either mode. This used to take the
+ *    danger tone, which said "something is wrong" about a count that is
+ *    usually just a count.
  *  · Below `xl` the theme and settings controls fold INTO the profile panel
  *    rather than being dropped, because a control that vanishes on a laptop is
  *    a control the operator cannot reach.
@@ -188,10 +192,10 @@ export interface ConsoleBarProps {
 /* ------------------------------------------------------------- fragments -- */
 
 const ICON_BUTTON =
-  "bg-wash-2 text-fg hover:bg-wash-3 duration-instant ease-brand grid size-11 shrink-0 cursor-pointer place-items-center rounded-[14px] transition-colors [&_svg]:size-5";
+  "bg-surface-2 text-fg hover:bg-surface-3 duration-instant ease-brand grid size-11 shrink-0 cursor-pointer place-items-center rounded-[14px] transition-colors [&_svg]:size-5";
 
 const PANEL_ROW =
-  "duration-instant ease-brand hover:bg-wash-2 flex w-full cursor-pointer items-center gap-2.5 rounded-[14px] px-2.5 py-2.5 text-left text-[13.5px] font-bold transition-colors";
+  "duration-instant ease-brand hover:bg-surface-2 flex w-full cursor-pointer items-center gap-2.5 rounded-[14px] px-2.5 py-2.5 text-left text-[13.5px] font-bold transition-colors";
 
 function Tile({
   children,
@@ -209,7 +213,7 @@ function Tile({
         "grid size-9 shrink-0 place-items-center rounded-[11px] text-[11.5px] font-extrabold",
         // No tint given: a neutral wash, never a colour picked at random. The
         // coloured tiles stay meaningful because most of them are not coloured.
-        tint ? "text-white" : "bg-wash-3 text-fg",
+        tint ? "text-white" : "bg-surface-3 text-fg",
         className,
       )}
       style={tint ? { background: tint } : undefined}
@@ -335,7 +339,7 @@ function ScopeSwitcher({
                     }}
                     className={cn(
                       "duration-instant ease-brand flex w-full cursor-pointer items-center gap-3 rounded-[14px] p-2.5 text-left transition-colors",
-                      active ? "bg-wash-2" : "hover:bg-wash-2",
+                      active ? "bg-surface-2" : "hover:bg-surface-2",
                     )}
                   >
                     <Tile tint={option.tint}>
@@ -379,7 +383,7 @@ function ScopeSwitcher({
           type="button"
           data-scope-picker="true"
           className={cn(
-            "duration-instant ease-brand bg-wash-2 hover:text-fg flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-xl px-3 text-[13.5px] font-bold transition-colors",
+            "duration-instant ease-brand bg-surface-2 hover:text-fg flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-xl px-3 text-[13.5px] font-bold transition-colors",
             inlineVisible ? "text-fg-2" : "text-fg",
           )}
         >
@@ -389,7 +393,7 @@ function ScopeSwitcher({
           <span>
             {inlineVisible ? pickerLabel : (currentScope?.name ?? pickerLabel)}
           </span>
-          <span className="bg-wash-3 text-fg-2 grid h-[19px] min-w-[19px] place-items-center rounded-full px-1 text-[10.5px] font-extrabold tabular-nums">
+          <span className="bg-surface-3 text-fg-2 grid h-[19px] min-w-[19px] place-items-center rounded-full px-1 text-[10.5px] font-extrabold tabular-nums">
             {options.length}
           </span>
           <ChevronDown className="size-4" />
@@ -447,7 +451,7 @@ export function ConsoleBar({
         <BrandTag
           {...(brandHref ? { href: brandHref } : {})}
           aria-label="Home"
-          className="bg-wash-2 grid size-10 shrink-0 self-center place-items-center rounded-[13px] xl:hidden"
+          className="bg-chip text-chip-fg grid size-10 shrink-0 self-center place-items-center rounded-[13px] xl:hidden"
         >
           {brand}
         </BrandTag>
@@ -471,7 +475,7 @@ export function ConsoleBar({
               {searchPlaceholder}
             </span>
             {searchHint && (
-              <kbd className="bg-wash-2 text-fg-2 rounded-md px-1.5 py-0.5 font-mono text-[10.5px] font-semibold">
+              <kbd className="bg-surface-2 text-fg-2 rounded-md px-1.5 py-0.5 font-mono text-[10.5px] font-semibold">
                 {searchHint}
               </kbd>
             )}
@@ -493,14 +497,14 @@ export function ConsoleBar({
               <>
                 <div className="border-rule flex items-center gap-3 border-b px-4 py-3.5">
                   <p className="text-[14.5px] font-extrabold">Notifications</p>
-                  <span className="bg-wash-3 text-fg-2 grid h-[21px] min-w-[21px] place-items-center rounded-full px-1.5 text-[11px] font-extrabold tabular-nums">
+                  <span className="bg-surface-3 text-fg-2 grid h-[21px] min-w-[21px] place-items-center rounded-full px-1.5 text-[11px] font-extrabold tabular-nums">
                     {unread}
                   </span>
                   {notifications.onMarkAllRead && unread > 0 && (
                     <button
                       type="button"
                       onClick={notifications.onMarkAllRead}
-                      className="text-fg-2 hover:text-fg hover:bg-wash-2 duration-instant ease-brand ml-auto cursor-pointer rounded-sm px-2 py-1 text-[12.5px] font-bold transition-colors"
+                      className="text-fg-2 hover:text-fg hover:bg-surface-2 duration-instant ease-brand ml-auto cursor-pointer rounded-sm px-2 py-1 text-[12.5px] font-bold transition-colors"
                     >
                       Mark all read
                     </button>
@@ -520,7 +524,7 @@ export function ConsoleBar({
                         onClick={item.onSelect}
                         className={cn(
                           "duration-instant ease-brand flex w-full cursor-pointer items-start gap-3 rounded-[14px] p-2.5 text-left transition-colors",
-                          item.unread ? "bg-wash-2" : "hover:bg-wash-2",
+                          item.unread ? "bg-surface-2" : "hover:bg-surface-2",
                         )}
                       >
                         {item.source && (
@@ -577,13 +581,19 @@ export function ConsoleBar({
                   ? `Notifications, ${unread} unread`
                   : "Notifications"
               }
-              className={cn(ICON_BUTTON, "relative")}
+              className={cn(
+                ICON_BUTTON,
+                // --bell overrides the tonal fill: orange in light, near
+                // black in dark, always the inverse of the count sitting on
+                // it. See the header note on why that is still one accent.
+                "bg-bell text-bell-fg hover:bg-bell relative hover:brightness-110",
+              )}
             >
               <Bell />
               {unread > 0 && (
-                // Danger, not orange: orange is location and primary action.
+                // --badge, which inverts against --bell above.
                 // ring-bg punches it out of the bar it overhangs.
-                <span className="bg-danger-strong ring-bg absolute -top-1 -right-1 grid h-[19px] min-w-[19px] place-items-center rounded-full px-1 text-[10.5px] font-extrabold tabular-nums text-white ring-2">
+                <span className="bg-badge text-badge-fg ring-bg absolute -top-1 -right-1 grid h-[19px] min-w-[19px] place-items-center rounded-full px-1 text-[10.5px] font-extrabold tabular-nums ring-2">
                   {unread}
                 </span>
               )}
@@ -601,7 +611,7 @@ export function ConsoleBar({
                 <div className="flex items-center gap-3 p-2 pb-3">
                   <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full [&_img]:size-full [&_img]:object-cover">
                     {user.avatar ?? (
-                      <span className="bg-wash-3 text-fg grid size-full place-items-center text-[13px] font-extrabold">
+                      <span className="bg-surface-3 text-fg grid size-full place-items-center text-[13px] font-extrabold">
                         {user.name.slice(0, 1)}
                       </span>
                     )}
@@ -656,7 +666,7 @@ export function ConsoleBar({
               className="duration-instant ease-brand hover:ring-accent block size-11 shrink-0 cursor-pointer overflow-hidden rounded-[14px] ring-2 ring-transparent transition-all [&_img]:size-full [&_img]:object-cover"
             >
               {user.avatar ?? (
-                <span className="bg-wash-3 text-fg grid size-full place-items-center text-[15px] font-extrabold">
+                <span className="bg-surface-3 text-fg grid size-full place-items-center text-[15px] font-extrabold">
                   {user.name.slice(0, 1)}
                 </span>
               )}

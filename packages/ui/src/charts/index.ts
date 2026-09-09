@@ -13,7 +13,7 @@ export {
   type Slice,
   type Ramp,
 } from "./primitives.js";
-export { sharePercents, rampFill, rampInk, compact } from "./util.js";
+export { sharePercents, rampFill, rampInk, rampStroke, compact } from "./util.js";
 export { Gauge, type GaugeProps } from "./primitives.js";
 export {
   AxisBars,
@@ -23,3 +23,10 @@ export {
   type HeatmapProps,
 } from "./plots.js";
 export { StepArea, type StepAreaProps } from "./step-area.js";
+export {
+  Sankey,
+  type SankeyProps,
+  type SankeyNode,
+  type SankeyLink,
+  type SankeyTone,
+} from "./sankey.js";

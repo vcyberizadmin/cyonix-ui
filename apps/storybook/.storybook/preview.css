@@ -15,7 +15,6 @@
    theme.css names no families, it reads these three variables. The families are
    loaded in preview-head.html. */
 :root {
-  --font-space-grotesk: "Space Grotesk";
-  --font-inter: "Inter";
+  --font-plus-jakarta-sans: "Plus Jakarta Sans";
   --font-jetbrains-mono: "JetBrains Mono";
 }

@@ -190,11 +190,15 @@ needs transpiling to make this work, the packaging has regressed.
 
 Font tokens reference variables the **consuming app** defines via `next/font`:
 
-| Token       | Font          | Expects                   |
-| ----------- | ------------- | ------------------------- |
-| `--display` | Space Grotesk | `--font-space-grotesk`    |
-| `--ui`      | Inter         | `--font-inter`            |
-| `--mono`    | JetBrains Mono| `--font-jetbrains-mono`   |
+| Token       | Font              | Expects                      |
+| ----------- | ----------------- | ---------------------------- |
+| `--display` | Plus Jakarta Sans | `--font-plus-jakarta-sans`   |
+| `--ui`      | Plus Jakarta Sans | `--font-plus-jakarta-sans`   |
+| `--mono`    | JetBrains Mono    | `--font-jetbrains-mono`      |
+
+`--display` and `--ui` are one family. The reference separates headings from
+body by weight and size, not by typeface, so an app supplies two variables
+rather than three.
 
 An app that does not define these does **not** fall back gracefully: a custom
 property whose value contains an unresolvable `var()` becomes invalid at
@@ -203,12 +207,14 @@ is no error and no warning — the type is simply the wrong face.
 
 That is exactly what Storybook was doing until it was caught by measuring the
 rendered `font-family`: every story had been reviewed in the system font rather
-than Space Grotesk and Inter. `.storybook/preview-head.html` now loads the three
-families and `preview.css` maps the three variables, which reproduces what
-`next/font` does in a consumer — so Storybook demonstrates the contract instead
-of quietly violating it.
+than the real faces. `.storybook/preview-head.html` loads the families and
+`preview.css` maps the variables, which reproduces what `next/font` does in a
+consumer — so Storybook demonstrates the contract instead of quietly violating
+it.
 
-Space Grotesk tops out at 700 — never a synthetic bold above it.
+Plus Jakarta Sans is loaded at 400/500/600/700/800, and the design uses the top
+of that range heavily: body copy sits at 500-600, labels and buttons at 700-800.
+Never ask for a weight above 800 — the result is a synthetic bold.
 
 ### The same class of bug, in the theme toolbar
 
