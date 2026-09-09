@@ -207,7 +207,10 @@ export function DockRail({
             </span>
             <span
               aria-hidden="true"
-              className="duration-instant ease-brand pointer-events-none absolute top-1/2 left-1.5 -translate-y-1/2 opacity-0 transition-none xl:group-hover/dock:opacity-100 xl:group-hover/dock:delay-150 xl:group-hover/dock:transition-opacity xl:group-focus-within/dock:opacity-100 xl:group-focus-within/dock:delay-150 xl:group-focus-within/dock:transition-opacity"
+              // Centred, where the mini mark is pinned left. Both are anchored
+              // so the mark holds its position through the crossfade while the
+              // lockup arrives across the widening panel.
+              className="duration-instant ease-brand pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 transition-none xl:group-hover/dock:opacity-100 xl:group-hover/dock:delay-150 xl:group-hover/dock:transition-opacity xl:group-focus-within/dock:opacity-100 xl:group-focus-within/dock:delay-150 xl:group-focus-within/dock:transition-opacity"
             >
               {brand ?? brandMini}
             </span>
@@ -259,7 +262,7 @@ export function DockRail({
                   <span
                     aria-hidden="true"
                     className={cn(
-                      "bg-rail-ink duration-instant ease-brand absolute -bottom-[7px] left-1/2 h-1 w-5 -translate-x-1/2 rounded-full transition-opacity",
+                      "bg-rail-ink ease-brand absolute -bottom-[7px] left-1/2 h-1 w-5 -translate-x-1/2 rounded-full transition-opacity duration-[220ms]",
                       "xl:top-1/2 xl:-left-3.5 xl:h-[34px] xl:w-[9px] xl:translate-x-0 xl:-translate-y-1/2 xl:rounded-l-none xl:rounded-r-[9px]",
                       active ? "opacity-100" : "opacity-0",
                     )}

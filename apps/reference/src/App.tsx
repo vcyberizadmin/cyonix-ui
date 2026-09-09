@@ -15,7 +15,9 @@
 import { useState } from "react";
 import {
   Card,
+  EmptyState,
   IconTile,
+  MeterRow,
   QueueRow,
   RecordCard,
   RowFacts,
@@ -28,8 +30,12 @@ import { AppShell, ConsoleBar, DockRail, Logo } from "@cyonix/ui/layout";
 import { Donut, Sankey, StepArea } from "@cyonix/ui/charts";
 import * as Icon from "./icons.js";
 import {
+  AGENTS,
   ALERTS,
+  AUTONOMY,
   CASES,
+  FP_BY_SOURCE,
+  QUEUE,
   FLOW_LINKS,
   FLOW_NODES,
   KPIS,
@@ -95,6 +101,189 @@ function Kpis() {
   );
 }
 
+/* ------------------------------------------------ AI investigation ---- */
+
+const AGENT_ICON = {
+  triage: <Icon.ShieldAlert />,
+  enrich: <Icon.Radar />,
+  hunt: <Icon.Workflow />,
+  report: <Icon.Clock />,
+} as const;
+
+function AiInvestigation() {
+  const pct = Math.round((AUTONOMY.auto / AUTONOMY.handled) * 100);
+  const busiest = Math.max(...AGENTS.map((a) => a.runs));
+
+  return (
+    <Card padding="none" className="p-5">
+      <h2 className="text-panel font-bold tracking-tight">AI investigation</h2>
+      <p className="text-fg-2 mt-1.5 text-[12.5px] font-medium">
+        Every alert is triaged, investigated and routed by an agent before an
+        analyst sees it.
+      </p>
+
+      <div className="mt-5 grid grid-cols-1 items-center gap-6 md:grid-cols-[auto_1fr] md:gap-8">
+        <div className="flex flex-col items-center gap-4 sm:flex-row">
+          <div className="flex shrink-0 flex-col items-center gap-2.5">
+            <Donut
+              slices={[
+                { label: "Closed by agent", value: AUTONOMY.auto },
+                { label: "Handed to analysts", value: AUTONOMY.human },
+              ]}
+              ramp="categorical"
+              size={104}
+              thickness={12}
+              legend={false}
+              totalLabel="handled"
+            />
+            <Tag className="bg-sev-info/15 text-sev-info">
+              {pct}% resolved without a human
+            </Tag>
+          </div>
+
+          <div className="flex gap-7 sm:flex-col sm:gap-3">
+            <div>
+              <p className="text-[19px] leading-none font-extrabold tabular-nums">
+                {AUTONOMY.auto.toLocaleString("en-US")}
+              </p>
+              <p className="text-fg-2 mt-1 text-[11.5px] font-semibold">
+                closed by agents
+              </p>
+            </div>
+            <div>
+              <p className="text-[19px] leading-none font-extrabold tabular-nums">
+                {AUTONOMY.human.toLocaleString("en-US")}
+              </p>
+              <p className="text-fg-2 mt-1 text-[11.5px] font-semibold">
+                handed to analysts
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3.5">
+          {AGENTS.map((a) => (
+            <MeterRow
+              key={a.key}
+              label={a.name}
+              tone={a.tone}
+              fraction={a.runs / busiest}
+              icon={
+                <IconTile tone={a.tone === "ok" ? "ok" : a.tone === "med" ? "info" : a.tone === "violet" ? "ai" : "warning"} size="xs">
+                  {AGENT_ICON[a.key as keyof typeof AGENT_ICON]}
+                </IconTile>
+              }
+              value={`${a.runs.toLocaleString("en-US")} · ${a.avg} avg`}
+            />
+          ))}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+/* --------------------------------------- False positives by source ---- */
+
+function FalsePositives() {
+  return (
+    <Card padding="none" className="flex min-h-[260px] flex-col p-5">
+      <h2 className="text-subpanel font-bold tracking-tight">
+        False positives by source
+      </h2>
+      <div className="mt-4 space-y-3.5">
+        {[...FP_BY_SOURCE]
+          .sort((a, b) => b[2] - a[2])
+          .map(([name, total, fp]) => (
+            <MeterRow
+              key={name}
+              label={name}
+              value={`${fp}% of ${total}`}
+              fraction={fp / 100}
+              // Threshold, not rank: past half the source is costing more than
+              // it finds, and between a third and a half it is worth tuning.
+              tone={fp >= 50 ? "crit" : fp >= 35 ? "accent" : "med"}
+            />
+          ))}
+      </div>
+    </Card>
+  );
+}
+
+/* -------------------------------------------- Assigned to analysts ---- */
+
+function AssignedToAnalysts() {
+  const busiest = Math.max(...QUEUE.map(([, n]) => n));
+
+  return (
+    <Card padding="none" className="flex min-h-[260px] flex-col p-5">
+      <h2 className="text-subpanel font-bold tracking-tight">
+        Assigned to analysts
+      </h2>
+      <div className="mt-4 space-y-3.5">
+        {[...QUEUE]
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, n]) => (
+            <MeterRow
+              key={name}
+              label={name}
+              value={n}
+              fraction={n / busiest}
+              // Unassigned is the only row that is a problem rather than a
+              // workload, so it is the only one that takes a severity colour.
+              tone={name === "Unassigned" ? "crit" : "accent"}
+            />
+          ))}
+      </div>
+    </Card>
+  );
+}
+
+/* -------------------------------------------------- Waiting on you ---- */
+
+function WaitingOnYou() {
+  const waiting = ALERTS.filter(
+    (a) => a.status === "New" || a.status === "Investigating",
+  ).slice(0, 4);
+
+  return (
+    <Card padding="none" className="p-5">
+      <h2 className="text-subpanel font-bold tracking-tight">Waiting on you</h2>
+      <div className="mt-4 space-y-2">
+        {waiting.length > 0 ? (
+          waiting.map((a) => (
+            <QueueRow
+              key={a.id}
+              severity={a.severity}
+              title={a.title}
+              onOpen={() => {}}
+              tags={<StatusPill status={a.status} />}
+              facts={
+                <RowFacts
+                  items={[
+                    <span className="font-mono text-[11.5px]">{a.id}</span>,
+                    a.rule,
+                    a.owner,
+                  ]}
+                />
+              }
+              trailing={
+                <>
+                  <SeverityBadge severity={a.severity} />
+                  <span className="text-fg-2 text-[11.5px] font-semibold">
+                    {a.ago}
+                  </span>
+                </>
+              }
+            />
+          ))
+        ) : (
+          <EmptyState variant="empty" title="Nothing waiting for triage." />
+        )}
+      </div>
+    </Card>
+  );
+}
+
 function Overview() {
   const [window, setWindow] = useState("24h");
 
@@ -106,7 +295,7 @@ function Overview() {
         <Card padding="none" className="flex min-h-[320px] flex-col p-5 xl:col-span-2">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-h3 font-extrabold tracking-tight">
+              <h2 className="text-panel font-bold tracking-tight">
                 Alert volume
               </h2>
               <p className="text-fg-2 mt-1 flex items-center gap-2 text-[12.5px] font-semibold">
@@ -149,11 +338,11 @@ function Overview() {
 
         <Card padding="none" className="flex min-h-[320px] flex-col p-5">
           <div className="flex items-start justify-between gap-2">
-            <h2 className="text-h3 font-extrabold tracking-tight">
+            <h2 className="text-panel font-bold tracking-tight">
               Open by severity
             </h2>
-            <span className="text-fg-muted [&_svg]:size-4">
-              <Icon.Info />
+            <span className="text-fg-2 [&_svg]:size-[19px]">
+              <Icon.ShieldAlert />
             </span>
           </div>
           <Donut
@@ -162,7 +351,8 @@ function Overview() {
             size={196}
             thickness={20}
             totalLabel="open"
-            className="mt-4"
+            legendPlacement="below"
+            className="mt-4 flex-1 justify-between"
           />
         </Card>
       </div>
@@ -170,7 +360,7 @@ function Overview() {
       <Card padding="none" className="p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-h3 font-extrabold tracking-tight">Alert flow</h2>
+            <h2 className="text-panel font-bold tracking-tight">Alert flow</h2>
             <p className="text-fg-2 mt-1 text-[12.5px] font-semibold">
               Source → agent decision → outcome. Hover a band to trace one path.
             </p>
@@ -190,6 +380,15 @@ function Overview() {
           className="mt-4"
         />
       </Card>
+
+      <AiInvestigation />
+
+      <div className="grid gap-4 xl:grid-cols-2 xl:gap-5">
+        <FalsePositives />
+        <AssignedToAnalysts />
+      </div>
+
+      <WaitingOnYou />
     </div>
   );
 }
@@ -361,8 +560,8 @@ export function App() {
         <DockRail
           items={NAV}
           activeHref={href}
-          brand={<Logo size="sm" />}
-          brandMini={<Logo mini size="sm" />}
+          brand={<Logo size="xl" />}
+          brandMini={<Logo mini size="xl" />}
           footer="SOC"
           linkComponent={({ href: to, ...rest }: { href: string }) => (
             <a

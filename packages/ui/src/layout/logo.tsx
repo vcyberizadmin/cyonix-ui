@@ -41,7 +41,7 @@ export interface LogoProps {
    * light-mode rail. Ours does not.
    */
   mini?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   /** Drop the wordmark but keep the module badge. */
   wordmark?: boolean;
   className?: string;
@@ -49,8 +49,13 @@ export interface LogoProps {
 
 /* Heights, not widths: the lockup is 498 × 97, so a fixed height keeps the
    aspect ratio and lets the width fall where it may. */
-const LOCKUP = { sm: "h-4", md: "h-5", lg: "h-6" } as const;
-const STAR = { sm: "size-5", md: "size-6", lg: "size-8" } as const;
+/* `xl` is the RAIL size, and the reason the scale needed a fourth step: the
+   console's collapsed rail carries a 36px mark and its expanded lockup a 32px
+   one, both larger than `lg` topped out at. A mark set two steps down in a
+   76px column does not read as an identity, it reads as an icon someone
+   forgot to size. */
+const LOCKUP = { sm: "h-4", md: "h-5", lg: "h-6", xl: "h-8" } as const;
+const STAR = { sm: "size-5", md: "size-6", lg: "size-8", xl: "size-9" } as const;
 
 /**
  * One id for every instance. SVG gradient ids are document-global, so several

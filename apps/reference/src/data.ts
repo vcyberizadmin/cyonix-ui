@@ -25,16 +25,20 @@ export const SEVERITY_SLICES = [
   { label: "Low", value: 40 },
 ];
 
+/* Tones exactly as the reference assigns them: SRC_COLOR gives EDR the high
+   mark, Identity the medium one, Network its violet accent and Cloud the low
+   mark; the decision and outcome nodes take ok / high and low / medium /
+   critical. */
 export const FLOW_NODES = [
-  { id: "edr", column: 0, label: "EDR", tone: "warning" as const },
-  { id: "identity", column: 0, label: "Identity", tone: "info" as const },
-  { id: "network", column: 0, label: "Network", tone: "ai" as const },
-  { id: "cloud", column: 0, label: "Cloud", tone: "neutral" as const },
+  { id: "edr", column: 0, label: "EDR", tone: "high" as const },
+  { id: "identity", column: 0, label: "Identity", tone: "med" as const },
+  { id: "network", column: 0, label: "Network", tone: "violet" as const },
+  { id: "cloud", column: 0, label: "Cloud", tone: "low" as const },
   { id: "auto", column: 1, label: "Closed by agent", tone: "ok" as const },
-  { id: "human", column: 1, label: "To an analyst", tone: "warning" as const },
-  { id: "benign", column: 2, label: "Benign", tone: "neutral" as const },
-  { id: "tuned", column: 2, label: "Sent to tuning", tone: "info" as const },
-  { id: "case", column: 2, label: "Escalated to client", tone: "danger" as const },
+  { id: "human", column: 1, label: "To an analyst", tone: "high" as const },
+  { id: "benign", column: 2, label: "Benign", tone: "low" as const },
+  { id: "tuned", column: 2, label: "Sent to tuning", tone: "med" as const },
+  { id: "case", column: 2, label: "Escalated to client", tone: "crit" as const },
 ];
 
 export const FLOW_LINKS = [
@@ -73,4 +77,32 @@ export const ALERTS = [
 export const CASES = [
   { id: "CS-118", tenant: "Northwind Bank", title: "Suspected credential theft — finance segment", severity: "Critical" as const, status: "Investigating", owner: "You", alerts: 2, at: "18 Aug 2026, 12:44", sla: 62, slaLabel: "2h 43m left", needs: "Approve containment of FIN-WS-2214" },
   { id: "CS-117", tenant: "Meridian Health", title: "Ransomware staging on HR file share", severity: "High" as const, status: "Contained", owner: "A. Voss", alerts: 1, at: "18 Aug 2026, 10:33", sla: 48, slaLabel: "3h 17m left", needs: "Confirm restore from 03:00 snapshot" },
+];
+
+/* --- AI investigation ------------------------------------------------- */
+export const AUTONOMY = { handled: 1357, auto: 1152, human: 205 };
+
+export const AGENTS = [
+  { key: "triage", name: "Triage agent", runs: 1421, avg: "0.8s", tone: "ok" as const },
+  { key: "enrich", name: "Enrichment agent", runs: 1284, avg: "2.1s", tone: "med" as const },
+  { key: "hunt", name: "Hunt agent", runs: 486, avg: "6.4s", tone: "violet" as const },
+  { key: "report", name: "Report agent", runs: 205, avg: "3.7s", tone: "high" as const },
+];
+
+/* --- False positives by source ---------------------------------------- */
+/* [name, total alerts, false-positive rate as a percentage] */
+export const FP_BY_SOURCE: [string, number, number][] = [
+  ["Zeek", 350, 58],
+  ["auditd", 190, 41],
+  ["CrowdStrike Falcon", 486, 27],
+  ["Microsoft Entra ID", 331, 18],
+];
+
+/* --- Assigned to analysts --------------------------------------------- */
+export const QUEUE: [string, number][] = [
+  ["Unassigned", 17],
+  ["A. Voss", 12],
+  ["M. Kurisu", 9],
+  ["N. Lindqvist", 6],
+  ["You", 4],
 ];

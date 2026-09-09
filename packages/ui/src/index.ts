@@ -160,3 +160,4 @@ export {
   type RowFactsProps,
 } from "./queue-row.js";
 export { IconTile, type IconTileProps } from "./icon-tile.js";
+export { MeterRow, type MeterRowProps, type MeterTone } from "./meter-row.js";

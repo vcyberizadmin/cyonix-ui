@@ -108,6 +108,7 @@ exports[`named exports are stable > root entrypoint 1`] = `
   "IconTile",
   "Input",
   "InsightPanel",
+  "MeterRow",
   "Note",
   "Pagination",
   "Progress",

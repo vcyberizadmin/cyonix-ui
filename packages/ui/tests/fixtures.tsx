@@ -22,6 +22,7 @@ import { EmptyState, ErrorState } from "../src/states.js";
 import { SeverityBadge, StatusPill } from "../src/status.js";
 import { RecordCard } from "../src/record-card.js";
 import { IconTile } from "../src/icon-tile.js";
+import { MeterRow } from "../src/meter-row.js";
 import { Sankey } from "../src/charts/sankey.js";
 import { QueueRow, RowFacts } from "../src/queue-row.js";
 import { Segmented, Tabs } from "../src/tabs.js";
@@ -116,6 +117,9 @@ export const FIXTURES: Record<string, () => ReactElement> = {
   ChipStack: () => <ChipStack items={[{ label: "prod" }, { label: "eu-west" }]} />,
   StatusPill: () => <StatusPill status="active" />,
   SeverityBadge: () => <SeverityBadge severity="Critical" />,
+  MeterRow: () => (
+    <MeterRow label="Zeek" value="58% of 350" fraction={0.58} tone="crit" />
+  ),
   IconTile: () => (
     <IconTile tone="info" label="Alerts">
       <svg viewBox="0 0 24 24" />
@@ -125,7 +129,7 @@ export const FIXTURES: Record<string, () => ReactElement> = {
     <Sankey
       label="Alert flow"
       nodes={[
-        { id: "edr", column: 0, label: "EDR", tone: "warning" },
+        { id: "edr", column: 0, label: "EDR", tone: "high" },
         { id: "auto", column: 1, label: "Closed by agent", tone: "ok" },
         { id: "benign", column: 2, label: "Benign", tone: "neutral" },
       ]}
