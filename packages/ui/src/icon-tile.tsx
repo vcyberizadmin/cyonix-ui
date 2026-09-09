@@ -36,6 +36,8 @@ const tile = cva(
         neutral: "bg-surface-3 text-fg",
       },
       size: {
+        /** 24px. A leading marker on a MeterRow, where 36 would dominate. */
+        xs: "size-6 rounded-[8px] [&_svg]:size-3.5",
         /** 36px. What a KPI card's header uses, beside the label. */
         sm: "size-9 rounded-[11px] [&_svg]:size-[18px]",
         /** 42px. The default, for a row or a panel header. */
