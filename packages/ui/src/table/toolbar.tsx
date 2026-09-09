@@ -196,6 +196,21 @@ export interface ToolbarProps {
     onSelect: (id: string) => void;
     onSave?: () => void;
   };
+  /**
+   * Where this toolbar sits, which decides whether it draws its own edges.
+   *
+   * `attached` (default) is a header welded to the thing it filters — a
+   * DataTable directly below it. It carries the hairline that separates the two
+   * and the horizontal padding that lines its controls up with the table's
+   * cells.
+   *
+   * `bare` is a filter row standing on the page, with the results in their own
+   * card below. It draws no hairline and no padding, because there is nothing
+   * to align to and nothing to separate from: an edge there reads as a card
+   * that forgot its fill. The console uses this form on both of its filtered
+   * screens, which is why the option exists.
+   */
+  surface?: "attached" | "bare";
   className?: string;
 }
 
@@ -206,13 +221,27 @@ export function Toolbar({
   onClearAll,
   resultCount,
   savedViews,
+  surface = "attached",
   className,
 }: ToolbarProps) {
   const hasChips = countRenderable(chips) > 0;
 
+  const bare = surface === "bare";
+
   return (
-    <div className={cn("border-rule flex flex-col gap-2 border-b", className)}>
-      <div className="flex flex-wrap items-center gap-2 px-4 py-2.5">
+    <div
+      className={cn(
+        "flex flex-col",
+        bare ? "gap-3" : "border-rule gap-2 border-b",
+        className,
+      )}
+    >
+      <div
+        className={cn(
+          "flex flex-wrap items-center",
+          bare ? "gap-3" : "gap-2 px-4 py-2.5",
+        )}
+      >
         {/* Children BEFORE search, which is what this prop's own documentation
             has always said and what the console does on both of its filtered
             screens: the dimensions you filter by come first, and the search
@@ -263,7 +292,12 @@ export function Toolbar({
       </div>
 
       {hasChips && (
-        <div className="flex flex-wrap items-center gap-1.5 px-4 pb-2.5">
+        <div
+          className={cn(
+            "flex flex-wrap items-center gap-1.5",
+            bare ? "" : "px-4 pb-2.5",
+          )}
+        >
           <span className="text-fg-muted text-[10px] font-semibold tracking-[0.08em] uppercase">
             Applied
           </span>

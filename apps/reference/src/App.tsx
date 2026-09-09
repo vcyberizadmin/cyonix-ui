@@ -452,8 +452,8 @@ function Alerts() {
 
   return (
     <div className="space-y-4">
-      <Card padding="none" className="overflow-hidden">
-        <Toolbar
+      <Toolbar
+          surface="bare"
           search={{
             value: query,
             onChange: setQuery,
@@ -507,7 +507,13 @@ function Alerts() {
           />
         </Toolbar>
 
-        <div className="space-y-2 p-4">
+      {/* The results live in their own card, as the console has them: the
+          filter row stands on the page and the list is the object below it. */}
+      <Card padding="none" className="p-4 sm:p-5">
+        <p className="text-fg-2 mb-4 text-[13px] font-bold">
+          {shown.length} alert{shown.length === 1 ? "" : "s"} in queue
+        </p>
+        <div className="space-y-2">
           {shown.length === 0 ? (
             <EmptyState
               variant="empty"
@@ -573,8 +579,8 @@ function Cases() {
 
   return (
     <div className="space-y-4">
-      <Card padding="none" className="overflow-hidden">
-        <Toolbar
+      <Toolbar
+          surface="bare"
           search={{
             value: query,
             onChange: setQuery,
@@ -619,7 +625,6 @@ function Cases() {
             size="sm"
           />
         </Toolbar>
-      </Card>
 
       {shown.length === 0 ? (
         <Card padding="none" className="p-5">
