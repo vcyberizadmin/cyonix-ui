@@ -20,7 +20,7 @@
  *
  * No charting library: this is some arithmetic and one cubic Bézier per ribbon.
  */
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "../lib/cn.js";
 import { compact } from "./util.js";
 
@@ -75,7 +75,10 @@ export interface SankeyProps {
   className?: string;
 }
 
-const W = 600;
+/* The width used before the container has been measured, and on the server.
+   Everything scales off the measured width once one arrives, so this only has
+   to be plausible, not right. */
+const W_FALLBACK = 600;
 const NODE_W = 12;
 const GAP = 16;
 const TOP = 8;
@@ -105,6 +108,28 @@ export function Sankey({
   className,
 }: SankeyProps) {
   const [hovered, setHovered] = useState<number | null>(null);
+
+  /* MEASURED, not stretched.
+     This chart used a fixed 600-unit space scaled to the container with
+     preserveAspectRatio="none", which is fine for a ribbon — an organic shape
+     that may stretch — and wrong for everything whose WIDTH means something. A
+     12-unit node in a 1707px container rendered 34px wide, nearly three times
+     the 12px it should be. Laying out in real pixels is what the reference
+     does, and it is the only way a node bar and a stroke width can be the size
+     they claim to be. */
+  const hostRef = useRef<HTMLElement>(null);
+  const [W, setW] = useState(W_FALLBACK);
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const next = entry?.contentRect.width ?? 0;
+      if (next > 0) setW(next);
+    });
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, []);
 
   const live = links.filter((l) => l.value > 0);
   const byId = new Map(nodes.map((n) => [n.id, n]));
@@ -202,16 +227,14 @@ export function Sankey({
     .sort((a, b) => b.th - a.th);
 
   return (
-    <figure className={cn("relative m-0", className)}>
+    <figure ref={hostRef} className={cn("relative m-0", className)}>
       <svg
+        // The viewBox now MATCHES the rendered box, so one user unit is one
+        // pixel and nothing is distorted in either axis.
         viewBox={`0 0 ${W} ${height}`}
-        preserveAspectRatio="none"
         role="img"
         aria-label={label}
         className="block w-full"
-        // Not h-full: with no height on the parent that falls back to the
-        // viewBox's aspect ratio, so a 600x300 box rendered 1400px wide came
-        // out 700px tall.
         style={{ height }}
       >
         {painted.map((band) => (
@@ -245,11 +268,10 @@ export function Sankey({
         ))}
       </svg>
 
-      {/* NODE LABELS ARE HTML, NOT SVG TEXT.
-          preserveAspectRatio="none" stretches the coordinate space horizontally
-          to fit any card width, which is right for the ribbons and ruinous for
-          glyphs drawn inside it. Positioning them in percentages keeps the type
-          undistorted at every width. */}
+      {/* Node labels stay HTML rather than SVG text. With the space now
+          measured they would no longer be distorted, but HTML keeps them on the
+          document's type stack, lets them inherit the theme's font tokens, and
+          means a long node name can be truncated with CSS rather than by hand. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         {[...box.values()].map(({ x, y, h, node }) => {
           const right = node.column === last;
