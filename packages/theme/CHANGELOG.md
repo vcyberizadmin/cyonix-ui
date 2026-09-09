@@ -1,5 +1,94 @@
 # @cyonix/theme
 
+## 3.0.0
+
+### Major Changes
+
+- 11a40a1: Match the motion curve and durations to the reference
+
+  Everything about the navigation measured correct — panel 76px at x=12, items
+  48px on a 56px pitch, glyphs 22px centred at x=50, the ink tab 9×34, radii 28
+  and 16 — and it still did not feel the same, because motion was the one layer
+  never compared.
+
+  **One curve, and it was the wrong one.** The reference moves everything on
+  `cubic-bezier(.2,.8,.2,1)`: the rail's width, the segmented ink, a progress fill,
+  the view transition. This file used `cubic-bezier(.2,.7,.2,1)`, which is
+  indistinguishable in a still frame and reads as a flatter, more mechanical ease
+  once it moves.
+
+  **Both durations were fast.** The reference runs quick state flips — a button, a
+  chip, a field's focus ring — at `.18s` where this ran `.12s`, and size and
+  position changes at `.32s` where this ran `.24s`. The rail's peek was the clearest
+  tell at a third quicker than the original, which reads as eager rather than
+  considered.
+
+  `--duration-instant` 120ms → 180ms, `--duration-standard` 240ms → 320ms. These
+  are theme-wide, so every transition in the library slows to match; that is the
+  intent, since the reference tunes from one vocabulary rather than per component.
+
+  The rail's ink keeps its own `.22s`, between a colour flip and the panel's
+  width, as the reference has it.
+
+### Minor Changes
+
+- fc4c337: Add panel-heading steps to the type scale
+
+  A card's title had no size in the scale. Between `--text-h3` at 22px and
+  `--text-body` at 15px there was nothing, which is the widest gap in the whole
+  ramp — and a panel heading falls squarely into it. So every card heading reached
+  for `h3` and came out a third too large.
+
+  The console runs **17px** for a panel that owns its row and **16.5px** for one
+  sharing a grid with siblings, both at weight 700 with tight tracking. Half a
+  point apart is not false precision: it is the reference's own two-level
+  hierarchy, and both sizes appear dozens of times across its screens.
+
+  `--text-panel` and `--text-subpanel` name them.
+
+  This is one bite of a larger problem already visible in the library: 170
+  arbitrary font sizes across 17 distinct values, against a scale that names
+  seven. The scale is close to decorative, and components hardcode around it. This
+  adds the two steps that were most conspicuously missing rather than attempting
+  that sweep.
+
+- 98a09d0: Bring `Sankey` up to the reference's full design
+
+  The first pass got the topology right and skipped almost everything else. This
+  copies the rest.
+
+  **Node labels are drawn in place**, beside each node, at the reference's
+  `11.5px/800` over a `10.5px/700` count — not collected into a caption below the
+  chart. They read against the ribbons they name, which is the whole point of
+  labelling a node rather than a series. They are HTML positioned in percentages
+  rather than SVG text, because the plot uses `preserveAspectRatio="none"` and
+  would stretch any glyph drawn inside it.
+
+  **Hovering a ribbon now dims the others** to 7% and lifts the hovered one to
+  72%, with a brand-filled readout naming both ends and the count. This is not
+  decoration: a Sankey answers "where did THIS one go", and that is unreadable
+  while a dozen others compete for the same pixels. The previous behaviour — a
+  brightness nudge with no dimming — did not answer the question.
+
+  **Ribbons paint thickest-first**, so a hairline lands on top of the slab it
+  crosses and stays hoverable rather than being buried by it.
+
+  **Tones are the reference's own.** `SankeyTone` now names the ranked marks
+  (`crit`, `high`, `med`, `low`, `ok`) plus `violet` and `neutral`, replacing a
+  palette that mapped to the wrong tokens: `ok` resolved to a teal `#00b37a` where
+  the reference is mint `#7ed321`, and `info` to `#4d9cf0` where the reference is
+  azure `#1b6ef3`. Colouring a flow by what each end MEANS is what lets a source
+  that mostly auto-closes share a language with the outcome it reaches.
+
+  **`--violet` is new** in the theme: `#a855f7`, the reference's fifth accent. Its
+  palette is brand / azure / mint / violet / rose, and the other four are already
+  the severity marks — this is the one that was missing. Deliberately not a step
+  on the Amethyst ramp, which runs bluer and stays reserved for agent output.
+
+  `Sankey` is now a client component, since the hover state is what makes it
+  readable. Every band and node still carries a `<title>`, so the numbers survive
+  without a pointer.
+
 ## 2.0.0
 
 ### Major Changes
