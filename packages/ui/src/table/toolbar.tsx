@@ -22,7 +22,14 @@
  * app's router. Keep filter + page state in the URL so a filtered view is
  * linkable and survives reload.
  */
-import { useEffect, useState, type ReactNode } from "react";
+import {
+  Children,
+  Fragment,
+  isValidElement,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import { cn } from "../lib/cn.js";
 import { Segmented } from "../tabs.js";
 
@@ -128,6 +135,35 @@ export function FilterChip({ field, value, onRemove, className }: FilterChipProp
   );
 }
 
+/**
+ * How many of these children will actually put something on the page.
+ *
+ * `chips && ...` was the obvious test and the wrong one: a fragment is truthy
+ * even when every chip inside it is conditional and absent, so an "Applied /
+ * Clear all" row drew itself with nothing applied. `Children.toArray` is the
+ * next obvious answer and also wrong — it flattens arrays but treats a
+ * Fragment as ONE child, so it counts the wrapper rather than the contents.
+ *
+ * A fragment full of conditionals is the natural way to write this prop, so
+ * the component walks into them rather than asking the caller to pass an array.
+ */
+function countRenderable(node: ReactNode): number {
+  let count = 0;
+  Children.forEach(node, (child) => {
+    if (child === null || child === undefined || typeof child === "boolean") {
+      return;
+    }
+    if (isValidElement(child) && child.type === Fragment) {
+      count += countRenderable(
+        (child.props as { children?: ReactNode }).children,
+      );
+      return;
+    }
+    count += 1;
+  });
+  return count;
+}
+
 /* --------------------------------------------------------------- Toolbar ---- */
 
 export interface SavedView {
@@ -172,11 +208,18 @@ export function Toolbar({
   savedViews,
   className,
 }: ToolbarProps) {
+  const hasChips = countRenderable(chips) > 0;
+
   return (
     <div className={cn("border-rule flex flex-col gap-2 border-b", className)}>
       <div className="flex flex-wrap items-center gap-2 px-4 py-2.5">
-        {search && <SearchField {...search} />}
+        {/* Children BEFORE search, which is what this prop's own documentation
+            has always said and what the console does on both of its filtered
+            screens: the dimensions you filter by come first, and the search
+            field grows to fill what is left. The implementation had them the
+            other way round. */}
         {children}
+        {search && <SearchField {...search} />}
 
         <div className="ml-auto flex items-center gap-3">
           {savedViews && (
@@ -219,7 +262,7 @@ export function Toolbar({
         </div>
       </div>
 
-      {chips && (
+      {hasChips && (
         <div className="flex flex-wrap items-center gap-1.5 px-4 pb-2.5">
           <span className="text-fg-muted text-[10px] font-semibold tracking-[0.08em] uppercase">
             Applied
@@ -263,23 +306,29 @@ function SearchField({
   return (
     <div className="relative flex min-w-[200px] flex-1 items-center">
       <svg
-        className="text-fg-muted pointer-events-none absolute left-2.5 size-3.5"
+        className="text-fg-muted pointer-events-none absolute left-4 size-[18px]"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.8"
+        strokeWidth="2"
         strokeLinecap="round"
+        strokeLinejoin="round"
         aria-hidden="true"
       >
-        <circle cx="11" cy="11" r="7" />
-        <path d="m20 20-3.5-3.5" />
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
       </svg>
       <input
         type="search"
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
         placeholder={placeholder}
-        className="border-rule bg-wash-1 text-fg placeholder:text-fg-2 focus:border-focus duration-instant ease-brand h-8 w-full rounded-sm border pr-2.5 pl-8 text-[12.5px] transition-colors focus:outline-none"
+        className={cn(
+          "bg-surface text-fg placeholder:text-fg-muted placeholder:font-medium",
+          "shadow-[inset_0_0_0_2px_transparent] focus:shadow-[inset_0_0_0_2px_var(--accent)]",
+          "duration-instant ease-brand h-11 w-full rounded-lg pr-4 pl-11 text-[13.5px] font-semibold",
+          "transition-[box-shadow] focus:outline-none",
+        )}
       />
     </div>
   );

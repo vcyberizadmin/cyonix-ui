@@ -16,15 +16,18 @@ import { useState } from "react";
 import {
   Card,
   EmptyState,
+  FilterChip,
   IconTile,
   MeterRow,
   QueueRow,
   RecordCard,
   RowFacts,
   Segmented,
+  SegmentedFilter,
   SeverityBadge,
   StatusPill,
   Tag,
+  Toolbar,
 } from "@cyonix/ui";
 import { AppShell, ConsoleBar, DockRail, Logo } from "@cyonix/ui/layout";
 import { Donut, Sankey, StepArea } from "@cyonix/ui/charts";
@@ -432,40 +435,86 @@ const StatusTag = ({ status }: { status: string }) => (
 function Alerts() {
   const [severity, setSeverity] = useState("all");
   const [mine, setMine] = useState("all");
+  const [query, setQuery] = useState("");
+
+  /* Filtering for real, not just rendering the controls: a toolbar that does
+     not narrow anything cannot show whether its result count, its chips or its
+     empty state work. */
+  const shown = ALERTS.filter((a) => {
+    if (severity !== "all" && a.severity.toLowerCase() !== severity) return false;
+    if (mine === "mine" && a.owner !== "You") return false;
+    if (query) {
+      const hay = `${a.title} ${a.rule} ${a.host} ${a.user}`.toLowerCase();
+      if (!hay.includes(query.toLowerCase())) return false;
+    }
+    return true;
+  });
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <Segmented
-          items={[
-            { value: "all", label: "All" },
-            { value: "critical", label: "Critical" },
-            { value: "high", label: "High" },
-            { value: "medium", label: "Medium" },
-            { value: "low", label: "Low" },
-          ]}
-          value={severity}
-          onChange={setSeverity}
-          label="Severity"
-        />
-        <Segmented
-          items={[
-            { value: "all", label: "All" },
-            { value: "mine", label: "Mine" },
-          ]}
-          value={mine}
-          onChange={setMine}
-          label="Ownership"
-          className="ml-auto"
-        />
-      </div>
+      <Card padding="none" className="overflow-hidden">
+        <Toolbar
+          search={{
+            value: query,
+            onChange: setQuery,
+            placeholder: "Filter by title, rule, host or user…",
+          }}
+          resultCount={{ shown: shown.length, total: ALERTS.length }}
+          chips={
+            <>
+              {severity !== "all" && (
+                <FilterChip
+                  field="Severity"
+                  value={severity}
+                  onRemove={() => setSeverity("all")}
+                />
+              )}
+              {mine === "mine" && (
+                <FilterChip
+                  field="Owner"
+                  value="You"
+                  onRemove={() => setMine("all")}
+                />
+              )}
+            </>
+          }
+          onClearAll={() => {
+            setSeverity("all");
+            setMine("all");
+            setQuery("");
+          }}
+        >
+          <SegmentedFilter
+            options={[
+              { value: "all", label: "All" },
+              { value: "critical", label: "Critical" },
+              { value: "high", label: "High" },
+              { value: "medium", label: "Medium" },
+              { value: "low", label: "Low" },
+            ]}
+            value={severity}
+            onChange={setSeverity}
+            label="Severity"
+          />
+          <SegmentedFilter
+            options={[
+              { value: "all", label: "All" },
+              { value: "mine", label: "Mine" },
+            ]}
+            value={mine}
+            onChange={setMine}
+            label="Ownership"
+          />
+        </Toolbar>
 
-      <Card padding="none" className="p-4">
-        <p className="text-fg-2 px-1 pb-3 text-[13px] font-bold">
-          {ALERTS.length} alerts in queue
-        </p>
-        <div className="space-y-2">
-          {ALERTS.map((a) => (
+        <div className="space-y-2 p-4">
+          {shown.length === 0 ? (
+            <EmptyState
+              variant="empty"
+              title="No alerts match these filters."
+            />
+          ) : (
+            shown.map((a) => (
             <QueueRow
               key={a.id}
               severity={a.severity}
@@ -498,7 +547,8 @@ function Alerts() {
                 </>
               }
             />
-          ))}
+            ))
+          )}
         </div>
       </Card>
     </div>
@@ -508,35 +558,76 @@ function Alerts() {
 function Cases() {
   const [status, setStatus] = useState("open");
   const [view, setView] = useState("cards");
+  const [query, setQuery] = useState("");
+
+  const shown = CASES.filter((c) => {
+    if (status === "closed" && c.status !== "Closed") return false;
+    if (status === "open" && c.status === "Closed") return false;
+    if (status === "action" && !c.needs) return false;
+    if (query) {
+      const hay = `${c.title} ${c.id} ${c.tenant} ${c.owner}`.toLowerCase();
+      if (!hay.includes(query.toLowerCase())) return false;
+    }
+    return true;
+  });
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <Segmented
-          items={[
-            { value: "all", label: "All" },
-            { value: "open", label: "Open" },
-            { value: "closed", label: "Closed" },
-            { value: "action", label: "Action required" },
-          ]}
-          value={status}
-          onChange={setStatus}
-          label="Case status"
-        />
-        <Segmented
-          items={[
-            { value: "cards", label: <span className="[&_svg]:size-4"><Icon.Grid2x2 /></span> },
-            { value: "table", label: <span className="[&_svg]:size-4"><Icon.Rows3 /></span> },
-          ]}
-          value={view}
-          onChange={setView}
-          label="View mode"
-          className="ml-auto"
-        />
-      </div>
+      <Card padding="none" className="overflow-hidden">
+        <Toolbar
+          search={{
+            value: query,
+            onChange: setQuery,
+            placeholder: "Filter cases…",
+          }}
+          resultCount={{ shown: shown.length, total: CASES.length }}
+          chips={
+            status !== "open" ? (
+              <FilterChip
+                field="Status"
+                value={status}
+                onRemove={() => setStatus("open")}
+              />
+            ) : null
+          }
+          onClearAll={() => {
+            setStatus("open");
+            setQuery("");
+          }}
+        >
+          <SegmentedFilter
+            options={[
+              { value: "all", label: "All" },
+              { value: "open", label: "Open" },
+              { value: "closed", label: "Closed" },
+              { value: "action", label: "Action required" },
+            ]}
+            value={status}
+            onChange={setStatus}
+            label="Case status"
+          />
+          {/* The card/table toggle, which the reference builds from a
+              segmented with two icon labels — no dedicated component needed. */}
+          <Segmented
+            items={[
+              { value: "cards", label: <span className="[&_svg]:size-4"><Icon.Grid2x2 /></span> },
+              { value: "table", label: <span className="[&_svg]:size-4"><Icon.Rows3 /></span> },
+            ]}
+            value={view}
+            onChange={setView}
+            label="View mode"
+            size="sm"
+          />
+        </Toolbar>
+      </Card>
 
+      {shown.length === 0 ? (
+        <Card padding="none" className="p-5">
+          <EmptyState variant="empty" title="No cases match these filters." />
+        </Card>
+      ) : (
       <div className="grid gap-4 xl:grid-cols-2">
-        {CASES.map((c) => (
+        {shown.map((c) => (
           <RecordCard
             key={c.id}
             severity={c.severity}
@@ -565,6 +656,7 @@ function Cases() {
           />
         ))}
       </div>
+      )}
     </div>
   );
 }
