@@ -20,12 +20,33 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "./lib/cn.js";
+import type { Tone } from "./lib/status.js";
 
 // The reference draws a card as fill plus radius, with NO hairline: `.card {
 // background:var(--surface); border-radius:22px }`. That is a departure from
 // this library's "hairlines, not gaps" principle, which separated cards from
 // the page with a rule. Against the reference's grounds the fill carries the
 // separation on its own — grey on white in light, a raised slab in dark.
+/**
+ * A toned inset ring, at the strength the console uses for each purpose: 22%
+ * to say "this one is waiting on you", 30% to say "this is what the agent
+ * concluded". Inset so it never grows the card's box and cannot be clipped by
+ * a neighbour in a tight grid.
+ *
+ * Literal per tone, because Tailwind emits nothing for a class name built at
+ * runtime — the same reason TONE_TINT exists.
+ */
+const RING: Record<Tone, string> = {
+  accent: "shadow-[inset_0_0_0_1.5px_color-mix(in_srgb,var(--accent)_22%,transparent)]",
+  crit: "shadow-[inset_0_0_0_1.5px_color-mix(in_srgb,var(--sev-crit)_30%,transparent)]",
+  high: "shadow-[inset_0_0_0_1.5px_color-mix(in_srgb,var(--sev-high)_30%,transparent)]",
+  med: "shadow-[inset_0_0_0_1.5px_color-mix(in_srgb,var(--sev-med)_30%,transparent)]",
+  low: "shadow-[inset_0_0_0_1.5px_color-mix(in_srgb,var(--sev-low)_30%,transparent)]",
+  ok: "shadow-[inset_0_0_0_1.5px_color-mix(in_srgb,var(--sev-info)_30%,transparent)]",
+  violet: "shadow-[inset_0_0_0_1.5px_color-mix(in_srgb,var(--violet)_30%,transparent)]",
+  neutral: "shadow-[inset_0_0_0_1.5px_var(--rule)]",
+};
+
 const card = cva("rounded-xl", {
   variants: {
     /** Nested cards step down to the ground colour. One level only. */
@@ -62,17 +83,33 @@ export interface CardProps
   hint?: ReactNode;
   /** Actions slot in the header, right of the hint. */
   actions?: ReactNode;
+  /**
+   * Rings the card in a tone rather than tinting it.
+   *
+   * A ring says "this card is the one" without claiming a place in whatever
+   * ranking the cards themselves carry — a tint would compete with a severity
+   * bar or a status for the same job. The console uses it two ways: at the
+   * brand tone for a case waiting on a human, and at a verdict tone for the
+   * panel holding what an agent concluded.
+   */
+  ring?: Tone;
 }
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
-  { className, nested, padding, title, hint, actions, children, ...props },
+  { className, nested, padding, title, hint, actions, ring, children, ...props },
   ref,
 ) {
   return (
-    <div ref={ref} className={cn(card({ nested }), className)} {...props}>
+    <div
+      ref={ref}
+      className={cn(card({ nested }), ring && RING[ring], className)}
+      {...props}
+    >
       {title ? (
         <div className="border-rule bg-wash-1 flex items-center justify-between gap-4 border-b px-6 py-3">
-          <h3 className="font-display text-h3 font-semibold">{title}</h3>
+          <h3 className="font-display text-panel font-bold tracking-tight">
+            {title}
+          </h3>
           <div className="flex items-center gap-3">
             {hint ? <span className="text-fg-2 text-small">{hint}</span> : null}
             {actions}
