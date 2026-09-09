@@ -4,9 +4,9 @@
  * `METRICS.all` and `AUTONOMY.all`.
  */
 export const KPIS = [
-  { label: "Open alerts", value: "128", unit: "", sub: "9 critical unassigned", good: false, delta: "+14", tone: "warning" as const },
-  { label: "MTTD", value: "7.4", unit: "min", sub: "detect", good: true, delta: "−1.2 min", tone: "info" as const },
-  { label: "MTTR", value: "38", unit: "min", sub: "contain", good: true, delta: "−6 min", tone: "ai" as const },
+  { label: "Open alerts", value: "128", unit: "", sub: "9 critical unassigned", good: false, delta: "+14", tone: "high" as const },
+  { label: "MTTD", value: "7.4", unit: "min", sub: "detect", good: true, delta: "−1.2 min", tone: "med" as const },
+  { label: "MTTR", value: "38", unit: "min", sub: "contain", good: true, delta: "−6 min", tone: "violet" as const },
   { label: "False positive rate", value: "34", unit: "%", sub: "of closed alerts", good: true, delta: "−5 pts", tone: "neutral" as const },
 ];
 
@@ -82,11 +82,14 @@ export const CASES = [
 /* --- AI investigation ------------------------------------------------- */
 export const AUTONOMY = { handled: 1357, auto: 1152, human: 205 };
 
+/* Names and tints exactly as the reference's AGENTS map has them: triage takes
+   the medium mark, investigation its violet accent, the dispatcher the ok mark
+   and containment the high one. */
 export const AGENTS = [
-  { key: "triage", name: "Triage agent", runs: 1421, avg: "0.8s", tone: "ok" as const },
-  { key: "enrich", name: "Enrichment agent", runs: 1284, avg: "2.1s", tone: "med" as const },
-  { key: "hunt", name: "Hunt agent", runs: 486, avg: "6.4s", tone: "violet" as const },
-  { key: "report", name: "Report agent", runs: 205, avg: "3.7s", tone: "high" as const },
+  { key: "triage", name: "Triage Agent", runs: 1421, avg: "0.8s", tone: "med" as const },
+  { key: "invest", name: "Investigation Agent", runs: 1284, avg: "2.1s", tone: "violet" as const },
+  { key: "assign", name: "Dispatcher Agent", runs: 486, avg: "6.4s", tone: "ok" as const },
+  { key: "contain", name: "Containment Agent", runs: 205, avg: "3.7s", tone: "high" as const },
 ];
 
 /* --- False positives by source ---------------------------------------- */

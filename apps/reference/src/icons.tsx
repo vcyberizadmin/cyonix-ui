@@ -165,3 +165,37 @@ export const Rows3 = () => (
     <path d="M21 15H3" />
   </Ico>
 );
+
+/* ---------------------------------------------------- agent glyphs ---- */
+
+export const Zap = () => (
+  <Ico>
+    <path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z" />
+  </Ico>
+);
+
+export const ScanSearch = () => (
+  <Ico>
+    <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+    <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+    <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+    <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+    <circle cx="12" cy="12" r="3" />
+    <path d="m16 16-1.9-1.9" />
+  </Ico>
+);
+
+export const UserCheck = () => (
+  <Ico>
+    <path d="m16 11 2 2 4-4" />
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+  </Ico>
+);
+
+export const Ban = () => (
+  <Ico>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M4.929 4.929 19.07 19.071" />
+  </Ico>
+);

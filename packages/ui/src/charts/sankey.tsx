@@ -21,35 +21,15 @@
  * No charting library: this is some arithmetic and one cubic Bézier per ribbon.
  */
 import { useEffect, useRef, useState } from "react";
+import { TONE_VAR, type Tone } from "../lib/status.js";
 import { cn } from "../lib/cn.js";
 import { compact } from "./util.js";
 
 /**
- * Node fills.
- *
- * These are the RANKED marks plus one: the console colours a flow by what each
- * end MEANS, so a source that mostly auto-closes and an outcome that is benign
- * share the language of the severity ladder rather than inventing a second one.
- * `violet` is the exception, for a node that carries no rank at all.
+ * Node fills. Re-exported from the shared vocabulary so a Sankey node, a meter
+ * bar and a levelled ring that all mean "critical" are the same red.
  */
-export type SankeyTone =
-  | "crit"
-  | "high"
-  | "med"
-  | "low"
-  | "ok"
-  | "violet"
-  | "neutral";
-
-const TONE_FILL: Record<SankeyTone, string> = {
-  crit: "var(--sev-crit)",
-  high: "var(--sev-high)",
-  med: "var(--sev-med)",
-  low: "var(--sev-low)",
-  ok: "var(--sev-info)",
-  violet: "var(--violet)",
-  neutral: "var(--fg-muted)",
-};
+export type SankeyTone = Tone;
 
 export interface SankeyNode {
   id: string;
@@ -213,7 +193,7 @@ export function Sankey({
           `L${x1},${f(y1 + th)} C${mx},${f(y1 + th)} ${mx},${f(y0 + th)} ${x0},${f(y0 + th)} Z`,
         // Coloured by the DESTINATION, so following a colour answers "where did
         // it end up" rather than "where did it come from".
-        fill: TONE_FILL[b.node.tone ?? "neutral"],
+        fill: TONE_VAR[b.node.tone ?? "neutral"],
         title: `${byId.get(link.from)?.label ?? link.from} → ${byId.get(link.to)?.label ?? link.to} · ${link.value.toLocaleString("en-US")}`,
         th,
       });
@@ -261,7 +241,7 @@ export function Sankey({
             width={NODE_W}
             height={h}
             rx={4}
-            fill={TONE_FILL[node.tone ?? "neutral"]}
+            fill={TONE_VAR[node.tone ?? "neutral"]}
           >
             <title>{`${node.label}: ${compact(value.get(node.id) ?? 0)}`}</title>
           </rect>

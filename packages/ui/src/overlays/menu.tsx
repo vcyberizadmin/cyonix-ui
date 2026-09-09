@@ -130,7 +130,7 @@ export function Menu({
             role="menu"
             aria-label={label}
             className={cn(
-              "bg-surface border-rule shadow-e2 fixed z-50 min-w-[180px] rounded-md border py-1.5 focus:outline-none",
+              "bg-surface border-rule shadow-2 fixed z-50 min-w-[180px] rounded-md border py-1.5 focus:outline-none",
               // Hidden until measured, so it never flashes at 0,0.
               position ? "animate-fade-in" : "invisible",
               className,

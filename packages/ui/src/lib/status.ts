@@ -337,3 +337,90 @@ export const SEQUENTIAL = [
   "bg-seq-7",
   "bg-seq-8",
 ] as const;
+
+/**
+ * The one tone vocabulary for a mark whose colour states MEANING rather than
+ * rank-by-position.
+ *
+ * A ramp answers "which series is this" by index. These answer "what does this
+ * one thing signify", which is a different question and the one a Sankey node,
+ * a meter bar, a KPI tile and a levelled ring all actually ask. Written once
+ * here because three components had grown three near-identical unions that
+ * disagreed at the edges — `ok` meaning teal in one and mint in another.
+ *
+ * The ranked names map onto the severity marks, so a flow, a bar and a ring
+ * that all mean "critical" are the same red. `violet` and `accent` carry no
+ * rank; `neutral` is the absence of one.
+ */
+export type Tone =
+  | "accent"
+  | "crit"
+  | "high"
+  | "med"
+  | "low"
+  | "ok"
+  | "violet"
+  | "neutral";
+
+/** Background class per tone. */
+export const TONE_BG: Record<Tone, string> = {
+  accent: "bg-accent",
+  crit: "bg-sev-crit",
+  high: "bg-sev-high",
+  med: "bg-sev-med",
+  low: "bg-sev-low",
+  ok: "bg-sev-info",
+  violet: "bg-violet",
+  neutral: "bg-fg-muted",
+};
+
+/**
+ * Text class per tone, for an SVG mark painted with `currentColor`.
+ *
+ * Literal, not derived from TONE_BG at runtime: Tailwind emits nothing for a
+ * class name it cannot see in the source. Same reason `rampStroke` reads
+ * literals rather than rewriting `rampFill`'s output.
+ */
+export const TONE_TEXT: Record<Tone, string> = {
+  accent: "text-accent",
+  crit: "text-sev-crit",
+  high: "text-sev-high",
+  med: "text-sev-med",
+  low: "text-sev-low",
+  ok: "text-sev-info",
+  violet: "text-violet",
+  neutral: "text-fg-muted",
+};
+
+/** Raw custom-property value per tone, for an SVG `fill` attribute. */
+export const TONE_VAR: Record<Tone, string> = {
+  accent: "var(--accent)",
+  crit: "var(--sev-crit)",
+  high: "var(--sev-high)",
+  med: "var(--sev-med)",
+  low: "var(--sev-low)",
+  ok: "var(--sev-info)",
+  violet: "var(--violet)",
+  neutral: "var(--fg-muted)",
+};
+
+/**
+ * Tinted class pair per tone: a 15% wash of the tone, with the tone itself as
+ * the ink.
+ *
+ * The console's universal tag treatment — a verdict, a severity, a status and
+ * an outcome all read this way, and it is the reason they scan as one family
+ * rather than four. Literal pairs rather than a computed
+ * `bg-${tone}/15 text-${tone}`: Tailwind emits nothing for a class name it
+ * cannot see in the source, so the computed form silently renders untinted.
+ */
+export const TONE_TINT: Record<Tone, string> = {
+  accent: "bg-accent/15 text-accent-ink",
+  crit: "bg-sev-crit/15 text-sev-crit",
+  high: "bg-sev-high/15 text-sev-high",
+  med: "bg-sev-med/15 text-sev-med",
+  low: "bg-sev-low/15 text-sev-low",
+  ok: "bg-sev-info/15 text-sev-info",
+  violet: "bg-violet/15 text-violet",
+  neutral: "bg-surface-3 text-fg-2",
+};

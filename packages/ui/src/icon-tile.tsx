@@ -7,10 +7,12 @@
  * alerts number", never "the alerts number is bad". Rank and state belong to
  * CX-STA; this is identity.
  *
- * Which means the tone is a LABEL, not a severity. Two cards tinted amber and
- * azure are not being ranked against each other, and reusing the severity hues
- * here would imply they were — so the tones name their intent (`info`, `ai`,
- * `neutral`) rather than borrowing the ladder.
+ * The tone is a LABEL, not a rank: two cards tinted amber and azure are not
+ * being ranked against each other. But they draw from the SAME palette as
+ * everything else that states meaning — the shared `Tone` vocabulary — because
+ * the alternative, a private set of semantic tokens, is what let a tile and a
+ * meter bar that both meant "medium" render as two different blues. Position
+ * in a ladder is what carries rank; a colour on its own does not.
  *
  * Server-safe: no state, no directive.
  */
@@ -27,12 +29,12 @@ const tile = cva(
     variants: {
       tone: {
         accent: "bg-accent",
-        ok: "bg-ok",
-        warning: "bg-warning",
-        danger: "bg-danger",
-        info: "bg-info",
-        /** Amethyst, and only for agent output. The ramp is reserved. */
-        ai: "bg-ai",
+        crit: "bg-sev-crit",
+        high: "bg-sev-high",
+        med: "bg-sev-med",
+        low: "bg-sev-low",
+        ok: "bg-sev-info",
+        violet: "bg-violet",
         neutral: "bg-surface-3 text-fg",
       },
       size: {

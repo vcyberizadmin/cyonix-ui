@@ -22,27 +22,11 @@
  * Server-safe: no state, no directive.
  */
 import type { ReactNode } from "react";
+import { TONE_BG, type Tone } from "./lib/status.js";
 import { cn } from "./lib/cn.js";
 
-/** Bar fills. Ranked marks plus the brand, for a meter that IS the accent. */
-export type MeterTone =
-  | "accent"
-  | "crit"
-  | "high"
-  | "med"
-  | "low"
-  | "ok"
-  | "violet";
-
-const TONE_FILL: Record<MeterTone, string> = {
-  accent: "bg-accent",
-  crit: "bg-sev-crit",
-  high: "bg-sev-high",
-  med: "bg-sev-med",
-  low: "bg-sev-low",
-  ok: "bg-sev-info",
-  violet: "bg-violet",
-};
+/** Bar fills, from the shared vocabulary. */
+export type MeterTone = Tone;
 
 export interface MeterRowProps {
   label: ReactNode;
@@ -88,7 +72,7 @@ export function MeterRow({
       </div>
       <span className="bg-track block h-2 w-full overflow-hidden rounded-full">
         <span
-          className={cn("ease-brand block h-full rounded-full transition-[width] duration-emphasis", TONE_FILL[tone])}
+          className={cn("ease-brand block h-full rounded-full transition-[width] duration-emphasis", TONE_BG[tone])}
           style={{ width: `${pct}%` }}
         />
       </span>

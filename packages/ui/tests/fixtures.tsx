@@ -121,7 +121,7 @@ export const FIXTURES: Record<string, () => ReactElement> = {
     <MeterRow label="Zeek" value="58% of 350" fraction={0.58} tone="crit" />
   ),
   IconTile: () => (
-    <IconTile tone="info" label="Alerts">
+    <IconTile tone="med" label="Alerts">
       <svg viewBox="0 0 24 24" />
     </IconTile>
   ),

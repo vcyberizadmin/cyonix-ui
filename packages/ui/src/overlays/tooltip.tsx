@@ -230,7 +230,7 @@ export function Popover({
             role="dialog"
             aria-label={label}
             className={cn(
-              "bg-surface border-rule shadow-e2 fixed z-50 max-w-[360px] rounded-md border p-3 focus:outline-none",
+              "bg-surface border-rule shadow-2 fixed z-50 max-w-[360px] rounded-md border p-3 focus:outline-none",
               position ? "animate-fade-in" : "invisible",
               className,
             )}
