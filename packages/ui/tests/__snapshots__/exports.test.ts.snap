@@ -85,12 +85,14 @@ exports[`named exports are stable > ./table 1`] = `
 
 exports[`named exports are stable > root entrypoint 1`] = `
 [
+  "Annotation",
   "Button",
   "Calendar",
   "Card",
   "Checkbox",
   "ChipStack",
   "Code",
+  "CodeBlock",
   "DataTable",
   "DatePicker",
   "DateRangeFilter",
@@ -129,6 +131,7 @@ exports[`named exports are stable > root entrypoint 1`] = `
   "Tag",
   "Textarea",
   "TileGrid",
+  "Timeline",
   "Toolbar",
   "TrendTile",
   "TwoLineCell",

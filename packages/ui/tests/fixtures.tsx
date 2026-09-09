@@ -23,6 +23,9 @@ import { SeverityBadge, StatusPill } from "../src/status.js";
 import { RecordCard } from "../src/record-card.js";
 import { IconTile } from "../src/icon-tile.js";
 import { MeterRow } from "../src/meter-row.js";
+import { Timeline } from "../src/timeline.js";
+import { Annotation } from "../src/annotation.js";
+import { CodeBlock } from "../src/code-block.js";
 import { Sankey } from "../src/charts/sankey.js";
 import { QueueRow, RowFacts } from "../src/queue-row.js";
 import { Segmented, Tabs } from "../src/tabs.js";
@@ -117,8 +120,34 @@ export const FIXTURES: Record<string, () => ReactElement> = {
   ChipStack: () => <ChipStack items={[{ label: "prod" }, { label: "eu-west" }]} />,
   StatusPill: () => <StatusPill status="active" />,
   SeverityBadge: () => <SeverityBadge severity="Critical" />,
+  Annotation: () => (
+    <Annotation kind="Asset" tone="med" value="FIN-WS-2214" note="Tier 1 finance workstation.">
+      FIN-WS-2214
+    </Annotation>
+  ),
+  Timeline: () => (
+    <Timeline
+      items={[
+        { title: "Rule fired", time: "12:44:02", description: "LSASS read by an unsigned binary." },
+        { title: "Agent concluded", time: "12:44:09", description: "True positive, held for approval." },
+      ]}
+    />
+  ),
+  CodeBlock: () => (
+    <CodeBlock label="Detection logic">{"process.name == \"lsass.exe\"\nand access.mask has READ"}</CodeBlock>
+  ),
   MeterRow: () => (
     <MeterRow label="Zeek" value="58% of 350" fraction={0.58} tone="crit" />
+  ),
+  "MeterRow:inline": () => (
+    <MeterRow
+      orientation="inline"
+      label="Time to SLA breach"
+      title="Containment in 8h"
+      value="2h 43m left"
+      fraction={0.62}
+      tone="ok"
+    />
   ),
   IconTile: () => (
     <IconTile tone="med" label="Alerts">

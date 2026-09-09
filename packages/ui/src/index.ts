@@ -11,6 +11,28 @@ export {
   SeverityBadge,
   type SeverityBadgeProps,
 } from "./status.js";
+/**
+ * The shared tone vocabulary, re-exported from the root.
+ *
+ * It was already reachable at `@cyonix/ui/lib/status`, but only there — and the
+ * root is where every component that takes a tone lives, each aliasing this one
+ * type (`MeterTone`, `TileTone`, `NoteTone` are all `Tone`). An app deriving a
+ * tone had to reach past the entrypoint it was already importing from to name
+ * the thing it was deriving, which reads as a private type escaping rather than
+ * a public one being used. Deriving a tone is ordinary app work: an SLA bar
+ * thresholding on elapsed time, a queue row on depth.
+ *
+ * The class maps come with it, for the same reason: a consumer building a mark
+ * this library has no component for needs the same literals, and re-deriving
+ * them by hand is how a fifth divergent set of severity colours starts.
+ */
+export {
+  type Tone,
+  TONE_BG,
+  TONE_TEXT,
+  TONE_VAR,
+  TONE_TINT,
+} from "./lib/status.js";
 export {
   Tag,
   type TagProps,
@@ -161,3 +183,10 @@ export {
 } from "./queue-row.js";
 export { IconTile, type IconTileProps } from "./icon-tile.js";
 export { MeterRow, type MeterRowProps, type MeterTone } from "./meter-row.js";
+export {
+  Timeline,
+  type TimelineProps,
+  type TimelineItem,
+} from "./timeline.js";
+export { CodeBlock, type CodeBlockProps } from "./code-block.js";
+export { Annotation, type AnnotationProps } from "./annotation.js";

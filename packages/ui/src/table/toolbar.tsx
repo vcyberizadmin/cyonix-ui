@@ -57,16 +57,23 @@ export interface SegmentedFilterProps {
 }
 
 /**
- * The toolbar's segmented row. Deliberately a thin wrapper over CX-TAB's
- * `Segmented` rather than a second implementation of the same control: the
- * standard lists both names, and the only real differences are that a toolbar
- * segment sits beside other controls (so it takes the lighter tint treatment and
- * is allowed to wrap onto a second line) and that it always shows counts.
+ * The toolbar's segmented row. A thin wrapper over CX-TAB's `Segmented` rather
+ * than a second implementation: keeping one is what stops the roving focus, the
+ * disabled handling and the ARIA from drifting apart.
  *
- * Keeping one implementation is what stops the two from drifting — the roving
- * focus, the disabled handling and the ARIA all live in one place. Two separate
- * copies of a radiogroup is exactly the duplication the standard collapses
- * everywhere else.
+ * It used to override three things — the lighter `tint` variant, `sm`, and
+ * `wrap` — on the reasoning that a filter sitting beside other controls should
+ * be quieter than a tab row. The console disagrees, and emphatically: its
+ * filter segmented is the SAME control as its tab segmented, and those three
+ * overrides between them produced a different one. `wrap` drops the track
+ * entirely, so there was no groove and no sliding ink at all; `tint` made the
+ * active pill a 15% wash with accent text instead of a solid fill with white;
+ * `sm` took it to 28px/12px against 32px/12.5px.
+ *
+ * The result had no animation, because there was nothing to animate.
+ *
+ * So it now overrides nothing. Pass `variant`, `size` or `overflow` through
+ * `Segmented` directly if a screen genuinely wants the quieter form.
  */
 export function SegmentedFilter({
   options,
@@ -81,9 +88,6 @@ export function SegmentedFilter({
       value={value}
       onChange={onChange}
       label={label}
-      variant="tint"
-      size="sm"
-      overflow="wrap"
       className={className}
     />
   );

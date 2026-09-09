@@ -199,3 +199,66 @@ export const Ban = () => (
     <path d="M4.929 4.929 19.07 19.071" />
   </Ico>
 );
+
+/* ------------------------------------------------ detail-page glyphs ---- */
+
+export const ArrowLeft = () => (
+  <Ico>
+    <path d="m12 19-7-7 7-7" />
+    <path d="M19 12H5" />
+  </Ico>
+);
+
+export const Check = () => (
+  <Ico>
+    <path d="M20 6 9 17l-5-5" />
+  </Ico>
+);
+
+export const Sliders = () => (
+  <Ico>
+    <path d="M21 4h-8M8 4H3M21 12h-4M12 12H3M21 20h-10M6 20H3" />
+    <circle cx="10" cy="4" r="2" />
+    <circle cx="14" cy="12" r="2" />
+    <circle cx="8" cy="20" r="2" />
+  </Ico>
+);
+
+export const Copy = () => (
+  <Ico>
+    <rect x="9" y="9" width="12" height="12" rx="2" />
+    <path d="M5 15V5a2 2 0 0 1 2-2h8" />
+  </Ico>
+);
+
+export const ChevronRight = () => (
+  <Ico>
+    <path d="m9 18 6-6-6-6" />
+  </Ico>
+);
+
+export const ChevronDown = () => (
+  <Ico>
+    <path d="m6 9 6 6 6-6" />
+  </Ico>
+);
+
+export const MessageCircle = () => (
+  <Ico>
+    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z" />
+  </Ico>
+);
+
+export const FileText = () => (
+  <Ico>
+    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" />
+    <path d="M14 2v5h6M8 13h8M8 17h8M8 9h2" />
+  </Ico>
+);
+
+export const ExternalLink = () => (
+  <Ico>
+    <path d="M15 3h6v6M10 14 21 3" />
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+  </Ico>
+);

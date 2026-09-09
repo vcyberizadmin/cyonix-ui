@@ -223,6 +223,11 @@
          to a two-part control rather than to a screen. --- */
   --chip: var(--neutral-925);
   --chip-fg: var(--neutral-0);
+  /* Machine output. A step darker than any surface in either theme, so a code
+     block reads as a different KIND of thing rather than another panel. */
+  --code: #0b0d0e;
+  --code-fg: #d8dee6;
+  --code-gutter: #5c6672;
   --bell: var(--neutral-925);
   --bell-fg: var(--neutral-0);
   --badge: var(--orange-350);
@@ -508,6 +513,11 @@
      accent. */
   --chip: var(--neutral-975);
   --chip-fg: var(--neutral-0);
+  /* Still dark in light mode: code is machine output in both, and inverting it
+     to a light block would make it the brightest thing on the page. */
+  --code: #14161a;
+  --code-fg: #d8dee6;
+  --code-gutter: #5c6672;
   /* Inverted against dark: the bell carries the accent here and the badge on
      it goes dark, so the pair still spends exactly one accent between them. */
   --bell: var(--orange-350);
@@ -656,6 +666,9 @@
   --color-surface-3: var(--surface-3);
   --color-thread: var(--thread);
   --color-track: var(--track);
+  --color-code: var(--code);
+  --color-code-fg: var(--code-fg);
+  --color-code-gutter: var(--code-gutter);
   --color-chip: var(--chip);
   --color-chip-fg: var(--chip-fg);
   --color-bell: var(--bell);
