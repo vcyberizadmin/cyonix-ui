@@ -441,9 +441,19 @@
   --weight-heavy: 800;
 
   /* --- Motion. One curve. All motion respects prefers-reduced-motion. --- */
-  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --duration-instant: 120ms;
-  --duration-standard: 240ms;
+  /* The reference uses ONE curve for everything that moves —
+     cubic-bezier(.2,.8,.2,1) — on the rail's width, the segmented ink, a
+     progress fill and the view transition alike. This file had .2,.7,.2,1,
+     which is close enough to look identical in a still and reads as a
+     different, flatter ease in motion. */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* Both were faster than the reference. Its quick state flips — a button, a
+     chip, a field's focus ring — run .18s where this ran .12s, and its size
+     and position changes run .32s where this ran .24s. The rail's peek was
+     the clearest tell: a third quicker than the original, which reads as
+     eager rather than considered. */
+  --duration-instant: 180ms;
+  --duration-standard: 320ms;
   --duration-emphasis: 400ms;
   --duration-page: 700ms;
 }

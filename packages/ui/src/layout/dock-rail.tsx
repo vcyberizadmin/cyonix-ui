@@ -259,7 +259,7 @@ export function DockRail({
                   <span
                     aria-hidden="true"
                     className={cn(
-                      "bg-rail-ink duration-instant ease-brand absolute -bottom-[7px] left-1/2 h-1 w-5 -translate-x-1/2 rounded-full transition-opacity",
+                      "bg-rail-ink ease-brand absolute -bottom-[7px] left-1/2 h-1 w-5 -translate-x-1/2 rounded-full transition-opacity duration-[220ms]",
                       "xl:top-1/2 xl:-left-3.5 xl:h-[34px] xl:w-[9px] xl:translate-x-0 xl:-translate-y-1/2 xl:rounded-l-none xl:rounded-r-[9px]",
                       active ? "opacity-100" : "opacity-0",
                     )}
