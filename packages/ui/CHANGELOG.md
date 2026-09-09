@@ -1,5 +1,124 @@
 # @cyonix/ui
 
+## 4.0.0
+
+### Major Changes
+
+- fa1fade: One tone vocabulary, and a levelled `Donut`
+
+  The AI investigation panel was wrong in three ways, and two of them shared a
+  cause.
+
+  **The ring was crimson, not mint.** It reported "85% resolved without a human"
+  in the severity ramp's CRITICAL red, which is close to the opposite of what it
+  says. A ramp answers "which series is this" by index — right for a split,
+  meaningless for a level, where one arc has one meaning. `Donut` gains `tone` to
+  state it, alongside `max` (measure against a ceiling rather than the sum of the
+  slices, leaving the remainder as bare track and earning a round cap) and
+  `centerValue` (a level shows its VALUE, not the ceiling).
+
+  **The agent tiles were four near-misses**: `#4d9cf0` where the console has
+  `#1b6ef3`, `#744eeb` for `#a855f7`, `#2cbf8f` for `#7ed321`, `#efa71a` for
+  `#f5a524`. Close enough to look intentional, wrong in every case.
+
+  That happened because four components had grown four private tone unions that
+  disagreed at the edges — `ok` meaning teal in one and mint in another. There is
+  now ONE vocabulary in `lib/status.ts`: `Tone`, with `TONE_BG`, `TONE_TEXT` and
+  `TONE_VAR`. `Sankey`, `MeterRow`, `IconTile` and `Donut` all read it, so a flow
+  node, a meter bar, a tile and a ring that all mean "medium" are the same blue.
+
+  **BREAKING for `IconTile`:** its tones were `warning` / `info` / `danger` / `ai`
+  and are now `high` / `med` / `crit` / `violet`. `accent`, `ok` and `neutral` are
+  unchanged in name, and `ok` changes hue from the semantic green to the mint the
+  rest of the system uses.
+
+  This overrules an argument I made in `IconTile`'s own header — that borrowing
+  the severity hues would imply a rank. A private palette is what let a tile and a
+  bar that both meant "medium" render as two different blues. Position in a ladder
+  carries rank; a colour alone does not.
+
+### Minor Changes
+
+- 4fde521: `Tag` gains a `tone`, which is the console's universal tag treatment
+
+  A verdict, a severity, a status and an outcome all read the same way in the
+  console — a 15% wash of a tone with that tone as the ink — and that is precisely
+  why they scan as one family instead of four unrelated chips. `Tag` could not
+  express it, so a consumer's only route was
+  `className={`bg-${tone}/15 text-${tone}`}`.
+
+  That route does not work, and fails silently. Tailwind generates nothing for a
+  class name assembled at runtime, so the tag renders untinted with no error and
+  no warning — which is exactly what the parity app was doing, and why its verdict
+  badges were the wrong colour.
+
+  `TONE_TINT` in `lib/status.ts` holds the literal pairs, alongside `TONE_BG`,
+  `TONE_TEXT` and `TONE_VAR`. An untinted `Tag` is unchanged.
+
+  Verdict tags also carry a glyph in the console: the tag's claim is "an agent
+  decided this", and the bot mark is what says so.
+
+- 6d4af27: `Toolbar` gains a `bare` surface, for a filter row that stands on the page
+
+  `Toolbar` hardcoded `border-b` and horizontal padding, which assumes one thing
+  about where it sits: welded to a `DataTable` directly below it, where the
+  hairline separates the two and the padding lines its controls up with the
+  table's cells.
+
+  The console does not use it that way on either of its filtered screens. There
+  the filter row stands on the page and the results are a card BELOW it — two
+  surfaces, not one. Wrapping the attached form in a card to get there is what
+  merged the filters into the results and gave them a single background, which is
+  exactly the wrong reading: the row is a control, the card is the object it acts
+  on.
+
+  `surface="bare"` drops the hairline and the padding, because with nothing to
+  align to and nothing to separate from, an edge reads as a card that forgot its
+  fill. `attached` remains the default, so nothing changes for a toolbar sitting
+  on a table.
+
+### Patch Changes
+
+- 18700d7: Fix the tenant chip's radius and fill, and lift overlays onto the reference's elevation
+
+  The tenant switcher's chip rendered at a 22px radius on `--surface-2`, where the
+  console has 12px on `--surface`.
+
+  The radius was a trap of this theme's own making. `--radius-xl` is redefined here
+  as the CARD radius (22px), so `rounded-xl` does not mean Tailwind's 12px — and
+  reaching for it expecting 12px silently gets a card corner. That has now caused
+  this bug twice, the first time with `rounded-2xl`. The override is deliberate
+  and stays, but it is now documented loudly beside the definitions, and the chip
+  asks for its 12px literally.
+
+  `Popover` and `Menu` move from `--e-2` to the reference's `--shadow-2`. The `e-*`
+  scale was tuned when a panel and the page shared a ground; against a floating
+  surface it is too tight and too shallow to read as elevation at all. This is why
+  the tenant panel looked flat.
+
+- d0340c3: Fix three `Toolbar` defects found by actually using it
+
+  The parity app's Alerts and Cases screens were built from bare `Segmented` rows
+  rather than `Toolbar`, so none of its search, chip or count machinery had ever
+  run. Wiring them up found three bugs immediately.
+
+  **The "Applied / Clear all" row drew itself with nothing applied.** The test was
+  `{chips && ...}`, and a fragment is truthy even when every chip inside it is
+  conditional and absent — which is the natural way to write that prop.
+  `Children.toArray` is the next obvious fix and is also wrong: it flattens arrays
+  but treats a Fragment as ONE child, so it counts the wrapper. The component now
+  walks into fragments rather than asking the caller to pass an array.
+
+  **Children rendered after the search field, contradicting their own
+  documentation** — `/** Rendered first: segmented status filters, selects, date
+ranges. */` — and the console's layout, which puts the dimensions you filter by
+  ahead of the field that searches within them. Now first, as documented.
+
+  **The search input was the last bordered control in the library.** A 32px box on
+  a white wash with a border-colour focus, where every other field is a 44px
+  `--surface` fill with a 2px inset ring. Its magnifier was 14px against the
+  console's 18px.
+
 ## 3.0.0
 
 ### Major Changes
