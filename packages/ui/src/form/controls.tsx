@@ -10,11 +10,17 @@
  * Shape rules from the standard:
  *  · radius-sm on ALL FOUR corners. The chamfer is buttons-only; a chamfered
  *    input would dilute the one place the shape means something.
- *  · Hairline border that goes ORANGE on focus — focus is a current location.
- *  · Fill is `wash-1` rather than a literal grey-1: an input sitting on a Card
- *    (which is itself the surface colour) would otherwise be distinguishable
- *    only by its border. The wash reads as a control on both ground and surface,
- *    and it matches the inputs already shipped in ConfirmDialog and Toolbar.
+ *  · A RESTING border in --field-border, going to --focus on focus. The
+ *    resting one is not decoration: it is what makes the control findable
+ *    before anyone has focused it, and WCAG 2.2 1.4.11 asks 3:1 of it.
+ *  · Fill is --field, which is neither a surface nor a wash. An input used to
+ *    be filled with --surface, which is also what Card is filled with, so a
+ *    field inside a card measured 1.00:1 against it and had no resting border
+ *    to fall back on. It was invisible in both themes.
+ *
+ * Both borders are drawn as INSET box-shadows rather than a real border, so
+ * focus can thicken the ring from 1px to 2px without resizing the content box
+ * and shifting the text inside it.
  */
 import {
   forwardRef,
@@ -26,8 +32,23 @@ import { cn } from "../lib/cn.js";
 import { useFieldControl } from "./field.js";
 
 const base =
-  "bg-surface text-fg placeholder:text-fg-muted placeholder:font-medium " +
-  "shadow-[inset_0_0_0_2px_transparent] focus:shadow-[inset_0_0_0_2px_var(--accent)] " +
+  "bg-field text-fg placeholder:text-fg-muted placeholder:font-medium " +
+  "shadow-[inset_0_0_0_1px_var(--field-border)] " +
+  // The not-* chain is load-bearing, and both halves were caught in a browser
+  // rather than by the token maths. `enabled:hover` carries more specificity
+  // than either `focus` (0,4,0 vs 0,2,0) or `aria-invalid` (vs 0,2,0) and
+  // Tailwind emits it later, so on its own it WINS both: moving the pointer
+  // over a focused field dropped the orange ring, and moving it over an
+  // invalid one hid the red one — an error state silently erased by a hover.
+  // Narrowing hover to the plain resting state makes the four mutually
+  // exclusive, so precedence no longer rests on specificity or sort order.
+  // Any state added later needs adding here too.
+  "enabled:hover:not-focus:not-aria-invalid:shadow-[inset_0_0_0_1px_var(--field-border-hover)] " +
+  // --focus, not --accent. They are near-identical oranges and the accent is
+  // picked for brand fills, so in light mode it measures 2.69:1 on --surface,
+  // under the 3:1 a focus indicator needs. --focus is Orange 450 for exactly
+  // this reason; Checkbox and Switch below already use it.
+  "focus:shadow-[inset_0_0_0_2px_var(--focus)] " +
   "duration-instant ease-brand w-full rounded-lg text-[13.5px] font-semibold " +
   "transition-[box-shadow,background-color] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50";
 
@@ -121,7 +142,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         {...field}
         {...props}
         className={cn(
-          "bg-surface accent-accent focus-visible:shadow-[0_0_0_2px_var(--focus)] duration-instant ease-brand size-4 cursor-pointer rounded-sm transition-shadow focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+          "bg-field accent-accent focus-visible:shadow-[0_0_0_2px_var(--focus)] duration-instant ease-brand size-4 cursor-pointer rounded-sm transition-shadow focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
       />

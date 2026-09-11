@@ -63,6 +63,7 @@ const TEXT_ON_GROUND: ReadonlyArray<readonly [ink: string, grounds: readonly str
 const TEXT_ON_FILL: ReadonlyArray<readonly [ink: string, fill: string]> = [
   ["--accent-fg", "--accent"],
   ["--fg-inverse", "--surface-inverse"],
+  ["--fg", "--field"],
 ];
 
 /**
@@ -166,6 +167,12 @@ describe.each(MODES)("%s mode — non-text contrast", (mode, props) => {
    * since 17 components strip that outline and draw their own, the border and
    * ring on every input, select, combobox and search field as well. If it does
    * not clear 3:1 the keyboard user cannot see where they are.
+   *
+   * --field-border is the other. It is the RESTING boundary of every input,
+   * select and textarea, which is what makes the control findable before it is
+   * focused. It is measured against all four grounds, not the usual three: a
+   * field is placed inside --surface-3 panels, and the step that passes on
+   * --surface can still fail there.
    */
   const BOUNDARIES: ReadonlyArray<readonly [token: string, ground: string]> = [
     ["--focus", "--bg"],
@@ -174,6 +181,11 @@ describe.each(MODES)("%s mode — non-text contrast", (mode, props) => {
     ["--focus-critical", "--bg"],
     ["--focus-critical", "--surface"],
     ["--focus-critical", "--surface-2"],
+    ["--field-border", "--bg"],
+    ["--field-border", "--surface"],
+    ["--field-border", "--surface-2"],
+    ["--field-border", "--surface-3"],
+    ["--field-border", "--field"],
   ];
 
   for (const [token, ground] of BOUNDARIES) {
@@ -262,5 +274,47 @@ describe("the mark/ink split", () => {
         ).not.toBe(`${m.r},${m.g},${m.b}`);
       });
     }
+  }
+});
+
+describe("a field is not painted with a surface", () => {
+  /**
+   * The regression this guards.
+   *
+   * Every input, select and textarea was filled with --surface and given a
+   * transparent resting ring. --surface is also what Card is filled with, so a
+   * field inside a card measured 1.00:1 against it: not low contrast, the same
+   * colour. The border patterns in use elsewhere did not save it either, since
+   * --rule against --surface is 1.05:1 dark and 1.11:1 light.
+   *
+   * Only --surface is asserted, and deliberately. With four surface steps no
+   * single fill can stay distinct from all of them — light --field is white
+   * and so is --bg — which is why --field-border, measured against all four
+   * above, is what actually identifies the control. The fill's one job is to
+   * not collide with the card, because that is where fields live.
+   *
+   * The floor is a RATIO, not inequality of values. Neutral 850 reads as an
+   * obvious pick for the dark fill and differs from --surface by one point of
+   * red: a string comparison passes it, and it measures 1.003:1.
+   */
+  const MIN_DELTA = 1.1;
+
+  for (const [mode, props] of MODES) {
+    it(`--field is a visible step away from --surface in ${mode}`, () => {
+      const ratio = round2(contrastRatio(colour("--field", props), colour("--surface", props)));
+      expect(
+        ratio,
+        `--field measures ${ratio}:1 against --surface in ${mode}. A field on a Card ` +
+          `needs a fill of its own, not the card's.`,
+      ).toBeGreaterThanOrEqual(MIN_DELTA);
+    });
+
+    it(`--field-border is a distinct value from --rule in ${mode}`, () => {
+      // --rule is the subtle divider. It is exempt from 1.4.11 as decoration,
+      // which is exactly why a control boundary may not borrow it.
+      const border = colour("--field-border", props);
+      const rule = colour("--rule", props);
+      expect(`${border.r},${border.g},${border.b}`).not.toBe(`${rule.r},${rule.g},${rule.b}`);
+    });
   }
 });
