@@ -261,7 +261,7 @@ export function Toolbar({
               <select
                 value={savedViews.currentId ?? ""}
                 onChange={(event) => savedViews.onSelect(event.target.value)}
-                className="bg-surface text-fg-2 shadow-[inset_0_0_0_2px_transparent] focus:shadow-[inset_0_0_0_2px_var(--accent)] duration-instant ease-brand cursor-pointer rounded-md px-1.5 py-0.5 text-[12px] transition-[box-shadow] focus:outline-none"
+                className="bg-field text-fg-2 shadow-[inset_0_0_0_1px_var(--field-border)] hover:not-focus:shadow-[inset_0_0_0_1px_var(--field-border-hover)] focus:shadow-[inset_0_0_0_2px_var(--focus)] duration-instant ease-brand cursor-pointer rounded-md px-1.5 py-0.5 text-[12px] transition-[box-shadow] focus:outline-none"
               >
                 <option value="">All records</option>
                 {savedViews.views.map((view) => (
@@ -362,8 +362,10 @@ function SearchField({
         onChange={(event) => setDraft(event.target.value)}
         placeholder={placeholder}
         className={cn(
-          "bg-surface text-fg placeholder:text-fg-muted placeholder:font-medium",
-          "shadow-[inset_0_0_0_2px_transparent] focus:shadow-[inset_0_0_0_2px_var(--accent)]",
+          "bg-field text-fg placeholder:text-fg-muted placeholder:font-medium",
+          "shadow-[inset_0_0_0_1px_var(--field-border)]",
+          "hover:not-focus:shadow-[inset_0_0_0_1px_var(--field-border-hover)]",
+          "focus:shadow-[inset_0_0_0_2px_var(--focus)]",
           "duration-instant ease-brand h-11 w-full rounded-lg pr-4 pl-11 text-[13.5px] font-semibold",
           "transition-[box-shadow] focus:outline-none",
         )}

@@ -196,6 +196,33 @@
   --thread: var(--neutral-700); /* connector lines in timelines and trees */
   --track: #151719; /* the groove a progress bar or segmented control sits in */
 
+  /* --- Field. The one thing a user is asked to type into, and therefore the
+         one thing that must be findable without hunting.
+
+         It gets its OWN fill and its OWN border rather than borrowing a
+         surface and a rule, because a control has to stay identifiable on
+         every ground the layout can put it on: the shell, a card, an element
+         panel, a dialog. A borrowed --surface fill collides with the card
+         exactly (1.00:1) and a borrowed --rule border measures 1.05:1 against
+         it, so a field inside a card used to have no boundary at all.
+
+         THE BORDER IS THE GUARANTEE, NOT THE FILL. With four surface steps no
+         single fill can stay visibly distinct from all of them, so the fill is
+         a secondary cue and --field-border is what actually identifies the
+         control. It is picked against the WORST ground, not the common one:
+         Neutral 500 measures 5.89 / 4.64 / 3.87 / 3.28 against --bg,
+         --surface, --surface-2 and --surface-3, the lightest step that clears
+         the 3:1 of WCAG 2.2 1.4.11 on all four, so one token serves every
+         placement. Neutral 550 fails on --surface-3 at 2.66.
+
+         The fill is a recess: darker than the card, the same idea as --track.
+         It is a literal because no ramp step fits — Neutral 850 is the
+         obvious-looking pick and measures 1.003:1 against --surface, which is
+         the very collision this token exists to end. --- */
+  --field: #1a1d20; /* between the shell and the card; identical to neither */
+  --field-border: var(--neutral-500);
+  --field-border-hover: var(--neutral-400);
+
   /* --- Text. Dark Text-Primary is pure white in the reference, not a step
          down the ramp. --- */
   --fg: var(--neutral-0); /* Text-Primary */
@@ -494,6 +521,23 @@
   --thread: var(--neutral-250);
   --track: #edeef1;
 
+  /* Fields go WHITE here, not grey, and the recess inverts to a lift — the
+     same move the rest of this block makes. Light paints cards grey on a white
+     shell, so a grey field on a grey card would be the 1.00:1 collision again;
+     white is the only value one clear step off --surface, --surface-2 and
+     --surface-3 at once.
+
+     It DOES equal --bg, so a field sitting directly on the page shell is white
+     on white. That is the standard treatment and it is safe here only because
+     --field-border carries it at 3.94:1 — which is the whole point of making
+     the border the guarantee rather than the fill.
+
+     Neutral 550 is the darkest step clearing 3:1 on all four grounds
+     (3.94 / 3.55 / 3.27 / 3.01); Neutral 500 fails on --surface-3 at 2.44. */
+  --field: var(--neutral-0);
+  --field-border: var(--neutral-550);
+  --field-border-hover: var(--neutral-600);
+
   /* Softer and shorter-throw than dark, per the reference: a heavy shadow on
      a white page reads as dirt rather than elevation. */
   --shadow-2: 0 18px 44px -14px rgb(20 24 32 / 0.3);
@@ -666,6 +710,11 @@
   --color-surface-3: var(--surface-3);
   --color-thread: var(--thread);
   --color-track: var(--track);
+
+  /* Fields. bg-field, border-field-border and friends; see Layer 2. */
+  --color-field: var(--field);
+  --color-field-border: var(--field-border);
+  --color-field-border-hover: var(--field-border-hover);
   --color-code: var(--code);
   --color-code-fg: var(--code-fg);
   --color-code-gutter: var(--code-gutter);
